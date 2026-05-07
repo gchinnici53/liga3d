@@ -16,6 +16,9 @@ npm install
 echo "==> Aplicando migraciones de DB..."
 npx prisma migrate deploy
 
+echo "==> Regenerando Prisma Client..."
+npx prisma generate
+
 echo "==> Build de producción..."
 npm run build
 
