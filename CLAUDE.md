@@ -38,11 +38,15 @@ public/
 - Mobile-first con Tailwind (sin CSS inline)
 
 ## Entidades principales
-- **Arquero**: nombre, apellido, pais, DNI, email, teléfono, fecha de nacimiento, sexo, categoría, foto, activo/inactivo
+- **Arquero**: nombre, apellido, pais, DNI, email, teléfono, fecha de nacimiento, sexo, foto, activo/inactivo
   - `nombre` y `apellido` son campos separados
   - `nombreCompleto` se computa: `nombre + " " + apellido` (ver lib/scoring.ts)
   - `mesNacimiento` se computa desde `fechaNacimiento` (para saludos mensuales)
-- **Categoria**: tabla separada, un arquero puede competir en distintas categorías en distintos torneos
+  - **Sin categoriaId**: la categoría se define al inscribirse a cada torneo, no en el arquero
+- **Categoria**: tabla separada. Se define al inscribirse al torneo combinando la disciplina con el sexo del arquero.
+  - Categorías con sexo: CM / CW (Compuesto), BM / BW (Raso/Barebow), LM / LW (Longbow), TM / TW (Tradicional)
+  - Categorías unisex (por edad, propias de la liga): ESC (Escuela), JUN (Junior)
+  - Al registrar un resultado, el sexo del arquero sugiere M o W; para ESC y JUN no aplica el sexo
 - **Temporada**: nombre, año, estado (ACTIVA | CERRADA)
 - **Torneo**: nombre, lugar, fecha, tipo (REGULAR | FINAL), pertenece a una Temporada
   - Una Final es un Torneo con tipo=FINAL. No hay modelo Final separado.
@@ -70,7 +74,7 @@ public/
 ## Importación de arqueros desde Excel
 Columnas esperadas: Nombre, Apellido, email, tel, DNI, Fecha Nacimiento, pais
 Columnas ignoradas (calculadas): Nombre completo, Mes de nacimiento
-Campos que se asignan post-importación: sexo, categoriaId
+Campos que se asignan en la importación: sexo (la categoría se asigna al inscribir al arquero en un torneo)
 
 ## Flujo de carga de resultados de torneo
 1. Se selecciona la categoría

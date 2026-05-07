@@ -12,10 +12,6 @@ export * from "./enums";
 
 // ─── Tipos con relaciones ──────────────────────────────────
 
-export type ArqueroConCategoria = Arquero & {
-  categoria: Categoria;
-};
-
 export type TorneoConTemporada = Torneo & {
   temporada: Temporada;
 };
@@ -33,7 +29,7 @@ export type TemporadaConTorneos = Temporada & {
 // ─── Ranking ───────────────────────────────────────────────
 
 export type PosicionRanking = {
-  arquero: ArqueroConCategoria;
+  arquero: Arquero;
   puntosTotales: number;
   torneosJugados: number;
   esCampeon?: boolean;
@@ -55,7 +51,6 @@ export type ArqueroFormData = {
   telefono?: string;
   fechaNacimiento: string;
   sexo: "MASCULINO" | "FEMENINO";
-  categoriaId: number;
   activo: boolean;
 };
 

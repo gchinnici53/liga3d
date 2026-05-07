@@ -4,20 +4,15 @@ import { useTransition, useState, useRef } from "react";
 import { parseExcelArqueros, importarArqueros } from "../actions";
 import type { ArqueroImportRow } from "@/types";
 
-type Categoria = { id: number; nombre: string };
-
-type Props = { categorias: Categoria[] };
-
 type EstadoImport = "idle" | "preview" | "done";
 
-export default function ImportarArquerosCliente({ categorias }: Props) {
+export default function ImportarArquerosCliente() {
   const [isPending, startTransition] = useTransition();
   const [estado, setEstado]         = useState<EstadoImport>("idle");
   const [filas, setFilas]           = useState<ArqueroImportRow[]>([]);
   const [errores, setErrores]       = useState<string[]>([]);
   const [resultado, setResultado]   = useState<{ creados: number; duplicados: number } | null>(null);
   const [sexo, setSexo]             = useState("MASCULINO");
-  const [categoriaId, setCategoriaId] = useState(String(categorias[0]?.id ?? ""));
   const formRef = useRef<HTMLFormElement>(null);
 
   function handleParsear(e: React.FormEvent<HTMLFormElement>) {
@@ -33,7 +28,7 @@ export default function ImportarArquerosCliente({ categorias }: Props) {
 
   function handleImportar() {
     startTransition(async () => {
-      const res = await importarArqueros(filas, sexo, Number(categoriaId));
+      const res = await importarArqueros(filas, sexo);
       setResultado(res);
       setEstado("done");
     });
@@ -101,9 +96,9 @@ export default function ImportarArquerosCliente({ categorias }: Props) {
             Configuración para las {filas.length} filas válidas
           </h2>
           <p className="text-xs text-slate-500 mb-4">
-            Los arqueros importados usarán estos valores por defecto. Podés editarlos individualmente después.
+            La categoría se asigna al inscribir al arquero en un torneo.
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="max-w-xs">
             <div className="flex flex-col gap-1">
               <label className="text-sm font-medium text-slate-700">
                 Sexo por defecto <span className="text-red-500">*</span>
@@ -115,20 +110,6 @@ export default function ImportarArquerosCliente({ categorias }: Props) {
               >
                 <option value="MASCULINO">Masculino</option>
                 <option value="FEMENINO">Femenino</option>
-              </select>
-            </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-sm font-medium text-slate-700">
-                Categoría por defecto <span className="text-red-500">*</span>
-              </label>
-              <select
-                value={categoriaId}
-                onChange={(e) => setCategoriaId(e.target.value)}
-                className="border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-green-500"
-              >
-                {categorias.map((c) => (
-                  <option key={c.id} value={c.id}>{c.nombre}</option>
-                ))}
               </select>
             </div>
           </div>

@@ -13,7 +13,6 @@ export default async function DetalleArqueroPage({ params }: Props) {
   const arquero = await prisma.arquero.findUnique({
     where: { id },
     include: {
-      categoria: true,
       resultados: {
         include: { torneo: { include: { temporada: true } }, categoria: true },
         orderBy: { torneo: { fecha: "desc" } },
@@ -39,7 +38,6 @@ export default async function DetalleArqueroPage({ params }: Props) {
           <h1 className="text-2xl font-bold text-slate-800">
             {nombreCompleto(arquero.nombre, arquero.apellido)}
           </h1>
-          <p className="text-slate-500 text-sm mt-0.5">{arquero.categoria.nombre}</p>
         </div>
         <div className="flex gap-2">
           <Link

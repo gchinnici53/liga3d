@@ -34,7 +34,6 @@ model Categoria {
   descripcion String?
   activa      Boolean  @default(true)
 
-  arqueros    Arquero[]
   resultados  Resultado[]
 }
 
@@ -51,8 +50,6 @@ model Arquero {
   fechaNacimiento DateTime
   // "MASCULINO" | "FEMENINO"
   sexo            String
-  categoriaId     Int
-  categoria       Categoria @relation(fields: [categoriaId], references: [id])
   foto            String?   // ruta relativa: /uploads/profiles/archivo.jpg
   activo          Boolean   @default(true)
   createdAt       DateTime  @default(now())

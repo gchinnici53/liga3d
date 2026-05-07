@@ -11,11 +11,7 @@ export default async function EditarArqueroPage({ params }: Props) {
   const id = Number(params.id);
   if (isNaN(id)) notFound();
 
-  const [arquero, categorias] = await Promise.all([
-    prisma.arquero.findUnique({ where: { id } }),
-    prisma.categoria.findMany({ where: { activa: true }, orderBy: { nombre: "asc" } }),
-  ]);
-
+  const arquero = await prisma.arquero.findUnique({ where: { id } });
   if (!arquero) notFound();
 
   const action = actualizarArquero.bind(null, id);
@@ -31,7 +27,6 @@ export default async function EditarArqueroPage({ params }: Props) {
 
       <ArqueroForm
         action={action}
-        categorias={categorias}
         defaultValues={arquero}
         submitLabel="Guardar cambios"
         cancelHref={`/admin/arqueros/${id}`}

@@ -19,7 +19,6 @@ export async function crearArquero(formData: FormData) {
       telefono:        (formData.get("telefono") as string | null)?.trim() || null,
       fechaNacimiento: new Date(formData.get("fechaNacimiento") as string),
       sexo:            formData.get("sexo") as string,
-      categoriaId:     Number(formData.get("categoriaId")),
       activo:          formData.get("activo") === "true",
     },
   });
@@ -39,7 +38,6 @@ export async function actualizarArquero(id: number, formData: FormData) {
       telefono:        (formData.get("telefono") as string | null)?.trim() || null,
       fechaNacimiento: new Date(formData.get("fechaNacimiento") as string),
       sexo:            formData.get("sexo") as string,
-      categoriaId:     Number(formData.get("categoriaId")),
       activo:          formData.get("activo") === "true",
     },
   });
@@ -113,7 +111,6 @@ export async function parseExcelArqueros(formData: FormData): Promise<ResultadoP
 export async function importarArqueros(
   filas: ArqueroImportRow[],
   sexo: string,
-  categoriaId: number
 ): Promise<{ creados: number; duplicados: number }> {
   let creados = 0;
   let duplicados = 0;
@@ -132,7 +129,6 @@ export async function importarArqueros(
         telefono:        fila.telefono ?? null,
         fechaNacimiento: new Date(fila.fechaNacimientoISO),
         sexo,
-        categoriaId,
         activo:          true,
       },
     });

@@ -1,4 +1,4 @@
-import type { Arquero, Categoria } from "@/types";
+import type { Arquero } from "@/types";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
@@ -6,7 +6,6 @@ import Link from "next/link";
 
 type Props = {
   action: (formData: FormData) => Promise<void>;
-  categorias: Categoria[];
   defaultValues?: Partial<Arquero>;
   submitLabel?: string;
   cancelHref?: string;
@@ -14,7 +13,6 @@ type Props = {
 
 export default function ArqueroForm({
   action,
-  categorias,
   defaultValues,
   submitLabel = "Guardar",
   cancelHref = "/admin/arqueros",
@@ -97,18 +95,10 @@ export default function ArqueroForm({
         </div>
       </div>
 
-      {/* Liga */}
+      {/* Estado */}
       <div className="bg-white rounded-xl border border-slate-200 p-5">
-        <h2 className="text-sm font-semibold text-slate-700 mb-4">Configuración de liga</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Select
-            label="Categoría"
-            name="categoriaId"
-            required
-            defaultValue={defaultValues?.categoriaId ?? ""}
-            placeholder="Seleccioná..."
-            opciones={categorias.map((c) => ({ valor: c.id, etiqueta: c.nombre }))}
-          />
+        <h2 className="text-sm font-semibold text-slate-700 mb-4">Estado</h2>
+        <div className="max-w-xs">
           <Select
             label="Estado"
             name="activo"
