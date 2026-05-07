@@ -1,0 +1,116 @@
+// Liga3D — Esquema de base de datos
+// Modificar solo con confirmación explícita del usuario
+// Nota: SQLite no soporta enums nativos. Se usan String con validación en TypeScript.
+// Valores válidos documentados en src/types/enums.ts
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Auth ─────────────────────────────────────────────────
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  // "ADMIN" | "ARQUERO"
+  rol       String   @default("ARQUERO")
+  arqueroId Int?     @unique
+  arquero   Arquero? @relation(fields: [arqueroId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─── Catálogos ────────────────────────────────────────────
+
+model Categoria {
+  id          Int      @id @default(autoincrement())
+  nombre      String   @unique
+  descripcion String?
+  activa      Boolean  @default(true)
+
+  arqueros    Arquero[]
+  resultados  Resultado[]
+}
+
+// ─── Entidades principales ────────────────────────────────
+
+model Arquero {
+  id              Int       @id @default(autoincrement())
+  nombre          String
+  apellido        String
+  pais            String    @default("Argentina")
+  dni             String    @unique
+  email           String?   @unique
+  telefono        String?
+  fechaNacimiento DateTime
+  // "MASCULINO" | "FEMENINO"
+  sexo            String
+  categoriaId     Int
+  categoria       Categoria @relation(fields: [categoriaId], references: [id])
+  foto            String?   // ruta relativa: /uploads/profiles/archivo.jpg
+  activo          Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  resultados      Resultado[]
+  usuario         User?
+}
+
+model Temporada {
+  id        Int      @id @default(autoincrement())
+  nombre    String
+  anio      Int
+  // "ACTIVA" | "CERRADA"
+  estado    String   @default("ACTIVA")
+  createdAt DateTime @default(now())
+
+  torneos   Torneo[]
+}
+
+// Una Final es un Torneo con tipo="FINAL". No hay modelo Final separado.
+model Torneo {
+  id          Int      @id @default(autoincrement())
+  nombre      String
+  lugar       String
+  fecha       DateTime
+  // "REGULAR" | "FINAL"
+  tipo        String   @default("REGULAR")
+  temporadaId Int
+  temporada   Temporada @relation(fields: [temporadaId], references: [id])
+  createdAt   DateTime  @default(now())
+
+  resultados  Resultado[]
+}
+
+model Resultado {
+  id          Int       @id @default(autoincrement())
+  arqueroId   Int
+  arquero     Arquero   @relation(fields: [arqueroId], references: [id])
+  torneoId    Int
+  torneo      Torneo    @relation(fields: [torneoId], references: [id])
+  categoriaId Int
+  categoria   Categoria @relation(fields: [categoriaId], references: [id])
+
+  // Rondas de clasificación
+  puntajeRonda1 Int?
+  puntajeRonda2 Int?
+  puntajeTotal  Int
+
+  // Resultado final en el torneo (dentro de su categoría)
+  posicion      Int
+  // true si participó en la ronda de medallas (posición 1-4)
+  esMedallista  Boolean  @default(false)
+
+  // Puntos acumulados en la temporada según tabla fija en lib/scoring.ts
+  puntosTemporada Int
+
+  createdAt DateTime @default(now())
+
+  @@unique([arqueroId, torneoId])
+}
