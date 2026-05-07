@@ -5,11 +5,11 @@ import { toggleActivoArquero } from "./actions";
 import { nombreCompleto } from "@/lib/scoring";
 
 type Props = {
-  searchParams: { buscar?: string; categoria?: string; estado?: string };
+  searchParams: { buscar?: string; estado?: string };
 };
 
 export default async function ArquerosPage({ searchParams }: Props) {
-  const { buscar, categoria, estado } = searchParams;
+  const { buscar, estado } = searchParams;
 
   const arqueros = await prisma.arquero.findMany({
     where: {
@@ -23,18 +23,11 @@ export default async function ArquerosPage({ searchParams }: Props) {
               ],
             }
           : {},
-        categoria ? { categoriaId: Number(categoria) } : {},
         estado === "activo"   ? { activo: true }  :
         estado === "inactivo" ? { activo: false }  : {},
       ],
     },
-    include: { categoria: true },
     orderBy: [{ apellido: "asc" }, { nombre: "asc" }],
-  });
-
-  const categorias = await prisma.categoria.findMany({
-    where: { activa: true },
-    orderBy: { nombre: "asc" },
   });
 
   return (
@@ -70,16 +63,6 @@ export default async function ArquerosPage({ searchParams }: Props) {
           className="flex-1 min-w-48 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
         />
         <select
-          name="categoria"
-          defaultValue={categoria ?? ""}
-          className="border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-green-500"
-        >
-          <option value="">Todas las categorías</option>
-          {categorias.map((c) => (
-            <option key={c.id} value={c.id}>{c.nombre}</option>
-          ))}
-        </select>
-        <select
           name="estado"
           defaultValue={estado ?? ""}
           className="border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-green-500"
@@ -94,7 +77,7 @@ export default async function ArquerosPage({ searchParams }: Props) {
         >
           Filtrar
         </button>
-        {(buscar || categoria || estado) && (
+        {(buscar || estado) && (
           <Link
             href="/admin/arqueros"
             className="px-4 py-2 rounded-lg text-sm text-slate-500 hover:text-slate-800 transition-colors"
@@ -120,7 +103,7 @@ export default async function ArquerosPage({ searchParams }: Props) {
                 <tr>
                   <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Nombre</th>
                   <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">DNI</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden md:table-cell">Categoría</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden md:table-cell">Sexo</th>
                   <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden lg:table-cell">País</th>
                   <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Estado</th>
                   <th className="px-4 py-3" />
@@ -136,7 +119,9 @@ export default async function ArquerosPage({ searchParams }: Props) {
                       <p className="text-xs text-slate-400">{arq.email ?? ""}</p>
                     </td>
                     <td className="px-4 py-3 text-slate-600">{arq.dni}</td>
-                    <td className="px-4 py-3 text-slate-600 hidden md:table-cell">{arq.categoria.nombre}</td>
+                    <td className="px-4 py-3 text-slate-600 hidden md:table-cell">
+                      {arq.sexo === "MASCULINO" ? "M" : "F"}
+                    </td>
                     <td className="px-4 py-3 text-slate-600 hidden lg:table-cell">{arq.pais}</td>
                     <td className="px-4 py-3">
                       <Badge variante={arq.activo ? "activo" : "inactivo"} />
