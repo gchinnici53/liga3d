@@ -114,10 +114,22 @@ export async function importarArqueros(
 ): Promise<{ creados: number; duplicados: number }> {
   let creados = 0;
   let duplicados = 0;
+  const emailsUsados = new Set<string>();
 
   for (const fila of filas) {
     const existe = await prisma.arquero.findUnique({ where: { dni: fila.dni } });
     if (existe) { duplicados++; continue; }
+
+    // Si el email ya está en uso (en DB o en este lote), insertar sin email
+    let email: string | null = fila.email ?? null;
+    if (email) {
+      const emailEnDb = await prisma.arquero.findUnique({ where: { email } });
+      if (emailEnDb || emailsUsados.has(email)) {
+        email = null;
+      } else {
+        emailsUsados.add(email);
+      }
+    }
 
     await prisma.arquero.create({
       data: {
@@ -125,7 +137,7 @@ export async function importarArqueros(
         apellido:        fila.apellido,
         pais:            fila.pais,
         dni:             fila.dni,
-        email:           fila.email ?? null,
+        email,
         telefono:        fila.telefono ?? null,
         fechaNacimiento: new Date(fila.fechaNacimientoISO),
         sexo,
