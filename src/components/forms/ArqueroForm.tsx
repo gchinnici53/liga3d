@@ -30,7 +30,8 @@ export default function ArqueroForm({
   submitLabel = "Guardar",
   cancelHref = "/admin/arqueros",
 }: Props) {
-  const [state, formAction] = useFormState(action, {});
+  const [rawState, formAction] = useFormState(action, {});
+  const state = rawState ?? {};
 
   const fechaNacDefault = defaultValues?.fechaNacimiento
     ? new Date(defaultValues.fechaNacimiento).toISOString().split("T")[0]

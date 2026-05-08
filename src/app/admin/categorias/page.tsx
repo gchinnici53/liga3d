@@ -1,9 +1,12 @@
 import { prisma } from "@/lib/prisma";
-import { crearCategoria, toggleActivaCategoria } from "./actions";
+import { crearCategoria, toggleActivaCategoria, eliminarCategoria } from "./actions";
 import Badge from "@/components/ui/Badge";
 
 export default async function CategoriasPage() {
-  const categorias = await prisma.categoria.findMany({ orderBy: { nombre: "asc" } });
+  const categorias = await prisma.categoria.findMany({
+    orderBy: { nombre: "asc" },
+    include: { _count: { select: { resultados: true } } },
+  });
 
   return (
     <div className="p-6 max-w-2xl">
@@ -61,7 +64,12 @@ export default async function CategoriasPage() {
                     <Badge variante={cat.activa ? "activo" : "inactivo"} />
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <ToggleActivaButton id={cat.id} activa={cat.activa} />
+                    <div className="flex items-center justify-end gap-3">
+                      <ToggleActivaButton id={cat.id} activa={cat.activa} />
+                      {cat._count.resultados === 0 && (
+                        <EliminarButton id={cat.id} />
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -77,11 +85,19 @@ function ToggleActivaButton({ id, activa }: { id: number; activa: boolean }) {
   const action = toggleActivaCategoria.bind(null, id, !activa);
   return (
     <form action={action} className="inline">
-      <button
-        type="submit"
-        className="text-xs text-slate-500 hover:text-slate-800 underline transition-colors"
-      >
+      <button type="submit" className="text-xs text-slate-500 hover:text-slate-800 underline transition-colors">
         {activa ? "Desactivar" : "Activar"}
+      </button>
+    </form>
+  );
+}
+
+function EliminarButton({ id }: { id: number }) {
+  const action = eliminarCategoria.bind(null, id);
+  return (
+    <form action={action} className="inline">
+      <button type="submit" className="text-xs text-red-500 hover:text-red-700 underline transition-colors">
+        Eliminar
       </button>
     </form>
   );

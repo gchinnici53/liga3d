@@ -23,3 +23,10 @@ export async function toggleActivaCategoria(id: number, activa: boolean) {
   await prisma.categoria.update({ where: { id }, data: { activa } });
   revalidatePath("/admin/categorias");
 }
+
+export async function eliminarCategoria(id: number) {
+  const enUso = await prisma.resultado.count({ where: { categoriaId: id } });
+  if (enUso > 0) return; // no eliminar si tiene resultados
+  await prisma.categoria.delete({ where: { id } });
+  revalidatePath("/admin/categorias");
+}

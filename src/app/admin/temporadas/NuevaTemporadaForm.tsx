@@ -14,7 +14,8 @@ function SubmitButton() {
 }
 
 export default function NuevaTemporadaForm() {
-  const [state, formAction] = useFormState(crearTemporada, {});
+  const [rawState, formAction] = useFormState(crearTemporada, {});
+  const state = rawState ?? {};
   const anioActual = new Date().getFullYear();
 
   return (
