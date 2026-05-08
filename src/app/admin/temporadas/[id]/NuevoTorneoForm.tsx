@@ -15,7 +15,8 @@ function SubmitButton() {
 
 export default function NuevoTorneoForm({ temporadaId }: { temporadaId: number }) {
   const action = crearTorneo.bind(null, temporadaId);
-  const [state, formAction] = useFormState(action, {});
+  const [rawState, formAction] = useFormState(action, {});
+  const state = rawState ?? {};
 
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-5">
