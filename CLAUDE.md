@@ -67,9 +67,24 @@ public/
 | 8        | 8             | 16         |
 | 9+       | 7             | 14         |
 
+## Temporadas
+- Son anuales: 2023 (4 torneos + final), 2024 (4 + final), 2025 (5 + final), 2026 en curso (5 + final)
+- Estados: ACTIVA (en curso) | CERRADA (terminó)
+
+## Cálculo de puntos de temporada
+- De los torneos REGULAR, solo cuentan los **2 mejores puntajes** del arquero.
+- Se suma el puntaje del torneo FINAL (si participó).
+- Total temporada = top2(regulares) + final
+- Los puntos individuales por torneo se calculan con la tabla fija (lib/scoring.ts).
+- Los puntos de la FINAL se duplican antes de sumar (ya incluido en calcularPuntosTemporada).
+
 ## Campeón de temporada
-- Se calcula dinámicamente (Opción A): arquero con más `puntosTemporada` acumulados en la temporada por categoría.
+- Se calcula dinámicamente: arquero con mayor total de temporada (top2 regulares + final) por categoría.
 - No se almacena en la DB. Se computa en la query de ranking.
+- Solo aplica a temporadas CERRADAS.
+- **Requisito mínimo para ser campeón**: haber tirado al menos 2 torneos REGULAR + el torneo FINAL en esa categoría.
+- **Categorías con campeón**: CM, CW, BM, BW, LM, LW, TM, TW.
+- **Sin campeón**: ESC y JUN.
 
 ## Importación de arqueros desde Excel
 Columnas esperadas: Nombre, Apellido, email, tel, DNI, Fecha Nacimiento, pais

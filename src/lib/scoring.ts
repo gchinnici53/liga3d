@@ -47,3 +47,33 @@ export function nombreCompleto(nombre: string, apellido: string): string {
 export function mesNacimiento(fechaNacimiento: Date): number {
   return fechaNacimiento.getMonth() + 1;
 }
+
+// ─── Cálculo de puntos de temporada ──────────────────────
+// Solo los 2 mejores puntajes de torneos REGULAR + el puntaje de la FINAL.
+// Los puntos ya vienen calculados (con el x2 de la final incluido).
+
+type ResultadoParaRanking = {
+  puntosTemporada: number;
+  tipoTorneo: TipoTorneo;
+};
+
+export function calcularTotalTemporada(resultados: ResultadoParaRanking[]): number {
+  const regulares = resultados
+    .filter((r) => r.tipoTorneo === "REGULAR")
+    .map((r) => r.puntosTemporada)
+    .sort((a, b) => b - a)
+    .slice(0, 2);
+
+  const final = resultados
+    .filter((r) => r.tipoTorneo === "FINAL")
+    .reduce((sum, r) => sum + r.puntosTemporada, 0);
+
+  return regulares.reduce((sum, p) => sum + p, 0) + final;
+}
+
+// Un arquero califica como campeón si tiró al menos 2 REGULAR + la FINAL
+export function calificaParaCampeon(resultados: ResultadoParaRanking[]): boolean {
+  const regulares = resultados.filter((r) => r.tipoTorneo === "REGULAR").length;
+  const tiroFinal = resultados.some((r) => r.tipoTorneo === "FINAL");
+  return regulares >= 2 && tiroFinal;
+}
