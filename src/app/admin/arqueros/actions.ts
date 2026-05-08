@@ -3,44 +3,74 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { Prisma } from "@prisma/client";
 import * as XLSX from "xlsx";
 import type { ArqueroImportRow } from "@/types";
 
+export type ArqueroFormState = { error?: string };
+
+function mensajeUnico(e: unknown): string | null {
+  if (!(e instanceof Prisma.PrismaClientKnownRequestError) || e.code !== "P2002") return null;
+  const campos = e.meta?.target as string[] | undefined;
+  if (campos?.includes("dni"))   return "Ya existe un arquero con ese DNI.";
+  if (campos?.includes("email")) return "Ya existe un arquero con ese email.";
+  return "Ya existe un arquero con esos datos.";
+}
+
 // ─── CRUD ─────────────────────────────────────────────────
 
-export async function crearArquero(formData: FormData) {
-  await prisma.arquero.create({
-    data: {
-      nombre:          (formData.get("nombre") as string).trim(),
-      apellido:        (formData.get("apellido") as string).trim(),
-      pais:            (formData.get("pais") as string).trim() || "Argentina",
-      dni:             (formData.get("dni") as string).trim(),
-      email:           (formData.get("email") as string | null)?.trim() || null,
-      telefono:        (formData.get("telefono") as string | null)?.trim() || null,
-      fechaNacimiento: new Date(formData.get("fechaNacimiento") as string),
-      sexo:            formData.get("sexo") as string,
-      activo:          formData.get("activo") === "true",
-    },
-  });
+export async function crearArquero(
+  _prev: ArqueroFormState,
+  formData: FormData
+): Promise<ArqueroFormState> {
+  try {
+    await prisma.arquero.create({
+      data: {
+        nombre:          (formData.get("nombre") as string).trim(),
+        apellido:        (formData.get("apellido") as string).trim(),
+        pais:            (formData.get("pais") as string).trim() || "Argentina",
+        dni:             (formData.get("dni") as string).trim(),
+        email:           (formData.get("email") as string | null)?.trim() || null,
+        telefono:        (formData.get("telefono") as string | null)?.trim() || null,
+        fechaNacimiento: new Date(formData.get("fechaNacimiento") as string),
+        sexo:            formData.get("sexo") as string,
+        activo:          formData.get("activo") === "true",
+      },
+    });
+  } catch (e) {
+    const msg = mensajeUnico(e);
+    if (msg) return { error: msg };
+    throw e;
+  }
   revalidatePath("/admin/arqueros");
   redirect("/admin/arqueros");
 }
 
-export async function actualizarArquero(id: number, formData: FormData) {
-  await prisma.arquero.update({
-    where: { id },
-    data: {
-      nombre:          (formData.get("nombre") as string).trim(),
-      apellido:        (formData.get("apellido") as string).trim(),
-      pais:            (formData.get("pais") as string).trim() || "Argentina",
-      dni:             (formData.get("dni") as string).trim(),
-      email:           (formData.get("email") as string | null)?.trim() || null,
-      telefono:        (formData.get("telefono") as string | null)?.trim() || null,
-      fechaNacimiento: new Date(formData.get("fechaNacimiento") as string),
-      sexo:            formData.get("sexo") as string,
-      activo:          formData.get("activo") === "true",
-    },
-  });
+export async function actualizarArquero(
+  id: number,
+  _prev: ArqueroFormState,
+  formData: FormData
+): Promise<ArqueroFormState> {
+  try {
+    await prisma.arquero.update({
+      where: { id },
+      data: {
+        nombre:          (formData.get("nombre") as string).trim(),
+        apellido:        (formData.get("apellido") as string).trim(),
+        pais:            (formData.get("pais") as string).trim() || "Argentina",
+        dni:             (formData.get("dni") as string).trim(),
+        email:           (formData.get("email") as string | null)?.trim() || null,
+        telefono:        (formData.get("telefono") as string | null)?.trim() || null,
+        fechaNacimiento: new Date(formData.get("fechaNacimiento") as string),
+        sexo:            formData.get("sexo") as string,
+        activo:          formData.get("activo") === "true",
+      },
+    });
+  } catch (e) {
+    const msg = mensajeUnico(e);
+    if (msg) return { error: msg };
+    throw e;
+  }
   revalidatePath("/admin/arqueros");
   revalidatePath(`/admin/arqueros/${id}`);
   redirect(`/admin/arqueros/${id}`);

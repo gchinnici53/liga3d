@@ -1,15 +1,28 @@
+"use client";
+
+import { useFormState, useFormStatus } from "react-dom";
 import type { Arquero } from "@/types";
+import type { ArqueroFormState } from "@/app/admin/arqueros/actions";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
 import Link from "next/link";
 
 type Props = {
-  action: (formData: FormData) => Promise<void>;
+  action: (prev: ArqueroFormState, formData: FormData) => Promise<ArqueroFormState>;
   defaultValues?: Partial<Arquero>;
   submitLabel?: string;
   cancelHref?: string;
 };
+
+function SubmitButton({ label }: { label: string }) {
+  const { pending } = useFormStatus();
+  return (
+    <Button type="submit" variante="primary" disabled={pending}>
+      {pending ? "Guardando..." : label}
+    </Button>
+  );
+}
 
 export default function ArqueroForm({
   action,
@@ -17,12 +30,20 @@ export default function ArqueroForm({
   submitLabel = "Guardar",
   cancelHref = "/admin/arqueros",
 }: Props) {
+  const [state, formAction] = useFormState(action, {});
+
   const fechaNacDefault = defaultValues?.fechaNacimiento
     ? new Date(defaultValues.fechaNacimiento).toISOString().split("T")[0]
     : "";
 
   return (
-    <form action={action} className="space-y-6">
+    <form action={formAction} className="space-y-6">
+      {state.error && (
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-sm text-red-700 font-medium">
+          {state.error}
+        </div>
+      )}
+
       {/* Datos personales */}
       <div className="bg-white rounded-xl border border-slate-200 p-5">
         <h2 className="text-sm font-semibold text-slate-700 mb-4">Datos personales</h2>
@@ -113,9 +134,7 @@ export default function ArqueroForm({
 
       {/* Acciones */}
       <div className="flex items-center gap-3">
-        <Button type="submit" variante="primary">
-          {submitLabel}
-        </Button>
+        <SubmitButton label={submitLabel} />
         <Link href={cancelHref}>
           <Button type="button" variante="secondary">
             Cancelar
