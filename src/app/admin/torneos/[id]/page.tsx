@@ -91,7 +91,9 @@ export default async function DetalleTorneoPage({ params }: Props) {
                 <tbody className="divide-y divide-slate-100">
                   {resultados.map((r) => (
                     <tr key={r.id} className={r.esMedallista ? "bg-amber-50" : "hover:bg-slate-50"}>
-                      <td className="px-4 py-2.5 font-semibold text-slate-600">{r.posicion}°</td>
+                      <td className="px-4 py-2.5">
+                        <MedallaPosicion posicion={r.posicion} />
+                      </td>
                       <td className="px-4 py-2.5">
                         <Link href={`/admin/arqueros/${r.arqueroId}`} className="text-slate-800 hover:text-green-700">
                           {nombreCompleto(r.arquero.nombre, r.arquero.apellido)}
@@ -109,4 +111,23 @@ export default async function DetalleTorneoPage({ params }: Props) {
       )}
     </div>
   );
+}
+
+function MedallaPosicion({ posicion }: { posicion: number }) {
+  if (posicion === 1) return (
+    <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-yellow-400 text-white text-xs font-bold shadow-sm" title="Oro">
+      🥇
+    </span>
+  );
+  if (posicion === 2) return (
+    <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-slate-300 text-white text-xs font-bold shadow-sm" title="Plata">
+      🥈
+    </span>
+  );
+  if (posicion === 3) return (
+    <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-amber-600 text-white text-xs font-bold shadow-sm" title="Bronce">
+      🥉
+    </span>
+  );
+  return <span className="text-sm font-semibold text-slate-500 px-1">{posicion}°</span>;
 }
