@@ -55,7 +55,12 @@ export default async function DetalleTorneoPage({ params }: Props) {
           </p>
         </div>
         <div className="flex gap-2">
-          {/* TODO: botón para cargar/importar resultados */}
+          <Link
+            href={`/admin/torneos/${torneo.id}/importar`}
+            className="bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-800 transition-colors"
+          >
+            ↑ Importar resultados
+          </Link>
           {!tienResultados && (
             <EliminarTorneoButton id={torneo.id} />
           )}
