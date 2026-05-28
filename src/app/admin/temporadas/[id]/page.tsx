@@ -65,7 +65,7 @@ export default async function DetalleTemporadaPage({ params }: Props) {
       if (!porArquero) { campeones.set(cat, null); continue; }
 
       let campeon: CampeonData = null;
-      for (const { arquero, res } of porArquero.values()) {
+      for (const { arquero, res } of Array.from(porArquero.values())) {
         if (!calificaParaCampeon(res)) continue;
         const total = calcularTotalTemporada(res);
         if (!campeon || total > campeon.total) campeon = { arquero, total };
