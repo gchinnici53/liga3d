@@ -1,11 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    // Permitir imágenes locales de la carpeta uploads
+    unoptimized: true,
     localPatterns: [
-      {
-        pathname: "/uploads/profiles/**",
-      },
+      { pathname: "/uploads/profiles/**" },
     ],
   },
 };
