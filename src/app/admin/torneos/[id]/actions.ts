@@ -4,6 +4,16 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+export async function eliminarResultado(id: number) {
+  const resultado = await prisma.resultado.findUnique({
+    where: { id },
+    select: { torneoId: true },
+  });
+  if (!resultado) return;
+  await prisma.resultado.delete({ where: { id } });
+  revalidatePath(`/admin/torneos/${resultado.torneoId}`);
+}
+
 export async function eliminarTorneo(id: number) {
   const torneo = await prisma.torneo.findUnique({
     where: { id },

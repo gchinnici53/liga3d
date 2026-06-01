@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import Badge from "@/components/ui/Badge";
 import EliminarTorneoButton from "./EliminarTorneoButton";
+import EliminarResultadoButton from "./EliminarResultadoButton";
 import { nombreCompleto } from "@/lib/scoring";
 
 type Props = { params: { id: string } };
@@ -86,6 +87,7 @@ export default async function DetalleTorneoPage({ params }: Props) {
                     <th className="text-left px-4 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wide">Arquero</th>
                     <th className="text-right px-4 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wide">Puntaje</th>
                     <th className="text-right px-4 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wide">Pts temp.</th>
+                    <th className="w-8" />
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -101,6 +103,9 @@ export default async function DetalleTorneoPage({ params }: Props) {
                       </td>
                       <td className="px-4 py-2.5 text-right text-slate-800">{r.puntajeTotal}</td>
                       <td className="px-4 py-2.5 text-right font-semibold text-green-700">{r.puntosTemporada}</td>
+                      <td className="px-2 py-2.5 text-center">
+                        <EliminarResultadoButton id={r.id} />
+                      </td>
                     </tr>
                   ))}
                 </tbody>
