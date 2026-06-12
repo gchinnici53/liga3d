@@ -99,6 +99,23 @@ export async function actualizarArquero(
   redirect(`/admin/arqueros/${id}`);
 }
 
+export async function subirFotoArquero(
+  id: number,
+  formData: FormData
+): Promise<{ error?: string }> {
+  try {
+    const fotoFile = formData.get("foto") as File | null;
+    if (!fotoFile || fotoFile.size === 0) return { error: "No se recibió ningún archivo." };
+    const foto = await guardarFoto(fotoFile, `arquero-${id}`);
+    await prisma.arquero.update({ where: { id }, data: { foto } });
+    revalidatePath(`/admin/arqueros/${id}`);
+    revalidatePath(`/admin/arqueros/${id}/editar`);
+    return {};
+  } catch {
+    return { error: "Error al guardar la foto. Intentá con una imagen más pequeña (máx. 10 MB)." };
+  }
+}
+
 export async function toggleActivoArquero(id: number, activo: boolean) {
   await prisma.arquero.update({ where: { id }, data: { activo } });
   revalidatePath("/admin/arqueros");

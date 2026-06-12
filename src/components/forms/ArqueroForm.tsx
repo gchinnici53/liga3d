@@ -1,8 +1,6 @@
 "use client";
 
 import { useFormState, useFormStatus } from "react-dom";
-import { useState } from "react";
-import Image from "next/image";
 import type { Arquero } from "@/types";
 import type { ArqueroFormState } from "@/app/admin/arqueros/actions";
 import Input from "@/components/ui/Input";
@@ -34,8 +32,6 @@ export default function ArqueroForm({
 }: Props) {
   const [rawState, formAction] = useFormState(action, {});
   const state = rawState ?? {};
-
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const fechaNacDefault = defaultValues?.fechaNacimiento
     ? new Date(defaultValues.fechaNacimiento).toISOString().split("T")[0]
@@ -134,38 +130,6 @@ export default function ArqueroForm({
               { valor: "false", etiqueta: "Inactivo" },
             ]}
           />
-        </div>
-      </div>
-
-      {/* Foto */}
-      <div className="bg-white rounded-xl border border-slate-200 p-5">
-        <h2 className="text-sm font-semibold text-slate-700 mb-4">Foto de perfil</h2>
-        <div className="flex items-center gap-5">
-          <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-slate-200 bg-slate-100 flex items-center justify-center shrink-0">
-            {previewUrl ? (
-              <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
-            ) : defaultValues?.foto ? (
-              <Image src={defaultValues.foto} alt="Foto actual" width={80} height={80} className="object-cover" />
-            ) : (
-              <span className="text-slate-400 text-xs text-center px-1">Sin foto</span>
-            )}
-          </div>
-          <div className="flex-1">
-            <label className="block text-sm font-medium text-slate-700 mb-1">
-              {defaultValues?.foto ? "Cambiar foto" : "Subir foto"}
-            </label>
-            <input
-              name="foto"
-              type="file"
-              accept="image/*"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) setPreviewUrl(URL.createObjectURL(file));
-              }}
-              className="block w-full text-sm text-slate-600 file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
-            />
-            <p className="text-xs text-slate-400 mt-1">JPG, PNG o WEBP. Se guarda en el servidor.</p>
-          </div>
         </div>
       </div>
 

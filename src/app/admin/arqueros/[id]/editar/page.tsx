@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { actualizarArquero } from "../../actions";
 import ArqueroForm from "@/components/forms/ArqueroForm";
+import SubirFotoForm from "./SubirFotoForm";
 import Link from "next/link";
 import { nombreCompleto } from "@/lib/scoring";
 
@@ -25,12 +26,15 @@ export default async function EditarArqueroPage({ params }: Props) {
         <h1 className="text-2xl font-bold text-slate-800 mt-2">Editar arquero</h1>
       </div>
 
-      <ArqueroForm
-        action={action}
-        defaultValues={arquero}
-        submitLabel="Guardar cambios"
-        cancelHref={`/admin/arqueros/${id}`}
-      />
+      <div className="space-y-6">
+        <SubirFotoForm arqueroId={arquero.id} fotoActual={arquero.foto} />
+        <ArqueroForm
+          action={action}
+          defaultValues={arquero}
+          submitLabel="Guardar cambios"
+          cancelHref={`/admin/arqueros/${id}`}
+        />
+      </div>
     </div>
   );
 }
