@@ -34,13 +34,12 @@ export async function crearArquero(
   _prev: ArqueroFormState,
   formData: FormData
 ): Promise<ArqueroFormState> {
-  const fotoFile = formData.get("foto") as File | null;
-  let foto: string | null = null;
-  if (fotoFile && fotoFile.size > 0) {
-    foto = await guardarFoto(fotoFile, "arquero");
-  }
-
   try {
+    const fotoFile = formData.get("foto") as File | null;
+    const foto = fotoFile && fotoFile.size > 0
+      ? await guardarFoto(fotoFile, "arquero")
+      : null;
+
     await prisma.arquero.create({
       data: {
         nombre:          (formData.get("nombre") as string).trim(),
@@ -69,13 +68,12 @@ export async function actualizarArquero(
   _prev: ArqueroFormState,
   formData: FormData
 ): Promise<ArqueroFormState> {
-  const fotoFile = formData.get("foto") as File | null;
-  let foto: string | undefined;
-  if (fotoFile && fotoFile.size > 0) {
-    foto = await guardarFoto(fotoFile, `arquero-${id}`);
-  }
-
   try {
+    const fotoFile = formData.get("foto") as File | null;
+    const fotoNueva = fotoFile && fotoFile.size > 0
+      ? await guardarFoto(fotoFile, `arquero-${id}`)
+      : undefined;
+
     await prisma.arquero.update({
       where: { id },
       data: {
@@ -88,7 +86,7 @@ export async function actualizarArquero(
         fechaNacimiento: new Date(formData.get("fechaNacimiento") as string),
         sexo:            formData.get("sexo") as string,
         activo:          formData.get("activo") === "true",
-        ...(foto !== undefined && { foto }),
+        ...(fotoNueva !== undefined && { foto: fotoNueva }),
       },
     });
   } catch (e) {
