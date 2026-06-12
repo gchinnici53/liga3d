@@ -32,7 +32,12 @@ export default function SubirFotoForm({ arqueroId, fotoActual }: Props) {
     setError(null);
     try {
       const res  = await fetch("/api/subir-foto", { method: "POST", body: formData });
-      const data = await res.json() as { foto?: string; error?: string };
+      const text = await res.text();
+      if (!res.ok) {
+        setError(`Error HTTP ${res.status} — ${text.substring(0, 120)}`);
+        return;
+      }
+      const data = JSON.parse(text) as { foto?: string; error?: string };
       if (data.error) {
         setError(data.error);
       } else if (data.foto) {
@@ -40,8 +45,8 @@ export default function SubirFotoForm({ arqueroId, fotoActual }: Props) {
         setExito(true);
         router.refresh();
       }
-    } catch {
-      setError("Error de red al subir la foto. Intentá de nuevo.");
+    } catch (err) {
+      setError(`Error: ${err instanceof Error ? err.message : "desconocido"}`);
     } finally {
       setIsPending(false);
     }
