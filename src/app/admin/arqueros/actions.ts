@@ -5,6 +5,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { Prisma } from "@prisma/client";
 import * as XLSX from "xlsx";
+import { writeFile, mkdir } from "fs/promises";
+import path from "path";
 import type { ArqueroImportRow } from "@/types";
 
 export type ArqueroFormState = { error?: string };
@@ -19,10 +21,25 @@ function mensajeUnico(e: unknown): string | null {
 
 // ─── CRUD ─────────────────────────────────────────────────
 
+async function guardarFoto(archivo: File, prefijo: string): Promise<string> {
+  const ext = archivo.name.split(".").pop()?.toLowerCase() ?? "jpg";
+  const filename = `${prefijo}-${Date.now()}.${ext}`;
+  const dir = path.join(process.cwd(), "public", "uploads", "profiles");
+  await mkdir(dir, { recursive: true });
+  await writeFile(path.join(dir, filename), Buffer.from(await archivo.arrayBuffer()));
+  return `/uploads/profiles/${filename}`;
+}
+
 export async function crearArquero(
   _prev: ArqueroFormState,
   formData: FormData
 ): Promise<ArqueroFormState> {
+  const fotoFile = formData.get("foto") as File | null;
+  let foto: string | null = null;
+  if (fotoFile && fotoFile.size > 0) {
+    foto = await guardarFoto(fotoFile, "arquero");
+  }
+
   try {
     await prisma.arquero.create({
       data: {
@@ -35,6 +52,7 @@ export async function crearArquero(
         fechaNacimiento: new Date(formData.get("fechaNacimiento") as string),
         sexo:            formData.get("sexo") as string,
         activo:          formData.get("activo") === "true",
+        foto,
       },
     });
   } catch (e) {
@@ -51,6 +69,12 @@ export async function actualizarArquero(
   _prev: ArqueroFormState,
   formData: FormData
 ): Promise<ArqueroFormState> {
+  const fotoFile = formData.get("foto") as File | null;
+  let foto: string | undefined;
+  if (fotoFile && fotoFile.size > 0) {
+    foto = await guardarFoto(fotoFile, `arquero-${id}`);
+  }
+
   try {
     await prisma.arquero.update({
       where: { id },
@@ -64,6 +88,7 @@ export async function actualizarArquero(
         fechaNacimiento: new Date(formData.get("fechaNacimiento") as string),
         sexo:            formData.get("sexo") as string,
         activo:          formData.get("activo") === "true",
+        ...(foto !== undefined && { foto }),
       },
     });
   } catch (e) {
