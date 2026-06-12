@@ -1,17 +1,16 @@
 "use client";
 
-import { useTransition, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { subirFotoArquero } from "../../actions";
 
 type Props = { arqueroId: number; fotoActual: string | null };
 
 export default function SubirFotoForm({ arqueroId, fotoActual }: Props) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
-  const [preview, setPreview]   = useState<string | null>(null);
-  const [exito, setExito]       = useState(false);
-  const [error, setError]       = useState<string | null>(null);
+  const [isPending, setIsPending] = useState(false);
+  const [preview, setPreview]     = useState<string | null>(null);
+  const [exito, setExito]         = useState(false);
+  const [error, setError]         = useState<string | null>(null);
 
   const fotoMostrada = preview ?? fotoActual;
 
@@ -24,23 +23,28 @@ export default function SubirFotoForm({ arqueroId, fotoActual }: Props) {
     }
   }
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    startTransition(async () => {
-      try {
-        const res = await subirFotoArquero(arqueroId, formData);
-        if (res?.error) {
-          setError(res.error);
-        } else if (res?.foto) {
-          setPreview(res.foto);
-          setExito(true);
-          router.refresh();
-        }
-      } catch {
-        setError("Error al subir la foto. Si el archivo es muy grande, reducí el tamaño e intentá de nuevo.");
+    formData.set("arqueroId", String(arqueroId));
+
+    setIsPending(true);
+    setError(null);
+    try {
+      const res  = await fetch("/api/subir-foto", { method: "POST", body: formData });
+      const data = await res.json() as { foto?: string; error?: string };
+      if (data.error) {
+        setError(data.error);
+      } else if (data.foto) {
+        setPreview(data.foto);
+        setExito(true);
+        router.refresh();
       }
-    });
+    } catch {
+      setError("Error de red al subir la foto. Intentá de nuevo.");
+    } finally {
+      setIsPending(false);
+    }
   }
 
   return (
@@ -64,8 +68,8 @@ export default function SubirFotoForm({ arqueroId, fotoActual }: Props) {
               onChange={handleChange}
               className="block w-full text-sm text-slate-600 file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
             />
-            {error  && <p className="text-xs text-red-600">{error}</p>}
-            {exito  && <p className="text-xs text-green-700 font-medium">Foto guardada correctamente.</p>}
+            {error && <p className="text-xs text-red-600">{error}</p>}
+            {exito && <p className="text-xs text-green-700 font-medium">Foto guardada correctamente.</p>}
             <button
               type="submit"
               disabled={isPending}
