@@ -24,7 +24,10 @@ function mensajeUnico(e: unknown): string | null {
 async function guardarFoto(archivo: File, prefijo: string): Promise<string> {
   const ext = archivo.name.split(".").pop()?.toLowerCase() ?? "jpg";
   const filename = `${prefijo}-${Date.now()}.${ext}`;
-  const dir = path.join(process.cwd(), "public", "uploads", "profiles");
+  // Usar LIGA3D_ROOT si está definido; si no, process.cwd() como fallback
+  const root = process.env.LIGA3D_ROOT ?? process.cwd();
+  const dir = path.join(root, "public", "uploads", "profiles");
+  console.log("[guardarFoto] root:", root, "dir:", dir, "file:", filename);
   await mkdir(dir, { recursive: true });
   await writeFile(path.join(dir, filename), Buffer.from(await archivo.arrayBuffer()));
   return `/uploads/profiles/${filename}`;
