@@ -102,7 +102,7 @@ export async function actualizarArquero(
 export async function subirFotoArquero(
   id: number,
   formData: FormData
-): Promise<{ error?: string }> {
+): Promise<{ foto?: string; error?: string }> {
   try {
     const fotoFile = formData.get("foto") as File | null;
     if (!fotoFile || fotoFile.size === 0) return { error: "No se recibió ningún archivo." };
@@ -110,8 +110,10 @@ export async function subirFotoArquero(
     await prisma.arquero.update({ where: { id }, data: { foto } });
     revalidatePath(`/admin/arqueros/${id}`);
     revalidatePath(`/admin/arqueros/${id}/editar`);
-    return {};
-  } catch {
+    revalidatePath("/admin/temporadas", "layout");
+    return { foto };
+  } catch (e) {
+    console.error("subirFotoArquero error:", e);
     return { error: "Error al guardar la foto. Intentá con una imagen más pequeña (máx. 10 MB)." };
   }
 }

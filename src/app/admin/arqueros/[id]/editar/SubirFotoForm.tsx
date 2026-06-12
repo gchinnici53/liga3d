@@ -32,7 +32,8 @@ export default function SubirFotoForm({ arqueroId, fotoActual }: Props) {
         const res = await subirFotoArquero(arqueroId, formData);
         if (res?.error) {
           setError(res.error);
-        } else {
+        } else if (res?.foto) {
+          setPreview(res.foto);
           setExito(true);
           router.refresh();
         }

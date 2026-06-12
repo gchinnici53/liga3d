@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import Badge from "@/components/ui/Badge";
 import { nombreCompleto, mesNacimiento, etiquetaPosicion } from "@/lib/scoring";
 
@@ -34,7 +35,16 @@ export default async function DetalleArqueroPage({ params }: Props) {
 
       {/* Encabezado */}
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mt-3 mb-6">
-        <div>
+        <div className="flex items-center gap-4">
+          <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-slate-200 bg-slate-100 flex items-center justify-center shrink-0">
+            {arquero.foto ? (
+              <Image src={arquero.foto} alt={nombreCompleto(arquero.nombre, arquero.apellido)} width={64} height={64} className="object-cover w-full h-full" />
+            ) : (
+              <span className="text-slate-400 font-bold text-lg">
+                {arquero.nombre[0]}{arquero.apellido[0]}
+              </span>
+            )}
+          </div>
           <h1 className="text-2xl font-bold text-slate-800">
             {nombreCompleto(arquero.nombre, arquero.apellido)}
           </h1>
