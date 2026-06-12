@@ -1,11 +1,13 @@
 "use client";
 
 import { useTransition, useState } from "react";
+import { useRouter } from "next/navigation";
 import { subirFotoArquero } from "../../actions";
 
 type Props = { arqueroId: number; fotoActual: string | null };
 
 export default function SubirFotoForm({ arqueroId, fotoActual }: Props) {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [preview, setPreview]   = useState<string | null>(null);
   const [exito, setExito]       = useState(false);
@@ -32,7 +34,7 @@ export default function SubirFotoForm({ arqueroId, fotoActual }: Props) {
           setError(res.error);
         } else {
           setExito(true);
-          setPreview(null);
+          router.refresh();
         }
       } catch {
         setError("Error al subir la foto. Si el archivo es muy grande, reducí el tamaño e intentá de nuevo.");
