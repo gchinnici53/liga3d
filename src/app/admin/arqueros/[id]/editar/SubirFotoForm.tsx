@@ -26,12 +26,16 @@ export default function SubirFotoForm({ arqueroId, fotoActual }: Props) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     startTransition(async () => {
-      const res = await subirFotoArquero(arqueroId, formData);
-      if (res.error) {
-        setError(res.error);
-      } else {
-        setExito(true);
-        setPreview(null);
+      try {
+        const res = await subirFotoArquero(arqueroId, formData);
+        if (res?.error) {
+          setError(res.error);
+        } else {
+          setExito(true);
+          setPreview(null);
+        }
+      } catch {
+        setError("Error al subir la foto. Si el archivo es muy grande, reducí el tamaño e intentá de nuevo.");
       }
     });
   }
