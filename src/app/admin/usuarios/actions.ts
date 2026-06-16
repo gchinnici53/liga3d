@@ -21,7 +21,6 @@ export async function crearUsuario(
   const email    = (formData.get("email") as string).trim().toLowerCase();
   const password = (formData.get("password") as string);
   const rol      = (formData.get("rol") as string);
-  const nombre   = (formData.get("nombre") as string | null)?.trim() || null;
 
   if (!email || !password || !rol) return { error: "Todos los campos son obligatorios." };
   if (password.length < 6) return { error: "La contraseña debe tener al menos 6 caracteres." };

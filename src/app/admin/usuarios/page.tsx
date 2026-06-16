@@ -4,8 +4,6 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import NuevoUsuarioForm from "./NuevoUsuarioForm";
 import UsuarioActions from "./UsuarioActions";
-import type { Rol } from "@/types/enums";
-
 const ETIQUETA_ROL: Record<string, string> = {
   ADMIN:    "Administrador",
   CARGA:    "Carga",
