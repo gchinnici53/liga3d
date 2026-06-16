@@ -3,8 +3,10 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { requireAdmin } from "@/lib/session";
 
 export async function eliminarResultado(id: number) {
+  await requireAdmin();
   const resultado = await prisma.resultado.findUnique({
     where: { id },
     select: { torneoId: true },
@@ -15,6 +17,7 @@ export async function eliminarResultado(id: number) {
 }
 
 export async function eliminarTorneo(id: number) {
+  await requireAdmin();
   const torneo = await prisma.torneo.findUnique({
     where: { id },
     include: { _count: { select: { resultados: true } } },

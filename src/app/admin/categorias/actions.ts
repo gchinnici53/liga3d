@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { requireAdmin } from "@/lib/session";
 
 export async function crearCategoria(formData: FormData) {
   const nombre = (formData.get("nombre") as string).trim();
@@ -25,6 +26,7 @@ export async function toggleActivaCategoria(id: number, activa: boolean) {
 }
 
 export async function eliminarCategoria(id: number) {
+  await requireAdmin();
   const enUso = await prisma.resultado.count({ where: { categoriaId: id } });
   if (enUso > 0) return; // no eliminar si tiene resultados
   await prisma.categoria.delete({ where: { id } });
