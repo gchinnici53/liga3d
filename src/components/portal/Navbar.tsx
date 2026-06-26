@@ -55,6 +55,12 @@ export default function Navbar() {
                 {link.label}
               </Link>
             ))}
+            <Link
+              href="/auth/login"
+              className="ml-2 px-3 py-1.5 rounded-lg text-sm font-medium border border-white/40 text-white hover:bg-white/10 transition-colors"
+            >
+              Ingresar
+            </Link>
           </nav>
 
           {/* Hamburger mobile */}
@@ -94,6 +100,13 @@ export default function Navbar() {
               {link.label}
             </Link>
           ))}
+          <Link
+            href="/auth/login"
+            onClick={() => setOpen(false)}
+            className="block px-3 py-2.5 rounded-lg text-sm font-medium text-white/80 hover:bg-white/10 hover:text-white border border-white/30 text-center mt-2"
+          >
+            Ingresar
+          </Link>
         </nav>
       )}
     </header>

@@ -109,6 +109,34 @@ export default async function HomePage() {
           />
         </div>
       </section>
+
+      {/* Sponsors */}
+      <section className="border-t border-slate-200 bg-slate-50">
+        <div className="max-w-6xl mx-auto px-4 py-12">
+          <p className="text-xs text-slate-400 uppercase tracking-widest text-center mb-8 font-semibold">
+            Nos acompañan
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-12">
+            {[
+              "sponsor_1.png",
+              "sponsor_2.png",
+              "sponsor_3.png",
+              "sponsor_4.PNG",
+              "sponsor_5.png",
+            ].map((archivo) => (
+              <div key={archivo} className="h-16 w-auto flex items-center grayscale hover:grayscale-0 opacity-70 hover:opacity-100 transition-all">
+                <Image
+                  src={`/img/${archivo}`}
+                  alt={archivo.replace(/\.\w+$/, "").replace("_", " ")}
+                  width={120}
+                  height={64}
+                  className="h-full w-auto object-contain"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
     </>
   );
 }
