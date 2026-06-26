@@ -24,7 +24,7 @@ export default function Navbar() {
   }
 
   return (
-    <header className="bg-slate-900 sticky top-0 z-40">
+    <header className="bg-liga sticky top-0 z-40 shadow-md">
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -48,8 +48,8 @@ export default function Navbar() {
                 className={[
                   "px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                   activo(link.href)
-                    ? "bg-green-700 text-white"
-                    : "text-slate-300 hover:bg-slate-800 hover:text-white",
+                    ? "bg-white/20 text-white"
+                    : "text-white/80 hover:bg-white/10 hover:text-white",
                 ].join(" ")}
               >
                 {link.label}
@@ -60,7 +60,7 @@ export default function Navbar() {
           {/* Hamburger mobile */}
           <button
             onClick={() => setOpen(!open)}
-            className="md:hidden text-slate-300 hover:text-white p-2 rounded-lg transition-colors"
+            className="md:hidden text-white/80 hover:text-white p-2 rounded-lg transition-colors"
             aria-label={open ? "Cerrar menú" : "Abrir menú"}
           >
             {open ? (
@@ -78,7 +78,7 @@ export default function Navbar() {
 
       {/* Menú mobile */}
       {open && (
-        <nav className="md:hidden border-t border-slate-700 px-4 py-3 space-y-1">
+        <nav className="md:hidden border-t border-white/20 px-4 py-3 space-y-1">
           {links.map((link) => (
             <Link
               key={link.href}
@@ -87,8 +87,8 @@ export default function Navbar() {
               className={[
                 "block px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
                 activo(link.href)
-                  ? "bg-green-700 text-white"
-                  : "text-slate-300 hover:bg-slate-800 hover:text-white",
+                  ? "bg-white/20 text-white"
+                  : "text-white/80 hover:bg-white/10 hover:text-white",
               ].join(" ")}
             >
               {link.label}

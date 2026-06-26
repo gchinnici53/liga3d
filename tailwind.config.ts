@@ -11,6 +11,12 @@ const config: Config = {
       fontFamily: {
         horta: ['"Horta"', "sans-serif"],
       },
+      colors: {
+        liga: {
+          DEFAULT: "#E8722A",
+          dark: "#C95E1F",
+        },
+      },
     },
   },
   plugins: [],

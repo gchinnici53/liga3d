@@ -18,32 +18,33 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* Hero */}
-      <section className="bg-slate-900 text-white">
-        <div className="max-w-6xl mx-auto px-4 py-16 sm:py-24 text-center">
-          <Image
-            src="/img/Liga3dLOGOALTA.png"
-            alt="Liga 3D Metropolitana"
-            width={140}
-            height={140}
-            className="mx-auto mb-6 rounded-full"
-          />
-          <h1 className="font-horta text-5xl sm:text-7xl tracking-wide mb-4">
+      {/* Hero con foto de fondo */}
+      <section className="relative h-[70vh] min-h-[400px] flex items-center justify-center overflow-hidden">
+        <Image
+          src="/img/DSC_0296.JPG"
+          alt="Arqueros de la Liga 3D"
+          fill
+          className="object-cover"
+          priority
+        />
+        <div className="absolute inset-0 bg-black/50" />
+        <div className="relative z-10 text-center px-4">
+          <h1 className="font-horta text-5xl sm:text-7xl md:text-8xl tracking-wide text-liga mb-4 drop-shadow-lg">
             Liga 3D Metropolitana
           </h1>
-          <p className="text-slate-300 text-lg sm:text-xl max-w-2xl mx-auto mb-8">
-            Competí en los mejores torneos de arquería 3D. Ranking, resultados y todo lo que necesitás para ser parte.
+          <p className="text-white text-lg sm:text-xl max-w-2xl mx-auto mb-8 drop-shadow">
+            Simplemente los mejores torneos de 3D del país
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link
               href="/calendario"
-              className="bg-green-700 hover:bg-green-800 text-white font-semibold px-6 py-3 rounded-xl transition-colors"
+              className="bg-liga hover:bg-liga-dark text-white font-semibold px-6 py-3 rounded-xl transition-colors"
             >
               Ver calendario
             </Link>
             <Link
               href="/ranking"
-              className="border border-slate-600 hover:border-slate-400 text-slate-200 font-semibold px-6 py-3 rounded-xl transition-colors"
+              className="border border-white/60 hover:border-white text-white font-semibold px-6 py-3 rounded-xl transition-colors hover:bg-white/10"
             >
               Ver ranking
             </Link>
@@ -126,10 +127,10 @@ function Tarjeta({
   return (
     <Link
       href={href}
-      className="block bg-white border border-slate-200 rounded-xl p-6 hover:border-green-300 hover:shadow-md transition-all group"
+      className="block bg-white border border-slate-200 rounded-xl p-6 hover:border-liga/50 hover:shadow-md transition-all group"
     >
       <span className="text-3xl block mb-3">{icono}</span>
-      <h3 className="font-bold text-slate-800 mb-1 group-hover:text-green-700 transition-colors">
+      <h3 className="font-bold text-slate-800 mb-1 group-hover:text-liga transition-colors">
         {titulo}
       </h3>
       <p className="text-sm text-slate-500">{descripcion}</p>
