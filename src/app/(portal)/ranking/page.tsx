@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   title: "Ranking — Liga 3D",
 };
 
-const TODAS_CATEGORIAS = ["CM", "CW", "BM", "BW", "LM", "LW", "TM", "TW", "ESC", "JUN"] as const;
+const TODAS_CATEGORIAS = ["CM", "CW", "BM", "BW", "LM", "LW", "TM", "TW"] as const;
 const CATEGORIAS_CON_CAMPEON = ["CM", "CW", "BM", "BW", "LM", "LW", "TM", "TW"];
 
 type ArqueroRanking = {

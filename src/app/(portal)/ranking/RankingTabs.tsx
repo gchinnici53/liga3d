@@ -29,15 +29,8 @@ const NOMBRE_CATEGORIA: Record<string, string> = {
   LW: "Longbow W",
   TM: "Tradicional M",
   TW: "Tradicional W",
-  ESC: "Escuela",
-  JUN: "Junior",
 };
 
-const MEDALLA: Record<number, string> = {
-  1: "🥇",
-  2: "🥈",
-  3: "🥉",
-};
 
 export default function RankingTabs({ categorias }: { categorias: CategoriaRanking[] }) {
   const [activa, setActiva] = useState(categorias[0]?.nombre ?? "CM");
@@ -92,7 +85,7 @@ export default function RankingTabs({ categorias }: { categorias: CategoriaRanki
                 return (
                   <tr key={arq.id} className="hover:bg-slate-50">
                     <td className="px-4 py-3 font-semibold text-slate-500">
-                      {MEDALLA[pos] ?? pos}
+                      {pos}
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
