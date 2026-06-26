@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { calcularTotalTemporada, nombreCompleto, calificaParaCampeon } from "@/lib/scoring";
+import { calcularTotalTemporada, calificaParaCampeon } from "@/lib/scoring";
 import type { TipoTorneo } from "@/types/enums";
 import type { Metadata } from "next";
 import RankingTabs from "./RankingTabs";
