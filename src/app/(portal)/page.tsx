@@ -86,30 +86,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Secciones rápidas */}
-      <section className="max-w-6xl mx-auto px-4 py-16">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Tarjeta
-            icono="📊"
-            titulo="Ranking"
-            descripcion="Consultá las posiciones por categoría de la temporada actual."
-            href="/ranking"
-          />
-          <Tarjeta
-            icono="📅"
-            titulo="Calendario"
-            descripcion="Fechas de torneos e inscripciones abiertas."
-            href="/calendario"
-          />
-          <Tarjeta
-            icono="🏆"
-            titulo="Campeones"
-            descripcion="Todos los campeones de cada temporada."
-            href="/campeones"
-          />
-        </div>
-      </section>
-
       {/* Sponsors */}
       <section className="border-t border-slate-200 bg-slate-50">
         <div className="max-w-6xl mx-auto px-4 py-12">
@@ -141,27 +117,3 @@ export default async function HomePage() {
   );
 }
 
-function Tarjeta({
-  icono,
-  titulo,
-  descripcion,
-  href,
-}: {
-  icono: string;
-  titulo: string;
-  descripcion: string;
-  href: string;
-}) {
-  return (
-    <Link
-      href={href}
-      className="block bg-white border border-slate-200 rounded-xl p-6 hover:border-liga/50 hover:shadow-md transition-all group"
-    >
-      <span className="text-3xl block mb-3">{icono}</span>
-      <h3 className="font-bold text-slate-800 mb-1 group-hover:text-liga transition-colors">
-        {titulo}
-      </h3>
-      <p className="text-sm text-slate-500">{descripcion}</p>
-    </Link>
-  );
-}
