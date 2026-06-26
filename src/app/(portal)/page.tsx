@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 
 export default async function HomePage() {
@@ -19,7 +20,14 @@ export default async function HomePage() {
     <>
       {/* Hero */}
       <section className="bg-slate-900 text-white">
-        <div className="max-w-6xl mx-auto px-4 py-20 sm:py-28 text-center">
+        <div className="max-w-6xl mx-auto px-4 py-16 sm:py-24 text-center">
+          <Image
+            src="/img/Liga3dLOGOALTA.png"
+            alt="Liga 3D Metropolitana"
+            width={140}
+            height={140}
+            className="mx-auto mb-6 rounded-full"
+          />
           <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4">
             Liga de Tiro con Arco 3D
           </h1>

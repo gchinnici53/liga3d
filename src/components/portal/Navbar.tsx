@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 
 const links = [
@@ -27,9 +28,15 @@ export default function Navbar() {
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
-            <span className="text-2xl">🏹</span>
-            <span className="text-white font-bold text-xl tracking-tight">Liga 3D</span>
+          <Link href="/" className="flex items-center gap-2 shrink-0">
+            <Image
+              src="/img/Liga3dLOGOALTA.png"
+              alt="Liga 3D Metropolitana"
+              width={44}
+              height={44}
+              className="rounded-full"
+            />
+            <span className="text-white font-bold text-lg tracking-tight hidden sm:inline">Liga 3D</span>
           </Link>
 
           {/* Links desktop */}

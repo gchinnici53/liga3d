@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Footer() {
   const anio = new Date().getFullYear();
@@ -9,8 +10,14 @@ export default function Footer() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
           {/* Marca */}
           <div>
-            <div className="flex items-center gap-2 mb-3">
-              <span className="text-2xl">🏹</span>
+            <div className="flex items-center gap-3 mb-3">
+              <Image
+                src="/img/Liga3dLOGOALTA.png"
+                alt="Liga 3D"
+                width={40}
+                height={40}
+                className="rounded-full"
+              />
               <span className="text-white font-bold text-lg">Liga 3D</span>
             </div>
             <p className="text-sm leading-relaxed">
