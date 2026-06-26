@@ -28,8 +28,8 @@ export default async function HomePage() {
             height={140}
             className="mx-auto mb-6 rounded-full"
           />
-          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4">
-            Liga de Tiro con Arco 3D
+          <h1 className="font-horta text-5xl sm:text-7xl tracking-wide mb-4">
+            Liga 3D Metropolitana
           </h1>
           <p className="text-slate-300 text-lg sm:text-xl max-w-2xl mx-auto mb-8">
             Competí en los mejores torneos de arquería 3D. Ranking, resultados y todo lo que necesitás para ser parte.

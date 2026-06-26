@@ -18,7 +18,7 @@ export default function Footer() {
                 height={40}
                 className="rounded-full"
               />
-              <span className="text-white font-bold text-lg">Liga 3D</span>
+              <span className="text-white font-horta text-2xl tracking-wide">Liga 3D</span>
             </div>
             <p className="text-sm leading-relaxed">
               Liga de tiro con arco 3D. Competí, mejorá y compartí la pasión por el arco.

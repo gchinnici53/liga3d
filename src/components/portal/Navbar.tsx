@@ -36,7 +36,7 @@ export default function Navbar() {
               height={44}
               className="rounded-full"
             />
-            <span className="text-white font-bold text-lg tracking-tight hidden sm:inline">Liga 3D</span>
+            <span className="text-white font-horta text-2xl tracking-wide hidden sm:inline">Liga 3D</span>
           </Link>
 
           {/* Links desktop */}
