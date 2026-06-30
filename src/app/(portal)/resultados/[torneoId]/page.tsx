@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import ResultadosTabs from "./ResultadosTabs";
 import type { Metadata } from "next";
 
 type Props = { params: { torneoId: string } };
@@ -26,6 +27,7 @@ export default async function ResultadosTorneoPage({ params }: Props) {
   });
 
   if (!torneo) notFound();
+
   if (torneo.resultados.length === 0) {
     return (
       <div className="max-w-3xl mx-auto px-4 py-16 text-center">
@@ -48,7 +50,17 @@ export default async function ResultadosTorneoPage({ params }: Props) {
     {}
   );
 
-  const MEDALLA: Record<number, string> = { 1: "🥇", 2: "🥈", 3: "🥉", 4: "🏅" };
+  const categorias = Object.entries(porCategoria).map(([nombre, resultados]) => ({
+    nombre,
+    resultados: resultados.map((r) => ({
+      id: r.id,
+      posicion: r.posicion,
+      esMedallista: r.esMedallista,
+      puntajeTotal: r.puntajeTotal,
+      puntosTemporada: r.puntosTemporada,
+      arquero: { nombre: r.arquero.nombre, apellido: r.arquero.apellido },
+    })),
+  }));
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-12">
@@ -59,42 +71,18 @@ export default async function ResultadosTorneoPage({ params }: Props) {
       <div className="mt-6 mb-8">
         <h1 className="text-3xl font-bold text-slate-800 mb-1">{torneo.nombre}</h1>
         <p className="text-slate-500 text-sm">
-          {new Date(torneo.fecha).toLocaleDateString("es-AR", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
+          {new Date(torneo.fecha).toLocaleDateString("es-AR", {
+            weekday: "long", day: "numeric", month: "long", year: "numeric",
+          })}
           {torneo.lugar && ` · ${torneo.lugar}`}
-          {" · "}{torneo.temporada.nombre}
+          {` · ${torneo.temporada.nombre}`}
+        </p>
+        <p className="text-xs text-slate-400 mt-1">
+          {torneo.resultados.length} participantes · {categorias.length} categorías
         </p>
       </div>
 
-      <div className="space-y-6">
-        {Object.entries(porCategoria).map(([categoria, resultados]) => (
-          <div key={categoria} className="bg-white border border-slate-200 rounded-xl overflow-hidden">
-            <div className="px-5 py-3 bg-slate-50 border-b border-slate-100">
-              <span className="font-bold text-slate-700">{categoria}</span>
-              <span className="text-slate-400 text-sm ml-2">· {resultados.length} arqueros</span>
-            </div>
-            <table className="w-full text-sm">
-              <tbody className="divide-y divide-slate-100">
-                {resultados.map((r) => (
-                  <tr key={r.id} className={r.esMedallista ? "bg-amber-50/50" : "hover:bg-slate-50"}>
-                    <td className="px-4 py-3 w-10 font-semibold text-slate-500">
-                      {MEDALLA[r.posicion] ?? `${r.posicion}°`}
-                    </td>
-                    <td className="px-4 py-3 font-medium text-slate-800">
-                      {r.arquero.nombre} {r.arquero.apellido}
-                    </td>
-                    <td className="px-4 py-3 text-right text-slate-600 hidden sm:table-cell">
-                      {r.puntajeTotal} pts
-                    </td>
-                    <td className="px-4 py-3 text-right font-semibold text-liga">
-                      +{r.puntosTemporada}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ))}
-      </div>
+      <ResultadosTabs categorias={categorias} />
     </div>
   );
 }
