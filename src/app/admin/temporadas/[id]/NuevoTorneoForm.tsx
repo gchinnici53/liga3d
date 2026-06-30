@@ -73,6 +73,37 @@ export default function NuevoTorneoForm({ temporadaId }: { temporadaId: number }
           </select>
         </div>
 
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium text-slate-700">Horario</label>
+          <input
+            name="horario"
+            type="text"
+            placeholder="9 hs"
+            className="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+          />
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium text-slate-700">Dirección (para el mapa)</label>
+          <input
+            name="direccion"
+            type="text"
+            placeholder="Calle 404 entre 618 y 619, El Pato, Buenos Aires"
+            className="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+          />
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium text-slate-700">Máx. inscriptos</label>
+          <input
+            name="maxInscriptos"
+            type="number"
+            defaultValue={130}
+            min={1}
+            className="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+          />
+        </div>
+
         <SubmitButton />
       </form>
     </div>

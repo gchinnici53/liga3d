@@ -28,8 +28,13 @@ export async function crearTorneo(
     if (finalExiste) return { error: "Esta temporada ya tiene un torneo FINAL." };
   }
 
+  const horario     = (formData.get("horario") as string | null)?.trim() || null;
+  const direccion   = (formData.get("direccion") as string | null)?.trim() || null;
+  const maxStr      = formData.get("maxInscriptos") as string | null;
+  const maxInscriptos = maxStr ? parseInt(maxStr, 10) : 130;
+
   await prisma.torneo.create({
-    data: { nombre, lugar, fecha: new Date(fecha), tipo, temporadaId },
+    data: { nombre, lugar, fecha: new Date(fecha), tipo, temporadaId, horario, direccion, maxInscriptos },
   });
 
   revalidatePath(`/admin/temporadas/${temporadaId}`);

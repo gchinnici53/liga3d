@@ -4,6 +4,7 @@ import Link from "next/link";
 import Badge from "@/components/ui/Badge";
 import EliminarTorneoButton from "./EliminarTorneoButton";
 import EliminarResultadoButton from "./EliminarResultadoButton";
+import SubirAfficheForm from "./SubirAfficheForm";
 import { nombreCompleto } from "@/lib/scoring";
 
 type Props = { params: { id: string } };
@@ -67,6 +68,31 @@ export default async function DetalleTorneoPage({ params }: Props) {
           )}
         </div>
       </div>
+
+      {/* Afiche y datos del calendario */}
+      <SubirAfficheForm torneoId={torneo.id} afficheActual={torneo.afiche} />
+
+      {/* Datos del calendario */}
+      {(torneo.horario || torneo.direccion) && (
+        <div className="bg-white rounded-xl border border-slate-200 p-5 mb-4 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+          {torneo.horario && (
+            <div>
+              <p className="text-xs text-slate-400 mb-0.5">Horario</p>
+              <p className="font-medium text-slate-800">{torneo.horario}</p>
+            </div>
+          )}
+          {torneo.direccion && (
+            <div>
+              <p className="text-xs text-slate-400 mb-0.5">Dirección</p>
+              <p className="font-medium text-slate-800">{torneo.direccion}</p>
+            </div>
+          )}
+          <div>
+            <p className="text-xs text-slate-400 mb-0.5">Máx. inscriptos</p>
+            <p className="font-medium text-slate-800">{torneo.maxInscriptos}</p>
+          </div>
+        </div>
+      )}
 
       {/* Resultados */}
       {!tienResultados ? (

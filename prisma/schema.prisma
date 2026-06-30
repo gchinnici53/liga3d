@@ -82,7 +82,29 @@ model Torneo {
   temporada   Temporada @relation(fields: [temporadaId], references: [id])
   createdAt   DateTime  @default(now())
 
-  resultados  Resultado[]
+  // Calendario público
+  horario     String?   // ej: "9 hs"
+  direccion   String?   // dirección completa para el mapa
+  afiche      String?   // ruta relativa a la imagen del afiche
+  maxInscriptos Int     @default(130)
+
+  resultados    Resultado[]
+  inscripciones Inscripcion[]
+}
+
+model Inscripcion {
+  id         Int      @id @default(autoincrement())
+  torneoId   Int
+  torneo     Torneo   @relation(fields: [torneoId], references: [id])
+  nombre     String
+  apellido   String
+  email      String
+  telefono   String?
+  categoria  String   // CM, CW, BM, BW, LM, LW, TM, TW, ESC, JUN
+  club       String?
+  createdAt  DateTime @default(now())
+
+  @@unique([email, torneoId])
 }
 
 model Resultado {
