@@ -34,8 +34,9 @@ export default async function FichaArqueroPage({ params }: Props) {
 
   const totalTorneos  = arquero.resultados.length;
   const categorias    = Array.from(new Set(arquero.resultados.map((r) => r.categoria.nombre))).join(", ");
-  const mejorPuntaje  = arquero.resultados.length > 0
-    ? Math.max(...arquero.resultados.map((r) => r.puntajeTotal))
+  const resultadosRegulares = arquero.resultados.filter((r) => r.torneo.tipo === "REGULAR");
+  const mejorPuntaje = resultadosRegulares.length > 0
+    ? Math.max(...resultadosRegulares.map((r) => r.puntajeTotal))
     : 0;
 
   // Datos para el gráfico (orden cronológico)
