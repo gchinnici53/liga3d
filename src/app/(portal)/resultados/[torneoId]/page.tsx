@@ -1,7 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { etiquetaPosicion } from "@/lib/scoring";
 import type { Metadata } from "next";
 
 type Props = { params: { torneoId: string } };
