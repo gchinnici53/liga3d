@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 
 type Resultado = {
   id: number;
@@ -8,7 +9,7 @@ type Resultado = {
   esMedallista: boolean;
   puntajeTotal: number;
   puntosTemporada: number;
-  arquero: { nombre: string; apellido: string };
+  arquero: { id: number; nombre: string; apellido: string };
 };
 
 type CategoriaResultados = {
@@ -65,8 +66,10 @@ export default function ResultadosTabs({ categorias }: { categorias: CategoriaRe
                   <td className="px-4 py-3 font-semibold text-slate-500">
                     {MEDALLA[r.posicion] ?? `${r.posicion}°`}
                   </td>
-                  <td className="px-4 py-3 font-medium text-slate-800">
-                    {r.arquero.nombre} {r.arquero.apellido}
+                  <td className="px-4 py-3">
+                    <Link href={`/arqueros/${r.arquero.id}`} className="font-medium text-slate-800 hover:text-liga transition-colors">
+                      {r.arquero.nombre} {r.arquero.apellido}
+                    </Link>
                   </td>
                   <td className="px-4 py-3 text-right text-slate-600">
                     {r.puntajeTotal}

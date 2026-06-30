@@ -58,7 +58,7 @@ export default async function ResultadosTorneoPage({ params }: Props) {
       esMedallista: r.esMedallista,
       puntajeTotal: r.puntajeTotal,
       puntosTemporada: r.puntosTemporada,
-      arquero: { nombre: r.arquero.nombre, apellido: r.arquero.apellido },
+      arquero: { id: r.arquero.id, nombre: r.arquero.nombre, apellido: r.arquero.apellido },
     })),
   }));
 

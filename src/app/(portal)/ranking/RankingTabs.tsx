@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 type ArqueroRanking = {
   id: number;
@@ -104,9 +105,9 @@ export default function RankingTabs({ categorias }: { categorias: CategoriaRanki
                             </span>
                           )}
                         </div>
-                        <span className="font-medium text-slate-800">
+                        <Link href={`/arqueros/${arq.id}`} className="font-medium text-slate-800 hover:text-liga transition-colors">
                           {arq.nombre} {arq.apellido}
-                        </span>
+                        </Link>
                       </div>
                     </td>
                     <td className="px-4 py-3 text-center text-slate-600 hidden sm:table-cell">
