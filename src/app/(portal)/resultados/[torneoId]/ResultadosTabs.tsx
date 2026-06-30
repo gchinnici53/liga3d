@@ -55,8 +55,8 @@ export default function ResultadosTabs({ categorias }: { categorias: CategoriaRe
               <tr>
                 <th className="text-left px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wide w-12">#</th>
                 <th className="text-left px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wide">Arquero</th>
-                <th className="text-right px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wide hidden sm:table-cell">Puntaje</th>
-                <th className="text-right px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wide">Pts temp.</th>
+                <th className="text-right px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wide">Puntaje</th>
+                <th className="text-right px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wide hidden sm:table-cell">Pts temp.</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -68,10 +68,10 @@ export default function ResultadosTabs({ categorias }: { categorias: CategoriaRe
                   <td className="px-4 py-3 font-medium text-slate-800">
                     {r.arquero.nombre} {r.arquero.apellido}
                   </td>
-                  <td className="px-4 py-3 text-right text-slate-600 hidden sm:table-cell">
+                  <td className="px-4 py-3 text-right text-slate-600">
                     {r.puntajeTotal}
                   </td>
-                  <td className="px-4 py-3 text-right font-bold text-liga">
+                  <td className="px-4 py-3 text-right font-bold text-liga hidden sm:table-cell">
                     +{r.puntosTemporada}
                   </td>
                 </tr>
