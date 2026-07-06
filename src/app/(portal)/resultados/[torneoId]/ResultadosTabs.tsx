@@ -17,7 +17,7 @@ type CategoriaResultados = {
   resultados: Resultado[];
 };
 
-const MEDALLA: Record<number, string> = { 1: "🥇", 2: "🥈", 3: "🥉", 4: "🏅" };
+const MEDALLA: Record<number, string> = { 1: "🥇", 2: "🥈", 3: "🥉" };
 
 export default function ResultadosTabs({ categorias }: { categorias: CategoriaResultados[] }) {
   const [activa, setActiva] = useState(categorias[0]?.nombre ?? "");
