@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { existsSync } from "fs";
-import path from "path";
+import PersonaCard from "./PersonaCard";
 
 export const metadata: Metadata = {
   title: "Nosotros — Liga 3D",
@@ -20,30 +19,6 @@ const COLABORADORES = [
   { nombre: "Andrea Manzoni",   foto: "/img/equipo/andrea.jpg"   },
 ];
 
-function iniciales(nombre: string) {
-  return nombre.split(" ").slice(0, 2).map((p) => p[0]).join("");
-}
-
-function tieneImagen(src: string): boolean {
-  return existsSync(path.join(process.cwd(), "public", src));
-}
-
-function PersonaCard({ nombre, foto }: { nombre: string; foto: string }) {
-  const hayFoto = tieneImagen(foto);
-  return (
-    <div className="flex flex-col items-center gap-3 text-center">
-      <div className="w-24 h-24 rounded-full overflow-hidden bg-liga/10 border-2 border-liga/20 flex items-center justify-center shrink-0">
-        {hayFoto ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={foto} alt={nombre} className="object-cover w-full h-full" />
-        ) : (
-          <span className="text-liga font-bold text-xl">{iniciales(nombre)}</span>
-        )}
-      </div>
-      <p className="text-sm font-semibold text-slate-700">{nombre}</p>
-    </div>
-  );
-}
 
 export default function NosotrosPage() {
   return (
