@@ -38,6 +38,7 @@ export default function InscripcionForm({ torneoId }: { torneoId: number }) {
   const [apellido, setApellido] = useState("");
   const [email, setEmail] = useState("");
   const [telefono, setTelefono] = useState("");
+  const [fechaNac, setFechaNac] = useState("");
   const [prefillado, setPrefillado] = useState(false);
   const [noEncontrado, setNoEncontrado] = useState(false);
   const [buscando, startBuscar] = useTransition();
@@ -52,6 +53,8 @@ export default function InscripcionForm({ torneoId }: { torneoId: number }) {
         setApellido(arquero.apellido);
         setEmail(arquero.email ?? "");
         setTelefono(arquero.telefono ?? "");
+        // Convertir Date a formato YYYY-MM-DD para el input type="date"
+        setFechaNac(new Date(arquero.fechaNacimiento).toISOString().split("T")[0]);
         setPrefillado(true);
         setNoEncontrado(false);
       } else {
@@ -59,6 +62,7 @@ export default function InscripcionForm({ torneoId }: { torneoId: number }) {
         setApellido("");
         setEmail("");
         setTelefono("");
+        setFechaNac("");
         setPrefillado(false);
         setNoEncontrado(true);
       }
@@ -158,18 +162,19 @@ export default function InscripcionForm({ torneoId }: { torneoId: number }) {
         <div className="sm:col-span-2">
           <label className="block text-sm font-medium text-slate-700 mb-1">
             Fecha de nacimiento *
-            {prefillado && (
-              <span className="ml-2 text-xs font-normal text-amber-600">
-                — Ingresala para verificar tu identidad
-              </span>
-            )}
           </label>
           <input
             name="fechaNacimiento"
             type="date"
             required
-            className={`${INPUT} max-w-xs`}
+            value={fechaNac}
+            onChange={(e) => setFechaNac(e.target.value)}
+            readOnly={prefillado}
+            className={`${prefillado ? INPUT_PREFILL : INPUT} max-w-xs ${prefillado ? "cursor-not-allowed" : ""}`}
           />
+          {prefillado && (
+            <p className="mt-1 text-xs text-slate-400">Fecha registrada en el sistema.</p>
+          )}
         </div>
 
         {/* Categoría y club — siempre manuales */}

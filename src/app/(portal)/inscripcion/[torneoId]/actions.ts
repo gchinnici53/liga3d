@@ -10,14 +10,14 @@ export type DatosArquero = {
   apellido: string;
   email: string | null;
   telefono: string | null;
+  fechaNacimiento: Date;
 };
 
 export async function buscarArqueroPorDNI(dni: string): Promise<DatosArquero | null> {
   if (!dni.trim()) return null;
   return prisma.arquero.findFirst({
     where: { dni: dni.trim(), activo: true },
-    select: { nombre: true, apellido: true, email: true, telefono: true },
-    // fechaNacimiento NO se devuelve al cliente — se valida solo server-side
+    select: { nombre: true, apellido: true, email: true, telefono: true, fechaNacimiento: true },
   });
 }
 
