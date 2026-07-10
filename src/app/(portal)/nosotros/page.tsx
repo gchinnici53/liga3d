@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import { existsSync } from "fs";
 import path from "path";
 
@@ -33,9 +32,10 @@ function PersonaCard({ nombre, foto }: { nombre: string; foto: string }) {
   const hayFoto = tieneImagen(foto);
   return (
     <div className="flex flex-col items-center gap-3 text-center">
-      <div className="w-24 h-24 rounded-full overflow-hidden bg-liga/10 border-2 border-liga/20 flex items-center justify-center shrink-0 relative">
+      <div className="w-24 h-24 rounded-full overflow-hidden bg-liga/10 border-2 border-liga/20 flex items-center justify-center shrink-0">
         {hayFoto ? (
-          <Image src={foto} alt={nombre} fill className="object-cover" />
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={foto} alt={nombre} className="object-cover w-full h-full" />
         ) : (
           <span className="text-liga font-bold text-xl">{iniciales(nombre)}</span>
         )}
