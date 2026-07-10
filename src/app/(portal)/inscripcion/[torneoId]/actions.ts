@@ -3,6 +3,21 @@
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 
+export type DatosArquero = {
+  nombre: string;
+  apellido: string;
+  email: string | null;
+  telefono: string | null;
+};
+
+export async function buscarArqueroPorDNI(dni: string): Promise<DatosArquero | null> {
+  if (!dni.trim()) return null;
+  return prisma.arquero.findFirst({
+    where: { dni: dni.trim(), activo: true },
+    select: { nombre: true, apellido: true, email: true, telefono: true },
+  });
+}
+
 export type InscripcionState = { error?: string; exito?: boolean };
 
 export async function inscribirse(
