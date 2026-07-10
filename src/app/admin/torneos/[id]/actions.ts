@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/session";
+import { calcularPuntosTemporada } from "@/lib/scoring";
+import type { TipoTorneo } from "@/types/enums";
 
 export type EditarTorneoState = { error?: string; exito?: boolean };
 
@@ -31,6 +33,31 @@ export async function editarTorneo(
   revalidatePath("/admin/torneos");
   revalidatePath("/calendario");
   return { exito: true };
+}
+
+export async function editarResultado(
+  id: number,
+  posicion: number,
+  puntajeTotal: number,
+): Promise<{ error?: string }> {
+  if (posicion < 1 || puntajeTotal < 0) return { error: "Valores inválidos." };
+
+  const resultado = await prisma.resultado.findUnique({
+    where: { id },
+    include: { torneo: { select: { id: true, tipo: true } } },
+  });
+  if (!resultado) return { error: "Resultado no encontrado." };
+
+  const puntosTemporada = calcularPuntosTemporada(posicion, resultado.torneo.tipo as TipoTorneo);
+  const esMedallista    = posicion <= 4;
+
+  await prisma.resultado.update({
+    where: { id },
+    data: { posicion, puntajeTotal, puntosTemporada, esMedallista },
+  });
+
+  revalidatePath(`/admin/torneos/${resultado.torneo.id}`);
+  return {};
 }
 
 export async function eliminarResultado(id: number) {

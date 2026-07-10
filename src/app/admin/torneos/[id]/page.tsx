@@ -3,10 +3,9 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import Badge from "@/components/ui/Badge";
 import EliminarTorneoButton from "./EliminarTorneoButton";
-import EliminarResultadoButton from "./EliminarResultadoButton";
 import SubirAfficheForm from "./SubirAfficheForm";
 import EditarTorneoForm from "./EditarTorneoForm";
-import { nombreCompleto } from "@/lib/scoring";
+import EditarResultadoInline from "./EditarResultadoInline";
 
 type Props = { params: { id: string } };
 
@@ -95,26 +94,22 @@ export default async function DetalleTorneoPage({ params }: Props) {
                     <th className="text-left px-4 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wide">Arquero</th>
                     <th className="text-right px-4 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wide">Puntaje</th>
                     <th className="text-right px-4 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wide">Pts temp.</th>
-                    <th className="w-8" />
+                    <th className="w-20" />
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {resultados.map((r) => (
-                    <tr key={r.id} className={r.esMedallista ? "bg-amber-50" : "hover:bg-slate-50"}>
-                      <td className="px-4 py-2.5">
-                        <MedallaPosicion posicion={r.posicion} />
-                      </td>
-                      <td className="px-4 py-2.5">
-                        <Link href={`/admin/arqueros/${r.arqueroId}`} className="text-slate-800 hover:text-green-700">
-                          {nombreCompleto(r.arquero.nombre, r.arquero.apellido)}
-                        </Link>
-                      </td>
-                      <td className="px-4 py-2.5 text-right text-slate-800">{r.puntajeTotal}</td>
-                      <td className="px-4 py-2.5 text-right font-semibold text-green-700">{r.puntosTemporada}</td>
-                      <td className="px-2 py-2.5 text-center">
-                        <EliminarResultadoButton id={r.id} />
-                      </td>
-                    </tr>
+                    <EditarResultadoInline
+                      key={r.id}
+                      resultado={{
+                        id: r.id,
+                        posicion: r.posicion,
+                        esMedallista: r.esMedallista,
+                        puntajeTotal: r.puntajeTotal,
+                        puntosTemporada: r.puntosTemporada,
+                        arquero: { id: r.arqueroId, nombre: r.arquero.nombre, apellido: r.arquero.apellido },
+                      }}
+                    />
                   ))}
                 </tbody>
               </table>
@@ -124,23 +119,4 @@ export default async function DetalleTorneoPage({ params }: Props) {
       )}
     </div>
   );
-}
-
-function MedallaPosicion({ posicion }: { posicion: number }) {
-  if (posicion === 1) return (
-    <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-yellow-400 text-white text-xs font-bold shadow-sm" title="Oro">
-      🥇
-    </span>
-  );
-  if (posicion === 2) return (
-    <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-slate-300 text-white text-xs font-bold shadow-sm" title="Plata">
-      🥈
-    </span>
-  );
-  if (posicion === 3) return (
-    <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-amber-600 text-white text-xs font-bold shadow-sm" title="Bronce">
-      🥉
-    </span>
-  );
-  return <span className="text-sm font-semibold text-slate-500 px-1">{posicion}°</span>;
 }
