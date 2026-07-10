@@ -41,7 +41,6 @@ export default function InscripcionForm({ torneoId }: { torneoId: number }) {
   const [prefillado, setPrefillado] = useState(false);
   const [noEncontrado, setNoEncontrado] = useState(false);
   const [buscando, startBuscar] = useTransition();
-  const [mostrarFecha, setMostrarFecha] = useState(false);
 
   function buscar() {
     if (!dni.trim()) return;
@@ -55,7 +54,6 @@ export default function InscripcionForm({ torneoId }: { torneoId: number }) {
         setTelefono(arquero.telefono ?? "");
         setPrefillado(true);
         setNoEncontrado(false);
-        setMostrarFecha(true);
       } else {
         setNombre("");
         setApellido("");
@@ -63,7 +61,6 @@ export default function InscripcionForm({ torneoId }: { torneoId: number }) {
         setTelefono("");
         setPrefillado(false);
         setNoEncontrado(true);
-        setMostrarFecha(true);
       }
     });
   }
