@@ -47,10 +47,22 @@ export default async function TorneosPage() {
                     {t.horario && <span className="text-slate-400 ml-1">· {t.horario}</span>}
                   </td>
                   <td className="px-5 py-3 text-center hidden md:table-cell">
-                    <span className={t._count.inscripciones > 0 ? "text-green-700 font-semibold" : "text-slate-300"}>
-                      {t._count.inscripciones}
-                    </span>
-                    <span className="text-slate-300 text-xs">/{t.maxInscriptos}</span>
+                    {new Date(t.fecha) < new Date() ? (
+                      // Torneo pasado: mostrar participantes reales
+                      t._count.resultados > 0 ? (
+                        <span className="text-slate-600 font-semibold">{t._count.resultados} partic.</span>
+                      ) : (
+                        <span className="text-slate-300 text-xs">Sin resultados</span>
+                      )
+                    ) : (
+                      // Torneo futuro: mostrar inscriptos / cupo
+                      <>
+                        <span className={t._count.inscripciones > 0 ? "text-green-700 font-semibold" : "text-slate-300"}>
+                          {t._count.inscripciones}
+                        </span>
+                        <span className="text-slate-300 text-xs">/{t.maxInscriptos}</span>
+                      </>
+                    )}
                   </td>
                   <td className="px-5 py-3 text-center hidden sm:table-cell">
                     {t.afiche

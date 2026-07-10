@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import EliminarInscripcionButton from "./EliminarInscripcionButton";
 
 type Props = { params: { id: string } };
 
@@ -86,6 +87,7 @@ export default async function InscriptosPage({ params }: Props) {
                     <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Teléfono</th>
                     <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Club</th>
                     <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Inscripto</th>
+                    <th className="w-8" />
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -108,6 +110,13 @@ export default async function InscriptosPage({ params }: Props) {
                       <td className="px-4 py-3 text-slate-600">{i.club ?? "—"}</td>
                       <td className="px-4 py-3 text-slate-400 text-xs">
                         {new Date(i.createdAt).toLocaleDateString("es-AR")}
+                      </td>
+                      <td className="px-2 py-3 text-center">
+                        <EliminarInscripcionButton
+                          id={i.id}
+                          torneoId={torneoId}
+                          nombre={`${i.nombre} ${i.apellido}`}
+                        />
                       </td>
                     </tr>
                   ))}
