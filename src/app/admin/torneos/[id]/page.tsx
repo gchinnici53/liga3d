@@ -56,7 +56,13 @@ export default async function DetalleTorneoPage({ params }: Props) {
             {torneo.lugar} · {new Date(torneo.fecha).toLocaleDateString("es-AR")} · {torneo.temporada.nombre}
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
+          <Link
+            href={`/admin/torneos/${torneo.id}/inscriptos`}
+            className="bg-slate-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors"
+          >
+            👥 Ver inscriptos
+          </Link>
           <Link
             href={`/admin/torneos/${torneo.id}/importar`}
             className="bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-800 transition-colors"

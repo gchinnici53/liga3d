@@ -93,16 +93,18 @@ model Torneo {
 }
 
 model Inscripcion {
-  id         Int      @id @default(autoincrement())
-  torneoId   Int
-  torneo     Torneo   @relation(fields: [torneoId], references: [id])
-  nombre     String
-  apellido   String
-  email      String
-  telefono   String?
-  categoria  String   // CM, CW, BM, BW, LM, LW, TM, TW, ESC, JUN
-  club       String?
-  createdAt  DateTime @default(now())
+  id              Int      @id @default(autoincrement())
+  torneoId        Int
+  torneo          Torneo   @relation(fields: [torneoId], references: [id])
+  nombre          String
+  apellido        String
+  email           String
+  telefono        String?
+  fechaNacimiento DateTime?
+  dni             String?
+  categoria       String   // CM, CW, BM, BW, LM, LW, TM, TW, ESC, JUN
+  club            String?
+  createdAt       DateTime @default(now())
 
   @@unique([email, torneoId])
 }

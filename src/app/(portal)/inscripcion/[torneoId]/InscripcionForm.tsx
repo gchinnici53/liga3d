@@ -41,6 +41,7 @@ export default function InscripcionForm({ torneoId }: { torneoId: number }) {
   const [prefillado, setPrefillado] = useState(false);
   const [noEncontrado, setNoEncontrado] = useState(false);
   const [buscando, startBuscar] = useTransition();
+  const [mostrarFecha, setMostrarFecha] = useState(false);
 
   function buscar() {
     if (!dni.trim()) return;
@@ -54,6 +55,7 @@ export default function InscripcionForm({ torneoId }: { torneoId: number }) {
         setTelefono(arquero.telefono ?? "");
         setPrefillado(true);
         setNoEncontrado(false);
+        setMostrarFecha(true);
       } else {
         setNombre("");
         setApellido("");
@@ -61,6 +63,7 @@ export default function InscripcionForm({ torneoId }: { torneoId: number }) {
         setTelefono("");
         setPrefillado(false);
         setNoEncontrado(true);
+        setMostrarFecha(true);
       }
     });
   }
@@ -151,6 +154,24 @@ export default function InscripcionForm({ torneoId }: { torneoId: number }) {
             name="telefono" type="tel"
             value={telefono} onChange={(e) => setTelefono(e.target.value)}
             className={prefillado ? INPUT_PREFILL : INPUT}
+          />
+        </div>
+
+        {/* Fecha de nacimiento */}
+        <div className="sm:col-span-2">
+          <label className="block text-sm font-medium text-slate-700 mb-1">
+            Fecha de nacimiento *
+            {prefillado && (
+              <span className="ml-2 text-xs font-normal text-amber-600">
+                — Ingresala para verificar tu identidad
+              </span>
+            )}
+          </label>
+          <input
+            name="fechaNacimiento"
+            type="date"
+            required
+            className={`${INPUT} max-w-xs`}
           />
         </div>
 
