@@ -90,6 +90,7 @@ model Torneo {
 
   resultados    Resultado[]
   inscripciones Inscripcion[]
+  patrullas     Patrulla[]
 }
 
 model Inscripcion {
@@ -108,6 +109,33 @@ model Inscripcion {
   createdAt       DateTime @default(now())
 
   @@unique([email, torneoId])
+
+  patrulla      MiembroPatrulla?
+}
+
+model Patrulla {
+  id        Int      @id @default(autoincrement())
+  torneoId  Int
+  torneo    Torneo   @relation(fields: [torneoId], references: [id], onDelete: Cascade)
+  numero    Int      // 1-24
+  bis       Boolean  @default(false)
+  // "ROJA" | "AMARILLA" | "AZUL"
+  estaca    String
+  createdAt DateTime @default(now())
+
+  miembros  MiembroPatrulla[]
+
+  @@unique([torneoId, numero, bis])
+}
+
+model MiembroPatrulla {
+  id            Int         @id @default(autoincrement())
+  patrullaId    Int
+  patrulla      Patrulla    @relation(fields: [patrullaId], references: [id], onDelete: Cascade)
+  inscripcionId Int         @unique
+  inscripcion   Inscripcion @relation(fields: [inscripcionId], references: [id])
+  // "A" | "B" | "C" | "D"
+  posicion      String
 }
 
 model Resultado {
