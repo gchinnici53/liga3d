@@ -32,24 +32,39 @@ export async function generarPatrullas(torneoId: number): Promise<{ error?: stri
     return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
   });
 
-  // Agrupar en bloques de 4 respetando el límite de estaca
+  // Agrupar en bloques de 4. Los archers ya están ordenados por categoría,
+  // así que cada grupo queda naturalmente dentro de la misma estaca.
+  // No se corta por cambio de estaca para evitar grupos parciales que
+  // desbordarían el máximo de 32 patrullas (24 + 8 bis).
+  type Item = { id: number; estaca: string };
   const grupos: { ids: number[]; estaca: string }[] = [];
-  let current: number[] = [];
-  let currentEstaca = "";
+  let current: Item[] = [];
 
   for (const insc of sorted) {
-    const estaca = ESTACA[insc.categoria] ?? "AZUL";
-
-    // Si se llena la patrulla O cambia la estaca → cerrar el grupo actual
-    if (current.length === 4 || (currentEstaca !== "" && estaca !== currentEstaca)) {
-      if (current.length > 0) grupos.push({ ids: current, estaca: currentEstaca });
+    current.push({ id: insc.id, estaca: ESTACA[insc.categoria] ?? "AZUL" });
+    if (current.length === 4) {
+      // Estaca del grupo = la más frecuente entre sus miembros
+      const freq = current.reduce<Record<string, number>>((acc, m) => {
+        acc[m.estaca] = (acc[m.estaca] ?? 0) + 1;
+        return acc;
+      }, {});
+      const estacaGrupo = Object.entries(freq).sort((a, b) => b[1] - a[1])[0][0];
+      grupos.push({ ids: current.map((m) => m.id), estaca: estacaGrupo });
       current = [];
     }
-
-    current.push(insc.id);
-    currentEstaca = estaca;
   }
-  if (current.length > 0) grupos.push({ ids: current, estaca: currentEstaca });
+  if (current.length > 0) {
+    const freq = current.reduce<Record<string, number>>((acc, m) => {
+      acc[m.estaca] = (acc[m.estaca] ?? 0) + 1;
+      return acc;
+    }, {});
+    const estacaGrupo = Object.entries(freq).sort((a, b) => b[1] - a[1])[0][0];
+    grupos.push({ ids: current.map((m) => m.id), estaca: estacaGrupo });
+  }
+
+  if (grupos.length > 32) {
+    return { error: `Se requieren ${grupos.length} patrullas pero el máximo es 32 (128 inscriptos).` };
+  }
 
   // Eliminar patrullas existentes y recrear
   await prisma.patrulla.deleteMany({ where: { torneoId } });
