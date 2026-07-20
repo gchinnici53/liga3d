@@ -23,6 +23,9 @@ export default async function InscriptosPage({ params, searchParams }: Props) {
         orderBy: orden === "apellido"
           ? [{ apellido: "asc" }, { nombre: "asc" }]
           : [{ categoria: "asc" }, { apellido: "asc" }],
+        include: {
+          patrulla: { include: { patrulla: { select: { numero: true, bis: true } } } },
+        },
       },
     },
   });
@@ -124,9 +127,9 @@ export default async function InscriptosPage({ params, searchParams }: Props) {
                     <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Apellido</th>
                     <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Nombre</th>
                     <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Cat.</th>
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">DNI</th>
                     <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">F. Nac.</th>
                     <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Club</th>
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Patrulla</th>
                     <th className="w-8" />
                   </tr>
                 </thead>
@@ -142,13 +145,17 @@ export default async function InscriptosPage({ params, searchParams }: Props) {
                       <td className="px-4 py-3">
                         <span className="px-2 py-0.5 bg-liga/10 text-liga rounded font-semibold text-xs">{i.categoria}</span>
                       </td>
-                      <td className="px-4 py-3 text-slate-600">{i.dni ?? "—"}</td>
                       <td className="px-4 py-3 text-slate-600">
                         {i.fechaNacimiento
                           ? new Date(i.fechaNacimiento).toLocaleDateString("es-AR")
                           : "—"}
                       </td>
                       <td className="px-4 py-3 text-slate-600">{i.club ?? "—"}</td>
+                      <td className="px-4 py-3 text-slate-600 font-mono text-xs">
+                        {i.patrulla
+                          ? `${i.patrulla.patrulla.numero}-${i.patrulla.posicion}${i.patrulla.patrulla.bis ? " Bis" : ""}`
+                          : "—"}
+                      </td>
                       <td className="px-2 py-3 text-center">
                         <EliminarInscripcionButton
                           id={i.id}
