@@ -15,3 +15,8 @@ export async function togglePagado(id: number, pagado: boolean, torneoId: number
   await prisma.inscripcion.update({ where: { id }, data: { pagado } });
   revalidatePath(`/admin/torneos/${torneoId}/inscriptos`);
 }
+
+export async function togglePresente(id: number, presente: boolean, torneoId: number) {
+  await prisma.inscripcion.update({ where: { id }, data: { presente } });
+  revalidatePath(`/admin/torneos/${torneoId}/inscriptos`);
+}

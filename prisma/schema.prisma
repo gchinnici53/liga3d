@@ -106,6 +106,7 @@ model Inscripcion {
   categoria       String   // CM, CW, BM, BW, LM, LW, TM, TW, ESC, JUN
   club            String?
   pagado          Boolean  @default(false)
+  presente        Boolean  @default(false)
   createdAt       DateTime @default(now())
 
   @@unique([email, torneoId])

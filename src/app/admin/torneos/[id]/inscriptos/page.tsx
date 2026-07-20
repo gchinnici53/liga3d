@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import EliminarInscripcionButton from "./EliminarInscripcionButton";
 import PagadoCheckbox from "./PagadoCheckbox";
+import PresenceCheckbox from "./PresenceCheckbox";
 
 type Props = {
   params: { id: string };
@@ -24,20 +25,41 @@ export default async function InscriptosPage({ params, searchParams }: Props) {
           ? [{ apellido: "asc" }, { nombre: "asc" }]
           : [{ categoria: "asc" }, { apellido: "asc" }],
         include: {
-          patrulla: { include: { patrulla: { select: { numero: true, bis: true } } } },
+          patrulla: { include: { patrulla: { select: { numero: true, bis: true, estaca: true } } } },
         },
       },
     },
   });
   if (!torneo) notFound();
 
-  const total  = torneo.inscripciones.length;
-  const pagados = torneo.inscripciones.filter((i) => i.pagado).length;
+  const total    = torneo.inscripciones.length;
+  const pagados  = torneo.inscripciones.filter((i) => i.pagado).length;
+  const presentes = torneo.inscripciones.filter((i) => i.presente).length;
 
   const porCategoria = torneo.inscripciones.reduce<Record<string, number>>((acc, i) => {
     acc[i.categoria] = (acc[i.categoria] ?? 0) + 1;
     return acc;
   }, {});
+
+  // Patrullas con ≤2 presentes (solo visible cuando ya hay al menos un presente)
+  type InfoPatrulla = { numero: number; bis: boolean; estaca: string; total: number; presentes: number };
+  const patrullasMap = new Map<string, InfoPatrulla>();
+  for (const i of torneo.inscripciones) {
+    if (!i.patrulla) continue;
+    const p = i.patrulla.patrulla;
+    const key = `${p.numero}-${p.bis}`;
+    if (!patrullasMap.has(key)) {
+      patrullasMap.set(key, { numero: p.numero, bis: p.bis, estaca: p.estaca, total: 0, presentes: 0 });
+    }
+    const entry = patrullasMap.get(key)!;
+    entry.total++;
+    if (i.presente) entry.presentes++;
+  }
+  const patrullasEscasas = presentes > 0
+    ? Array.from(patrullasMap.values())
+        .filter((p) => p.presentes <= 2)
+        .sort((a, b) => a.numero - b.numero || (a.bis ? 1 : -1))
+    : [];
 
   const linkOrden = (o: string) => `/admin/torneos/${torneoId}/inscriptos?orden=${o}`;
 
@@ -73,10 +95,30 @@ export default async function InscriptosPage({ params, searchParams }: Props) {
         </div>
       ) : (
         <>
+          {/* Panel de alerta de patrullas escasas */}
+          {patrullasEscasas.length > 0 && (
+            <div className="mb-4 bg-amber-50 border border-amber-300 rounded-xl p-4">
+              <p className="text-sm font-semibold text-amber-800 mb-2">
+                ⚠️ Patrullas con {presentes === total ? "pocos presentes" : "pocos presentes hasta ahora"}:
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {patrullasEscasas.map((p) => (
+                  <span
+                    key={`${p.numero}-${p.bis}`}
+                    className="px-3 py-1.5 bg-white border border-amber-300 rounded-lg text-xs font-semibold text-amber-800"
+                  >
+                    {p.numero}{p.bis ? " Bis" : ""} · {p.presentes}/{p.total} presentes
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Stats */}
           <div className="flex flex-wrap items-center gap-4 mb-4">
             <span className="text-sm text-slate-600">
               <strong>{total}</strong> inscriptos ·{" "}
+              <strong className="text-blue-700">{presentes}</strong> presentes ·{" "}
               <strong className="text-green-700">{pagados}</strong> pagados ·{" "}
               <strong className="text-amber-600">{total - pagados}</strong> pendientes
             </span>
@@ -123,6 +165,7 @@ export default async function InscriptosPage({ params, searchParams }: Props) {
                 <thead className="bg-slate-50 border-b border-slate-200">
                   <tr>
                     <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">#</th>
+                    <th className="text-center px-3 py-3 text-xs font-semibold text-blue-600 uppercase tracking-wide">Presente</th>
                     <th className="text-center px-3 py-3 text-xs font-semibold text-green-600 uppercase tracking-wide">Pagó</th>
                     <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Apellido</th>
                     <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Nombre</th>
@@ -137,6 +180,9 @@ export default async function InscriptosPage({ params, searchParams }: Props) {
                   {torneo.inscripciones.map((i, idx) => (
                     <tr key={i.id} className={i.pagado ? "bg-green-50/50" : "hover:bg-slate-50"}>
                       <td className="px-4 py-3 text-slate-400 text-xs">{idx + 1}</td>
+                      <td className="px-3 py-3 text-center">
+                        <PresenceCheckbox id={i.id} torneoId={torneoId} inicial={i.presente} />
+                      </td>
                       <td className="px-3 py-3 text-center">
                         <PagadoCheckbox id={i.id} torneoId={torneoId} inicial={i.pagado} />
                       </td>
