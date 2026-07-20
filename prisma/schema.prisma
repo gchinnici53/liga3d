@@ -86,7 +86,7 @@ model Torneo {
   horario     String?   // ej: "9 hs"
   direccion   String?   // dirección completa para el mapa
   afiche      String?   // ruta relativa a la imagen del afiche
-  maxInscriptos Int     @default(130)
+  maxInscriptos Int     @default(128)
 
   resultados    Resultado[]
   inscripciones Inscripcion[]

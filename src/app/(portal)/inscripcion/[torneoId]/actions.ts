@@ -48,10 +48,11 @@ export async function inscribirse(
   }
 
   // Si hay DNI, verificar que la fecha coincida con el arquero registrado
+  let arqueroVerificadoId: number | null = null;
   if (dni) {
     const arquero = await prisma.arquero.findFirst({
       where: { dni, activo: true },
-      select: { fechaNacimiento: true },
+      select: { id: true, fechaNacimiento: true },
     });
     if (arquero) {
       const fa = new Date(arquero.fechaNacimiento);
@@ -63,6 +64,7 @@ export async function inscribirse(
       if (!coincide) {
         return { error: "La fecha de nacimiento no coincide con nuestros registros. Verificá los datos." };
       }
+      arqueroVerificadoId = arquero.id;
     }
   }
 
@@ -95,6 +97,23 @@ export async function inscribirse(
       return { error: "Ya existe una inscripción con ese email para este torneo." };
     }
     throw e;
+  }
+
+  // Si el arquero fue verificado por DNI, actualizar su ficha con los datos del formulario
+  if (arqueroVerificadoId) {
+    try {
+      await prisma.arquero.update({
+        where: { id: arqueroVerificadoId },
+        data: {
+          nombre,
+          apellido,
+          ...(email ? { email } : {}),
+          ...(telefono !== null ? { telefono } : {}),
+        },
+      });
+    } catch {
+      // No bloquear si falla (ej: email duplicado con otro arquero)
+    }
   }
 
   return { exito: true };

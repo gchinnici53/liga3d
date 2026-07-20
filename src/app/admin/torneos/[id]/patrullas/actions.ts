@@ -15,6 +15,9 @@ const ESTACA: Record<string, string> = {
 
 const POSICIONES = ["A", "B", "C", "D"] as const;
 
+// Patrullas bis en posiciones múltiplo de 3 para agilizar la largada
+const BIS_NUMEROS = [3, 6, 9, 12, 15, 18, 21, 24];
+
 export async function generarPatrullas(torneoId: number): Promise<{ error?: string }> {
   const inscripciones = await prisma.inscripcion.findMany({
     where: { torneoId },
@@ -53,8 +56,8 @@ export async function generarPatrullas(torneoId: number): Promise<{ error?: stri
 
   for (let i = 0; i < grupos.length; i++) {
     const grupo = grupos[i];
-    const numero = (i % 24) + 1;
     const bis    = i >= 24;
+    const numero = bis ? BIS_NUMEROS[i - 24] : i + 1;
 
     await prisma.patrulla.create({
       data: {

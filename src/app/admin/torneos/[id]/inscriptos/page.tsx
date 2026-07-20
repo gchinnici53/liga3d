@@ -126,8 +126,6 @@ export default async function InscriptosPage({ params, searchParams }: Props) {
                     <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Cat.</th>
                     <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">DNI</th>
                     <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">F. Nac.</th>
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Email</th>
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Teléfono</th>
                     <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Club</th>
                     <th className="w-8" />
                   </tr>
@@ -150,8 +148,6 @@ export default async function InscriptosPage({ params, searchParams }: Props) {
                           ? new Date(i.fechaNacimiento).toLocaleDateString("es-AR")
                           : "—"}
                       </td>
-                      <td className="px-4 py-3 text-slate-600">{i.email}</td>
-                      <td className="px-4 py-3 text-slate-600">{i.telefono ?? "—"}</td>
                       <td className="px-4 py-3 text-slate-600">{i.club ?? "—"}</td>
                       <td className="px-2 py-3 text-center">
                         <EliminarInscripcionButton
