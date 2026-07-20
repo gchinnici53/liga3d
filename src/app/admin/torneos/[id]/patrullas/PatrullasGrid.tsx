@@ -18,7 +18,7 @@ const ESTACA_HEADER: Record<string, string> = {
 type Miembro = {
   id: number;
   posicion: string;
-  inscripcion: { id: number; nombre: string; apellido: string; categoria: string };
+  inscripcion: { id: number; nombre: string; apellido: string; categoria: string; presente: boolean };
 } | null;
 
 type Patrulla = {
@@ -144,7 +144,7 @@ export default function PatrullasGrid({ patrullas, torneoId }: Props) {
                     </span>
                     {miembro ? (
                       <div className="min-w-0">
-                        <p className={`font-medium truncate leading-tight ${esSeleccionado ? "text-blue-700" : "text-slate-800"}`}>
+                        <p className={`truncate leading-tight ${esSeleccionado ? "text-blue-700" : "text-slate-800"} ${miembro.inscripcion.presente ? "font-bold" : "font-medium"}`}>
                           {miembro.inscripcion.apellido}, {miembro.inscripcion.nombre}
                         </p>
                         <p className="text-xs text-slate-400">{miembro.inscripcion.categoria}</p>

@@ -20,7 +20,7 @@ export default async function PatrullasPage({ params }: Props) {
         include: {
           miembros: {
             include: {
-              inscripcion: { select: { id: true, nombre: true, apellido: true, categoria: true } },
+              inscripcion: { select: { id: true, nombre: true, apellido: true, categoria: true, presente: true } },
             },
           },
         },
