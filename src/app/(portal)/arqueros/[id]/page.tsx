@@ -173,11 +173,13 @@ export default async function FichaArqueroPage({ params }: Props) {
       <EditarPerfil
         arqueroId={id}
         inicial={{
-          nombre:   arquero.nombre,
-          apellido: arquero.apellido,
-          pais:     arquero.pais,
-          email:    arquero.email,
-          telefono: arquero.telefono,
+          nombre:          arquero.nombre,
+          apellido:        arquero.apellido,
+          pais:            arquero.pais,
+          email:           arquero.email,
+          telefono:        arquero.telefono,
+          fechaNacimiento: new Date(arquero.fechaNacimiento).toISOString().split("T")[0],
+          foto:            arquero.foto,
         }}
       />
     </div>

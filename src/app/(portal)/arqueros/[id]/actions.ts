@@ -23,18 +23,28 @@ export async function actualizarPerfil(
   const valido = await validarDNI(arqueroId, dni);
   if (!valido) return { error: "DNI incorrecto. No se guardaron los cambios." };
 
-  const nombre   = (formData.get("nombre") as string).trim();
-  const apellido = (formData.get("apellido") as string).trim();
-  const email    = (formData.get("email") as string).trim().toLowerCase() || null;
-  const telefono = (formData.get("telefono") as string).trim() || null;
-  const pais     = (formData.get("pais") as string).trim() || "Argentina";
+  const nombre       = (formData.get("nombre") as string).trim();
+  const apellido     = (formData.get("apellido") as string).trim();
+  const email        = (formData.get("email") as string).trim().toLowerCase() || null;
+  const telefono     = (formData.get("telefono") as string).trim() || null;
+  const pais         = (formData.get("pais") as string).trim() || "Argentina";
+  const fechaNacStr  = (formData.get("fechaNacimiento") as string | null)?.trim();
+  const fechaNacimiento = fechaNacStr ? new Date(fechaNacStr) : undefined;
 
   if (!nombre || !apellido) return { error: "Nombre y apellido son obligatorios." };
+  if (fechaNacimiento && isNaN(fechaNacimiento.getTime())) {
+    return { error: "Fecha de nacimiento inválida." };
+  }
 
   try {
     await prisma.arquero.update({
       where: { id: arqueroId },
-      data: { nombre, apellido, pais, ...(email ? { email } : {}), telefono },
+      data: {
+        nombre, apellido, pais,
+        ...(email ? { email } : {}),
+        telefono,
+        ...(fechaNacimiento ? { fechaNacimiento } : {}),
+      },
     });
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
