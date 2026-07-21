@@ -3,7 +3,9 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { etiquetaPosicion } from "@/lib/scoring";
+import { calcularCampeonias } from "@/lib/campeones";
 import GraficoResultados from "./GraficoResultados";
+import EditarPerfil from "./EditarPerfil";
 import type { Metadata } from "next";
 
 type Props = { params: { id: string } };
@@ -17,29 +19,34 @@ export default async function FichaArqueroPage({ params }: Props) {
   const id = Number(params.id);
   if (isNaN(id)) notFound();
 
-  const arquero = await prisma.arquero.findUnique({
-    where: { id },
-    include: {
-      resultados: {
-        include: {
-          torneo:    { include: { temporada: true } },
-          categoria: true,
+  const [arquero, campeonias] = await Promise.all([
+    prisma.arquero.findUnique({
+      where: { id },
+      include: {
+        resultados: {
+          include: {
+            torneo:    { include: { temporada: true } },
+            categoria: true,
+          },
+          orderBy: { torneo: { fecha: "desc" } },
         },
-        orderBy: { torneo: { fecha: "desc" } },
       },
-    },
-  });
+    }),
+    calcularCampeonias(),
+  ]);
 
   if (!arquero || !arquero.activo) notFound();
 
-  const totalTorneos  = arquero.resultados.length;
-  const categorias    = Array.from(new Set(arquero.resultados.map((r) => r.categoria.nombre))).join(", ");
+  const misCampeonias = campeonias.get(id) ?? [];
+  const esCampeon     = misCampeonias.length > 0;
+
+  const totalTorneos        = arquero.resultados.length;
+  const categorias          = Array.from(new Set(arquero.resultados.map((r) => r.categoria.nombre))).join(", ");
   const resultadosRegulares = arquero.resultados.filter((r) => r.torneo.tipo === "REGULAR");
-  const mejorPuntaje = resultadosRegulares.length > 0
+  const mejorPuntaje        = resultadosRegulares.length > 0
     ? Math.max(...resultadosRegulares.map((r) => r.puntajeTotal))
     : 0;
 
-  // Datos para el gráfico (orden cronológico)
   const puntosGrafico = [...arquero.resultados]
     .sort((a, b) => new Date(a.torneo.fecha).getTime() - new Date(b.torneo.fecha).getTime())
     .map((r) => ({
@@ -50,15 +57,15 @@ export default async function FichaArqueroPage({ params }: Props) {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-12">
-      <Link href="/ranking" className="text-sm text-slate-500 hover:text-slate-800 transition-colors">
-        ← Volver al ranking
+      <Link href="/arqueros" className="text-sm text-slate-500 hover:text-slate-800 transition-colors">
+        ← Arqueros
       </Link>
 
       {/* Header */}
-      <div className="flex items-center gap-6 mt-6 mb-8">
+      <div className="flex items-center gap-6 mt-6 mb-6">
         <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-slate-200 bg-slate-100 flex items-center justify-center shrink-0 shadow">
           {arquero.foto ? (
-            <Image src={arquero.foto} alt={`${arquero.nombre} ${arquero.apellido}`} width={96} height={96} className="object-cover w-full h-full" />
+            <Image src={arquero.foto} alt="" width={96} height={96} className="object-cover w-full h-full" />
           ) : (
             <span className="text-slate-400 font-bold text-3xl">
               {arquero.nombre[0]}{arquero.apellido[0]}
@@ -66,13 +73,32 @@ export default async function FichaArqueroPage({ params }: Props) {
           )}
         </div>
         <div>
-          <h1 className="text-3xl font-bold text-slate-800">
-            {arquero.nombre} {arquero.apellido}
-          </h1>
+          <div className="flex items-center gap-2 flex-wrap">
+            <h1 className="text-3xl font-bold text-slate-800">
+              {arquero.nombre} {arquero.apellido}
+            </h1>
+            {esCampeon && <span className="text-2xl" title="Campeón de temporada">🏆</span>}
+          </div>
           <p className="text-slate-400 text-sm mt-1">{arquero.pais}</p>
           {categorias && <p className="text-slate-500 text-sm mt-0.5">{categorias}</p>}
         </div>
       </div>
+
+      {/* Cucardas de campeonatos */}
+      {misCampeonias.length > 0 && (
+        <div className="flex flex-wrap gap-2 mb-6">
+          {misCampeonias
+            .sort((a, b) => a.temporada.localeCompare(b.temporada))
+            .map((c, i) => (
+              <span
+                key={i}
+                className="inline-flex items-center gap-1.5 bg-amber-50 border border-amber-200 text-amber-800 text-xs font-semibold px-3 py-1.5 rounded-full"
+              >
+                🏆 {c.categoria} · {c.temporada}
+              </span>
+            ))}
+        </div>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4 mb-8">
@@ -142,6 +168,18 @@ export default async function FichaArqueroPage({ params }: Props) {
           </table>
         )}
       </div>
+
+      {/* Editar perfil con validación de DNI */}
+      <EditarPerfil
+        arqueroId={id}
+        inicial={{
+          nombre:   arquero.nombre,
+          apellido: arquero.apellido,
+          pais:     arquero.pais,
+          email:    arquero.email,
+          telefono: arquero.telefono,
+        }}
+      />
     </div>
   );
 }
