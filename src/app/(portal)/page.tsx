@@ -7,7 +7,7 @@ export default async function HomePage() {
     prisma.torneo.findFirst({
       where: { fecha: { gte: new Date() } },
       orderBy: { fecha: "asc" },
-      include: { temporada: true },
+      include: { temporada: true, _count: { select: { inscripciones: true } } },
     }),
     prisma.temporada.findFirst({
       where: { estado: "ACTIVA" },
@@ -15,6 +15,20 @@ export default async function HomePage() {
     }),
     prisma.arquero.count({ where: { activo: true } }),
   ]);
+
+  // Calcular si las inscripciones están abiertas
+  let inscripcionesAbiertas = false;
+  if (proximoTorneo) {
+    const ahora = new Date();
+    const fechaTorneo = new Date(proximoTorneo.fecha);
+    const lunesAnterior = new Date(fechaTorneo);
+    lunesAnterior.setDate(fechaTorneo.getDate() - ((fechaTorneo.getDay() + 6) % 7));
+    lunesAnterior.setHours(23, 59, 59, 999);
+    inscripcionesAbiertas =
+      ahora <= lunesAnterior &&
+      proximoTorneo._count.inscripciones < proximoTorneo.maxInscriptos;
+  }
+  const hayInscriptos = (proximoTorneo?._count.inscripciones ?? 0) > 0;
 
   return (
     <>
@@ -36,18 +50,36 @@ export default async function HomePage() {
             Simplemente los mejores torneos de 3D del país
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Link
-              href="/calendario"
-              className="bg-liga hover:bg-liga-dark text-white font-semibold px-6 py-3 rounded-xl transition-colors"
-            >
-              Ver calendario
-            </Link>
-            <Link
-              href="/ranking"
-              className="border border-white/60 hover:border-white text-white font-semibold px-6 py-3 rounded-xl transition-colors hover:bg-white/10"
-            >
-              Ver ranking
-            </Link>
+            {inscripcionesAbiertas ? (
+              <Link
+                href={`/inscripcion/${proximoTorneo!.id}`}
+                className="bg-liga hover:bg-liga-dark text-white font-semibold px-6 py-3 rounded-xl transition-colors"
+              >
+                Inscribirse al torneo
+              </Link>
+            ) : (
+              <Link
+                href="/calendario"
+                className="bg-liga hover:bg-liga-dark text-white font-semibold px-6 py-3 rounded-xl transition-colors"
+              >
+                Ver calendario
+              </Link>
+            )}
+            {hayInscriptos ? (
+              <Link
+                href={`/inscriptos/${proximoTorneo!.id}`}
+                className="border border-white/60 hover:border-white text-white font-semibold px-6 py-3 rounded-xl transition-colors hover:bg-white/10"
+              >
+                Ver inscriptos
+              </Link>
+            ) : (
+              <Link
+                href="/ranking"
+                className="border border-white/60 hover:border-white text-white font-semibold px-6 py-3 rounded-xl transition-colors hover:bg-white/10"
+              >
+                Ver ranking
+              </Link>
+            )}
           </div>
         </div>
       </section>
