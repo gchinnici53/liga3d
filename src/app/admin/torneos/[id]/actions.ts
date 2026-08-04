@@ -78,10 +78,15 @@ export async function eliminarTorneo(id: number) {
     include: { _count: { select: { resultados: true } } },
   });
   if (!torneo) return;
-  if (torneo._count.resultados > 0) return; // no eliminar si tiene resultados
+  if (torneo._count.resultados > 0) return; // no eliminar si tiene resultados cargados
 
   const temporadaId = torneo.temporadaId;
+
+  // Eliminar en orden para respetar FK: miembros → inscripciones → torneo (patrullas cascadean)
+  await prisma.miembroPatrulla.deleteMany({ where: { patrulla: { torneoId: id } } });
+  await prisma.inscripcion.deleteMany({ where: { torneoId: id } });
   await prisma.torneo.delete({ where: { id } });
+
   revalidatePath(`/admin/temporadas/${temporadaId}`);
   redirect(`/admin/temporadas/${temporadaId}`);
 }
