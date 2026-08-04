@@ -35,8 +35,8 @@ function estadoBoton(torneo: TorneoCard) {
   }
 
   const lunesAnterior = new Date(fechaTorneo);
-  lunesAnterior.setDate(fechaTorneo.getDate() - ((fechaTorneo.getDay() + 6) % 7));
-  lunesAnterior.setHours(23, 59, 59, 999);
+  lunesAnterior.setUTCDate(fechaTorneo.getUTCDate() - ((fechaTorneo.getUTCDay() + 6) % 7));
+  lunesAnterior.setUTCHours(23, 59, 59, 999);
 
   const dias         = Math.ceil((fechaTorneo.getTime() - ahora.getTime()) / (1000 * 60 * 60 * 24));
   const cupoLleno    = torneo._count.inscripciones >= torneo.maxInscriptos;
@@ -87,6 +87,7 @@ export default function CalendarioTabs({ temporadas }: { temporadas: Temporada[]
         <div className="space-y-12">
           {temporada.torneos.map((torneo) => {
             const fecha  = new Date(torneo.fecha);
+            // Usar métodos UTC para evitar desfase por timezone Argentina (UTC-3)
             const estado = estadoBoton(torneo);
 
             return (
@@ -106,7 +107,7 @@ export default function CalendarioTabs({ temporadas }: { temporadas: Temporada[]
                   <div className="mt-4">
                     <h3 className="text-xl font-bold text-slate-800">{torneo.nombre}</h3>
                     <p className="text-liga font-semibold text-lg mt-0.5">
-                      {MESES[fecha.getMonth()]} {fecha.getDate()}
+                      {MESES[fecha.getUTCMonth()]} {fecha.getUTCDate()}
                       {torneo.horario ? ` — ${torneo.horario}` : ""}
                     </p>
                     {torneo.lugar    && <p className="text-slate-500 text-sm mt-1">{torneo.lugar}</p>}

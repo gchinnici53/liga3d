@@ -63,7 +63,7 @@ export default async function InscripcionPage({ params }: Props) {
       <div className="mt-6 mb-8">
         <h1 className="text-3xl font-bold text-slate-800 mb-1">{torneo.nombre}</h1>
         <p className="text-slate-500 text-sm">
-          {new Date(torneo.fecha).toLocaleDateString("es-AR", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
+          {new Date(torneo.fecha).toLocaleDateString("es-AR", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "UTC" })}
           {torneo.horario && ` · ${torneo.horario}`}
           {torneo.lugar && ` · ${torneo.lugar}`}
         </p>

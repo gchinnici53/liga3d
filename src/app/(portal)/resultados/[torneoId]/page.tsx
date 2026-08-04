@@ -72,7 +72,7 @@ export default async function ResultadosTorneoPage({ params }: Props) {
         <h1 className="text-3xl font-bold text-slate-800 mb-1">{torneo.nombre}</h1>
         <p className="text-slate-500 text-sm">
           {new Date(torneo.fecha).toLocaleDateString("es-AR", {
-            weekday: "long", day: "numeric", month: "long", year: "numeric",
+            weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "UTC",
           })}
           {torneo.lugar && ` · ${torneo.lugar}`}
           {` · ${torneo.temporada.nombre}`}

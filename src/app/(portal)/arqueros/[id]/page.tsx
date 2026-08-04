@@ -149,7 +149,7 @@ export default async function FichaArqueroPage({ params }: Props) {
                   <td className="px-4 py-3">
                     <p className="font-medium text-slate-800">{r.torneo.nombre}</p>
                     <p className="text-xs text-slate-400">
-                      {new Date(r.torneo.fecha).toLocaleDateString("es-AR")} · {r.torneo.temporada.nombre}
+                      {new Date(r.torneo.fecha).toLocaleDateString("es-AR", { timeZone: "UTC" })} · {r.torneo.temporada.nombre}
                     </p>
                   </td>
                   <td className="px-4 py-3 text-slate-600 hidden sm:table-cell">{r.categoria.nombre}</td>
