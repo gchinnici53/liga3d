@@ -70,10 +70,16 @@ export default async function DetalleTorneoPage({ params }: Props) {
             🎯 Patrullas
           </Link>
           <Link
+            href={`/admin/torneos/${torneo.id}/cargar`}
+            className="bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-orange-700 transition-colors"
+          >
+            ✏️ Cargar resultados
+          </Link>
+          <Link
             href={`/admin/torneos/${torneo.id}/importar`}
             className="bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-800 transition-colors"
           >
-            ↑ Importar resultados
+            ↑ Importar Excel
           </Link>
           {!tienResultados && (
             <EliminarTorneoButton id={torneo.id} />
