@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 type Campeon = {
   arquero: { id: number; nombre: string; apellido: string; foto: string | null };
@@ -96,15 +97,15 @@ export default function CampeonesTabs({ temporadas }: { temporadas: Temporada[] 
                   <div className="text-xs text-slate-400">{NOMBRE_CAT[cat]}</div>
 
                   {campeon ? (
-                    <>
+                    <Link href={`/arqueros/${campeon.arquero.id}`} className="flex flex-col items-center gap-3 group">
                       <Avatar foto={campeon.arquero.foto} nombre={`${campeon.arquero.nombre} ${campeon.arquero.apellido}`} />
                       <div>
-                        <p className="font-bold text-slate-800 text-sm leading-tight">
+                        <p className="font-bold text-slate-800 text-sm leading-tight group-hover:text-liga transition-colors">
                           {campeon.arquero.nombre} {campeon.arquero.apellido}
                         </p>
                         <p className="text-liga font-semibold text-sm mt-1">{campeon.total} pts</p>
                       </div>
-                    </>
+                    </Link>
                   ) : (
                     <>
                       <div className="w-24 h-24 rounded-full bg-slate-100 border-4 border-slate-200 flex items-center justify-center mx-auto">
