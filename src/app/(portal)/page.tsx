@@ -16,17 +16,17 @@ export default async function HomePage() {
     prisma.arquero.count({ where: { activo: true } }),
   ]);
 
-  // Calcular si las inscripciones están abiertas
+  // Calcular si las inscripciones están abiertas (misma lógica que CalendarioTabs)
   let inscripcionesAbiertas = false;
   if (proximoTorneo) {
-    const ahora = new Date();
+    const ahora       = new Date();
     const fechaTorneo = new Date(proximoTorneo.fecha);
     const lunesAnterior = new Date(fechaTorneo);
-    lunesAnterior.setDate(fechaTorneo.getDate() - ((fechaTorneo.getDay() + 6) % 7));
-    lunesAnterior.setHours(23, 59, 59, 999);
-    inscripcionesAbiertas =
-      ahora <= lunesAnterior &&
-      proximoTorneo._count.inscripciones < proximoTorneo.maxInscriptos;
+    lunesAnterior.setUTCDate(fechaTorneo.getUTCDate() - ((fechaTorneo.getUTCDay() + 6) % 7));
+    lunesAnterior.setUTCHours(23, 59, 59, 999);
+    const dias      = Math.ceil((fechaTorneo.getTime() - ahora.getTime()) / (1000 * 60 * 60 * 24));
+    const cupoLleno = proximoTorneo._count.inscripciones >= proximoTorneo.maxInscriptos;
+    inscripcionesAbiertas = !cupoLleno && ahora <= lunesAnterior && dias <= 30;
   }
   const hayInscriptos = (proximoTorneo?._count.inscripciones ?? 0) > 0;
 
@@ -103,6 +103,7 @@ export default async function HomePage() {
                     {new Date(proximoTorneo.fecha).toLocaleDateString("es-AR", {
                       day: "numeric",
                       month: "short",
+                      timeZone: "UTC",
                     })}
                   </p>
                   <p className="text-sm text-slate-500 mt-1">Próximo torneo: {proximoTorneo.nombre}</p>
