@@ -23,6 +23,7 @@ export default async function ResultadosTorneoPage({ params }: Props) {
         include: { arquero: true, categoria: true },
         orderBy: [{ categoria: { nombre: "asc" } }, { posicion: "asc" }],
       },
+      _count: { select: { eliminatorias: true } },
     },
   });
 
@@ -77,9 +78,19 @@ export default async function ResultadosTorneoPage({ params }: Props) {
           {torneo.lugar && ` · ${torneo.lugar}`}
           {` · ${torneo.temporada.nombre}`}
         </p>
-        <p className="text-xs text-slate-400 mt-1">
-          {torneo.resultados.length} participantes · {categorias.length} categorías
-        </p>
+        <div className="flex items-center gap-4 mt-1">
+          <p className="text-xs text-slate-400">
+            {torneo.resultados.length} participantes · {categorias.length} categorías
+          </p>
+          {torneo._count.eliminatorias > 0 && (
+            <Link
+              href={`/llaves/${torneoId}`}
+              className="text-xs font-semibold text-purple-700 hover:text-purple-900 transition-colors"
+            >
+              🏆 Ver llaves de eliminación →
+            </Link>
+          )}
+        </div>
       </div>
 
       <ResultadosTabs categorias={categorias} />

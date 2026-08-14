@@ -34,7 +34,8 @@ model Categoria {
   descripcion String?
   activa      Boolean  @default(true)
 
-  resultados  Resultado[]
+  resultados    Resultado[]
+  eliminatorias Eliminatoria[]
 }
 
 // ─── Entidades principales ────────────────────────────────
@@ -91,6 +92,7 @@ model Torneo {
   resultados    Resultado[]
   inscripciones Inscripcion[]
   patrullas     Patrulla[]
+  eliminatorias Eliminatoria[]
 }
 
 model Inscripcion {
@@ -137,6 +139,21 @@ model MiembroPatrulla {
   inscripcion   Inscripcion @relation(fields: [inscripcionId], references: [id])
   // "A" | "B" | "C" | "D"
   posicion      String
+}
+
+// Bracket de eliminación por categoría (una por categoria × torneo)
+model Eliminatoria {
+  id          Int       @id @default(autoincrement())
+  torneoId    Int
+  torneo      Torneo    @relation(fields: [torneoId], references: [id])
+  categoriaId Int
+  categoria   Categoria @relation(fields: [categoriaId], references: [id])
+  tamano      Int       // 4, 8, 16 o 24
+  llave       String    // JSON: BracketData (PartidoLlave[])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([torneoId, categoriaId])
 }
 
 model Resultado {
