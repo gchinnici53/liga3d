@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import PatrullasGrid from "./PatrullasGrid";
 import GenerarButton from "./GenerarButton";
+import ExportarPDFButton from "./ExportarPDFButton";
 
 type Props = { params: { id: string } };
 
@@ -20,7 +21,7 @@ export default async function PatrullasPage({ params }: Props) {
         include: {
           miembros: {
             include: {
-              inscripcion: { select: { id: true, nombre: true, apellido: true, categoria: true, presente: true } },
+              inscripcion: { select: { id: true, nombre: true, apellido: true, categoria: true, presente: true, dni: true, club: true } },
             },
           },
         },
@@ -32,6 +33,30 @@ export default async function PatrullasPage({ params }: Props) {
   const hayPatrullas  = torneo.patrullas.length > 0;
   const totalInsc     = torneo._count.inscripciones;
   const sinPatrulla   = totalInsc - torneo.patrullas.reduce((sum, p) => sum + p.miembros.length, 0);
+
+  // Datos para exportar PDF
+  const patrullasExport = torneo.patrullas.map((p) => {
+    const byPos = Object.fromEntries(p.miembros.map((m) => [m.posicion, m]));
+    const miembro = (pos: string) => {
+      const m = byPos[pos];
+      if (!m) return null;
+      return {
+        nombre:    m.inscripcion.nombre,
+        apellido:  m.inscripcion.apellido,
+        dni:       m.inscripcion.dni ?? null,
+        club:      m.inscripcion.club ?? null,
+        categoria: m.inscripcion.categoria,
+      };
+    };
+    return { id: p.id, numero: p.numero, bis: p.bis, A: miembro("A"), B: miembro("B"), C: miembro("C"), D: miembro("D") };
+  });
+
+  const torneoInfo = {
+    nombre:    torneo.nombre,
+    fecha:     torneo.fecha.toISOString(),
+    lugar:     torneo.lugar ?? null,
+    temporada: torneo.temporada.nombre,
+  };
 
   // Transformar a estructura por posición para el grid
   const patrullasGrid = torneo.patrullas.map((p) => {
@@ -64,7 +89,12 @@ export default async function PatrullasPage({ params }: Props) {
             {torneo.nombre} · {torneo.temporada.nombre}
           </p>
         </div>
-        <GenerarButton torneoId={torneoId} hayPatrullas={hayPatrullas} />
+        <div className="flex items-center gap-3">
+          {hayPatrullas && (
+            <ExportarPDFButton patrullas={patrullasExport} torneo={torneoInfo} />
+          )}
+          <GenerarButton torneoId={torneoId} hayPatrullas={hayPatrullas} />
+        </div>
       </div>
 
       {/* Resumen */}
