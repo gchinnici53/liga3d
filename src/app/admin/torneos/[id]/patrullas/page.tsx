@@ -48,7 +48,7 @@ export default async function PatrullasPage({ params }: Props) {
         categoria: m.inscripcion.categoria,
       };
     };
-    return { id: p.id, numero: p.numero, bis: p.bis, A: miembro("A"), B: miembro("B"), C: miembro("C"), D: miembro("D") };
+    return { id: p.id, numero: p.numero, bis: p.bis, estaca: p.estaca, A: miembro("A"), B: miembro("B"), C: miembro("C"), D: miembro("D") };
   });
 
   const torneoInfo = {
