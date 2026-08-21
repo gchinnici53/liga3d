@@ -94,6 +94,57 @@ export async function generarPatrullas(torneoId: number): Promise<{ error?: stri
   return {};
 }
 
+export async function agregarPatrullaVacia(torneoId: number): Promise<{ error?: string }> {
+  const existentes = await prisma.patrulla.findMany({
+    where: { torneoId },
+    select: { numero: true, bis: true },
+  });
+
+  // Buscar primer número libre entre 1-24 (no-bis)
+  const usadosNoBis = new Set(existentes.filter((p) => !p.bis).map((p) => p.numero));
+  let numero: number | null = null;
+  let bis = false;
+
+  for (let n = 1; n <= 24; n++) {
+    if (!usadosNoBis.has(n)) { numero = n; break; }
+  }
+
+  // Si los 24 no-bis están ocupados, buscar un bis disponible
+  if (numero === null) {
+    const usadosBis = new Set(existentes.filter((p) => p.bis).map((p) => p.numero));
+    for (const n of BIS_NUMEROS) {
+      if (!usadosBis.has(n)) { numero = n; bis = true; break; }
+    }
+  }
+
+  if (numero === null) return { error: "No hay números disponibles para agregar otra patrulla." };
+
+  await prisma.patrulla.create({
+    data: { torneoId, numero, bis, estaca: "AZUL" },
+  });
+
+  revalidatePath(`/admin/torneos/${torneoId}/patrullas`);
+  return {};
+}
+
+export async function eliminarPatrullaVacia(
+  patrullaId: number,
+  torneoId: number
+): Promise<{ error?: string }> {
+  const patrulla = await prisma.patrulla.findUnique({
+    where: { id: patrullaId },
+    include: { _count: { select: { miembros: true } } },
+  });
+
+  if (!patrulla) return { error: "Patrulla no encontrada." };
+  if (patrulla._count.miembros > 0) return { error: "La patrulla tiene miembros, pasalos primero a otra patrulla." };
+
+  await prisma.patrulla.delete({ where: { id: patrullaId } });
+
+  revalidatePath(`/admin/torneos/${torneoId}/patrullas`);
+  return {};
+}
+
 export async function moverMiembro(
   miembroId: number,
   targetPatrullaId: number,

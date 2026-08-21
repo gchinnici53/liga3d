@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { moverMiembro } from "./actions";
+import { moverMiembro, agregarPatrullaVacia, eliminarPatrullaVacia } from "./actions";
 
 const ESTACA_COLOR: Record<string, string> = {
   ROJA:     "bg-red-100 text-red-700 border-red-200",
@@ -46,6 +46,20 @@ export default function PatrullasGrid({ patrullas, torneoId }: Props) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
+  function handleAgregarPatrulla() {
+    startTransition(async () => {
+      const res = await agregarPatrullaVacia(torneoId);
+      if (res?.error) setError(res.error);
+    });
+  }
+
+  function handleEliminarPatrulla(patrullaId: number) {
+    startTransition(async () => {
+      const res = await eliminarPatrullaVacia(patrullaId, torneoId);
+      if (res?.error) setError(res.error);
+    });
+  }
+
   function seleccionar(miembroId: number, label: string) {
     if (seleccionado?.miembroId === miembroId) {
       setSeleccionado(null);
@@ -82,9 +96,18 @@ export default function PatrullasGrid({ patrullas, torneoId }: Props) {
           </button>
         </div>
       ) : (
-        <p className="mb-4 text-xs text-slate-400">
-          Hacé click en un arquero para seleccionarlo, luego click en la posición destino para moverlo.
-        </p>
+        <div className="mb-4 flex items-center justify-between gap-4">
+          <p className="text-xs text-slate-400">
+            Hacé click en un arquero para seleccionarlo, luego click en la posición destino para moverlo.
+          </p>
+          <button
+            onClick={handleAgregarPatrulla}
+            disabled={isPending}
+            className="shrink-0 text-xs font-semibold text-slate-600 border border-slate-300 rounded-lg px-3 py-1.5 hover:bg-slate-50 disabled:opacity-40 transition-colors"
+          >
+            + Patrulla vacía
+          </button>
+        </div>
       )}
 
       {error && (
@@ -102,9 +125,22 @@ export default function PatrullasGrid({ patrullas, torneoId }: Props) {
             {/* Header */}
             <div className="px-3 py-2 flex items-center justify-between border-b border-slate-100">
               <span className="text-sm font-bold text-slate-800">{etiqueta(p)}</span>
-              <span className={`text-xs px-2 py-0.5 rounded border font-medium ${ESTACA_COLOR[p.estaca]}`}>
-                {p.estaca}
-              </span>
+              <div className="flex items-center gap-2">
+                <span className={`text-xs px-2 py-0.5 rounded border font-medium ${ESTACA_COLOR[p.estaca]}`}>
+                  {p.estaca}
+                </span>
+                {/* Botón borrar solo si la patrulla está vacía */}
+                {!p.A && !p.B && !p.C && !p.D && !seleccionado && (
+                  <button
+                    onClick={() => handleEliminarPatrulla(p.id)}
+                    disabled={isPending}
+                    title="Borrar patrulla vacía"
+                    className="text-slate-300 hover:text-red-500 transition-colors text-sm leading-none disabled:opacity-40"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Posiciones */}
