@@ -25,6 +25,7 @@ type Props = {
     horario: string | null;
     direccion: string | null;
     maxInscriptos: number;
+    valor: number | null;
   };
 };
 
@@ -104,6 +105,18 @@ export default function EditarTorneoForm({ torneo }: Props) {
             type="number"
             defaultValue={torneo.maxInscriptos}
             min={1}
+            className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600"
+          />
+        </div>
+
+        <div>
+          <label className="block text-xs font-medium text-slate-600 mb-1">Valor inscripción ($)</label>
+          <input
+            name="valor"
+            type="number"
+            defaultValue={torneo.valor ?? ""}
+            min={0}
+            placeholder="15000"
             className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600"
           />
         </div>

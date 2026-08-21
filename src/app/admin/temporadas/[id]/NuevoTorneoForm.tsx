@@ -104,6 +104,17 @@ export default function NuevoTorneoForm({ temporadaId }: { temporadaId: number }
           />
         </div>
 
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium text-slate-700">Valor inscripción ($)</label>
+          <input
+            name="valor"
+            type="number"
+            min={0}
+            placeholder="15000"
+            className="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+          />
+        </div>
+
         <SubmitButton />
       </form>
     </div>

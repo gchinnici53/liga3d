@@ -15,6 +15,7 @@ type TorneoCard = {
   direccion: string | null;
   afiche: string | null;
   maxInscriptos: number;
+  valor: number | null;
   _count: { inscripciones: number; resultados: number };
 };
 
@@ -112,7 +113,14 @@ export default function CalendarioTabs({ temporadas }: { temporadas: Temporada[]
                     </p>
                     {torneo.lugar    && <p className="text-slate-500 text-sm mt-1">{torneo.lugar}</p>}
                     {torneo.direccion && <p className="text-slate-400 text-xs mt-0.5">{torneo.direccion}</p>}
-                    <p className="text-xs text-slate-400 mt-1">{contadorInscriptos(torneo)}</p>
+                    <div className="flex flex-wrap items-center gap-3 mt-1">
+                      <p className="text-xs text-slate-400">{contadorInscriptos(torneo)}</p>
+                      {torneo.valor != null && (
+                        <span className="text-xs bg-amber-50 text-amber-700 font-semibold border border-amber-200 px-2 py-0.5 rounded-full">
+                          {new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", minimumFractionDigits: 0 }).format(torneo.valor)}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
 

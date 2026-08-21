@@ -88,6 +88,7 @@ model Torneo {
   direccion   String?   // dirección completa para el mapa
   afiche      String?   // ruta relativa a la imagen del afiche
   maxInscriptos Int     @default(128)
+  valor       Int?      // precio de inscripción en pesos
 
   resultados    Resultado[]
   inscripciones Inscripcion[]

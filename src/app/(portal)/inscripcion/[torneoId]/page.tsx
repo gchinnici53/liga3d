@@ -67,13 +67,18 @@ export default async function InscripcionPage({ params }: Props) {
           {torneo.horario && ` · ${torneo.horario}`}
           {torneo.lugar && ` · ${torneo.lugar}`}
         </p>
-        <div className="flex items-center gap-3 mt-3">
+        <div className="flex flex-wrap items-center gap-3 mt-3">
           <span className="text-xs bg-green-100 text-green-700 font-semibold px-2.5 py-1 rounded-full">
             Inscripciones abiertas
           </span>
           <span className="text-xs text-slate-500">
             {inscriptos} inscriptos · {restantes} lugares disponibles
           </span>
+          {torneo.valor != null && (
+            <span className="text-xs bg-amber-50 text-amber-700 font-semibold border border-amber-200 px-2.5 py-1 rounded-full">
+              {new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", minimumFractionDigits: 0 }).format(torneo.valor)}
+            </span>
+          )}
         </div>
       </div>
 
