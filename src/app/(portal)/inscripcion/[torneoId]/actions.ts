@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
+import { enviarConfirmacionInscripcion } from "@/lib/mailer";
 
 export type InscripcionState = { error?: string; exito?: boolean };
 
@@ -97,6 +98,20 @@ export async function inscribirse(
       return { error: "Ya existe una inscripción con ese email para este torneo." };
     }
     throw e;
+  }
+
+  // Enviar email de confirmación
+  console.log(`[inscripcion] SMTP_PASS configurado: ${!!process.env.SMTP_PASS}, email destino: ${email}`);
+  if (process.env.SMTP_PASS) {
+    try {
+      await enviarConfirmacionInscripcion({
+        torneo: { nombre: torneo.nombre, fecha: torneo.fecha, lugar: torneo.lugar, valor: torneo.valor, notas: torneo.notas },
+        arquero: { nombre, apellido, email, categoria, club },
+      });
+      console.log(`[inscripcion] Email de confirmación enviado a ${email}`);
+    } catch (e) {
+      console.error("[inscripcion] Error enviando email de confirmación:", e);
+    }
   }
 
   // Si el arquero fue verificado por DNI, actualizar su ficha con los datos del formulario

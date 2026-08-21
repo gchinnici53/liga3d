@@ -89,6 +89,7 @@ model Torneo {
   afiche      String?   // ruta relativa a la imagen del afiche
   maxInscriptos Int     @default(128)
   valor       Int?      // precio de inscripción en pesos
+  notas       String?   // texto libre para el email de confirmación (condiciones de pago, descuentos, etc.)
 
   resultados    Resultado[]
   inscripciones Inscripcion[]

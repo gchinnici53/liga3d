@@ -26,6 +26,7 @@ type Props = {
     direccion: string | null;
     maxInscriptos: number;
     valor: number | null;
+    notas: string | null;
   };
 };
 
@@ -118,6 +119,17 @@ export default function EditarTorneoForm({ torneo }: Props) {
             min={0}
             placeholder="15000"
             className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600"
+          />
+        </div>
+
+        <div className="sm:col-span-2">
+          <label className="block text-xs font-medium text-slate-600 mb-1">Notas (se incluyen en el email de confirmación de inscripción)</label>
+          <textarea
+            name="notas"
+            rows={4}
+            defaultValue={torneo.notas ?? ""}
+            placeholder="Ej: Costo: $40.000. Menores de 13 con adulto inscripto (sin cargo). ALIAS liga3D. La inscripción NO está confirmada hasta recibir el pago."
+            className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600 resize-y"
           />
         </div>
 

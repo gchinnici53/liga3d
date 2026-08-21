@@ -34,9 +34,10 @@ export async function crearTorneo(
   const maxInscriptos = maxStr ? parseInt(maxStr, 10) : 130;
   const valorStr    = formData.get("valor") as string | null;
   const valor       = valorStr && valorStr.trim() !== "" ? parseInt(valorStr, 10) : null;
+  const notas       = (formData.get("notas") as string | null)?.trim() || null;
 
   await prisma.torneo.create({
-    data: { nombre, lugar, fecha: new Date(fecha), tipo, temporadaId, horario, direccion, maxInscriptos, valor },
+    data: { nombre, lugar, fecha: new Date(fecha), tipo, temporadaId, horario, direccion, maxInscriptos, valor, notas },
   });
 
   revalidatePath(`/admin/temporadas/${temporadaId}`);

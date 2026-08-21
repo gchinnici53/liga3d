@@ -23,12 +23,13 @@ export async function editarTorneo(
   const maxInscriptos = maxStr ? parseInt(maxStr, 10) : 130;
   const valorStr    = formData.get("valor") as string | null;
   const valor       = valorStr && valorStr.trim() !== "" ? parseInt(valorStr, 10) : null;
+  const notas       = (formData.get("notas") as string | null)?.trim() || null;
 
   if (!nombre || !lugar || !fecha) return { error: "Nombre, lugar y fecha son obligatorios." };
 
   await prisma.torneo.update({
     where: { id },
-    data: { nombre, lugar, fecha: new Date(fecha), horario, direccion, maxInscriptos, valor },
+    data: { nombre, lugar, fecha: new Date(fecha), horario, direccion, maxInscriptos, valor, notas },
   });
 
   revalidatePath(`/admin/torneos/${id}`);
