@@ -40,9 +40,10 @@ export async function enviarConfirmacionInscripcion(datos: DatosConfirmacionInsc
   const baseUrl  = process.env.NEXTAUTH_URL ?? "https://liga3d.appchinni.com";
   const categoria = CATEGORIA_LABELS[arquero.categoria] ?? arquero.categoria;
 
+  // UTC evita que la fecha se corra un día por el offset Argentina (UTC-3)
   const fechaFormateada = new Intl.DateTimeFormat("es-AR", {
     weekday: "long", day: "numeric", month: "long", year: "numeric",
-    timeZone: "America/Argentina/Buenos_Aires",
+    timeZone: "UTC",
   }).format(new Date(torneo.fecha));
 
   const valorFormateado = torneo.valor != null
@@ -64,6 +65,7 @@ export async function enviarConfirmacionInscripcion(datos: DatosConfirmacionInsc
     ? `<tr><td style="padding:12px 16px;border-bottom:1px solid #e2e8f0">
          <span style="color:#64748b;font-size:12px">Valor de inscripción</span>
          <div style="color:#1e293b;font-weight:600;margin-top:2px">${valorFormateado}</div>
+         <div style="color:#64748b;font-size:12px;margin-top:4px">Si fuiste campeón/a de la temporada 2025, tenés un 50% de descuento.</div>
        </td></tr>`
     : "";
 
@@ -77,13 +79,16 @@ export async function enviarConfirmacionInscripcion(datos: DatosConfirmacionInsc
   const html = `
     <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;color:#1e293b">
 
-      <div style="background:#1e3a5f;padding:28px 24px;text-align:center">
-        <img src="${baseUrl}/img/Liga3dLOGOALTA.png" alt="Liga 3D Metropolitana" style="height:70px;width:auto" />
-      </div>
-
-      <div style="padding:32px 24px 24px;background:#ffffff">
-        <h1 style="color:#1e3a5f;font-size:22px;margin:0 0 6px">¡Gracias por inscribirte!</h1>
-        <p style="color:#64748b;margin:0;font-size:15px">Tu lugar en <strong style="color:#1e293b">${torneo.nombre}</strong> está reservado.</p>
+      <div style="background:#E8722A;padding:24px 28px">
+        <table style="width:100%;border-collapse:collapse"><tr>
+          <td style="width:80px;vertical-align:middle">
+            <img src="${baseUrl}/img/Liga3dLOGOALTA.png" alt="Liga 3D Metropolitana" style="height:64px;width:auto;display:block" />
+          </td>
+          <td style="vertical-align:middle;padding-left:16px">
+            <div style="color:#fff;font-size:20px;font-weight:700;margin:0">¡Gracias por inscribirte!</div>
+            <div style="color:#fff;font-size:14px;margin-top:4px;opacity:0.92">Tu lugar en <strong>${torneo.nombre}</strong> está reservado.</div>
+          </td>
+        </tr></table>
       </div>
 
       <div style="padding:0 24px 24px;background:#ffffff">
@@ -116,15 +121,23 @@ export async function enviarConfirmacionInscripcion(datos: DatosConfirmacionInsc
         </table>
       </div>
 
+      <div style="padding:20px 24px;background:#ffffff;text-align:center;border-top:1px solid #e2e8f0">
+        <a href="https://chat.whatsapp.com/CeIZ9kGj9vG6Gjx7nxHSJf"
+           style="display:inline-block;background:#25D366;color:#fff;text-decoration:none;
+                  padding:10px 20px;border-radius:8px;font-size:14px;font-weight:600">
+          💬 Unirse al grupo de difusión de WhatsApp
+        </a>
+      </div>
+
       <div style="background:#f8fafc;padding:24px;text-align:center;border-top:1px solid #e2e8f0">
         <p style="color:#94a3b8;font-size:11px;text-transform:uppercase;letter-spacing:2px;margin:0 0 16px;font-weight:600">Nos acompañan</p>
         <table style="margin:0 auto"><tr>${sponsorTds}</tr></table>
       </div>
 
-      <div style="background:#1e3a5f;padding:16px 24px;text-align:center">
-        <p style="color:#94a3b8;font-size:12px;margin:0">
+      <div style="background:#E8722A;padding:16px 24px;text-align:center">
+        <p style="color:#fff;font-size:12px;margin:0;opacity:0.85">
           Liga 3D Metropolitana ·
-          <a href="mailto:liga3dmetro@gmail.com" style="color:#94a3b8">liga3dmetro@gmail.com</a>
+          <a href="mailto:liga3dmetro@gmail.com" style="color:#fff">liga3dmetro@gmail.com</a>
         </p>
       </div>
 
