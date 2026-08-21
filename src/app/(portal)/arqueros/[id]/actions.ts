@@ -37,11 +37,16 @@ export async function enviarCodigo(
   const otp   = generarOTP();
   const token = crearTokenOTP(arqueroId, emailNorm, otp);
 
-  try {
-    await enviarCodigoVerificacion(emailNorm, otp, arquero.nombre);
-  } catch (e) {
-    console.error("Error enviando email OTP:", e);
-    return { error: "No se pudo enviar el correo. Verificá la dirección e intentá de nuevo." };
+  // En desarrollo sin SMTP configurado, mostrar el OTP en consola
+  if (!process.env.SMTP_PASS) {
+    console.log(`\n🔑 OTP para ${emailNorm}: ${otp}\n`);
+  } else {
+    try {
+      await enviarCodigoVerificacion(emailNorm, otp, arquero.nombre);
+    } catch (e) {
+      console.error("Error enviando email OTP:", e);
+      return { error: "No se pudo enviar el correo. Verificá la dirección e intentá de nuevo." };
+    }
   }
 
   return { token };
