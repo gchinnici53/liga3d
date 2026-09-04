@@ -4,6 +4,7 @@ import Link from "next/link";
 import EliminarInscripcionButton from "./EliminarInscripcionButton";
 import PagadoCheckbox from "./PagadoCheckbox";
 import PresenceCheckbox from "./PresenceCheckbox";
+import AgregarInscripcionForm from "./AgregarInscripcionForm";
 
 type Props = {
   params: { id: string };
@@ -79,14 +80,17 @@ export default async function InscriptosPage({ params, searchParams }: Props) {
             {torneo.nombre} · {torneo.temporada.nombre}
           </p>
         </div>
-        {total > 0 && (
-          <a
-            href={`/api/exportar-inscriptos/${torneoId}`}
-            className="inline-flex items-center gap-2 bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-800 transition-colors"
-          >
-            ↓ Exportar Excel
-          </a>
-        )}
+        <div className="flex gap-2">
+          <AgregarInscripcionForm torneoId={torneoId} />
+          {total > 0 && (
+            <a
+              href={`/api/exportar-inscriptos/${torneoId}`}
+              className="inline-flex items-center gap-2 bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-800 transition-colors"
+            >
+              ↓ Exportar Excel
+            </a>
+          )}
+        </div>
       </div>
 
       {total === 0 ? (
