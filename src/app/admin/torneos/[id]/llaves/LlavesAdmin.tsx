@@ -22,6 +22,10 @@ type Props = {
 
 const TAMANOS = [4, 8, 16, 24] as const;
 
+// Mínimo de clasificados para habilitar cada tamaño de llave.
+// Tamano 8 admite bye: con 5, 6 o 7 clasificados los seeds faltantes pasan directo.
+const MINIMO_POR_TAMANO: Record<number, number> = { 4: 4, 8: 5, 16: 16, 24: 24 };
+
 export default function LlavesAdmin({ torneoId, categorias, conteoPorCat, elimPorCat }: Props) {
   const [catActiva, setCatActiva] = useState(categorias[0]?.id ?? 0);
   const [tamanoSel, setTamanoSel] = useState<4 | 8 | 16 | 24>(8);
@@ -84,8 +88,14 @@ export default function LlavesAdmin({ torneoId, categorias, conteoPorCat, elimPo
         </div>
       )}
 
-      {/* Sin llave: formulario de generación */}
-      {!elim ? (
+      {/* 3 o menos clasificados: no hay llave posible */}
+      {clasificados <= 3 ? (
+        <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 text-sm text-slate-500">
+          Con 3 o menos clasificados no se arma llave en {cat?.nombre}. El oro queda para el mejor puntaje
+          de la clasificación; plata y bronce siguen el orden de puntaje a continuación.
+        </div>
+      ) : !elim ? (
+        /* Sin llave: formulario de generación */
         <div className="bg-white border border-slate-200 rounded-xl p-6">
           <h2 className="font-semibold text-slate-800 mb-1">Generar llave — {cat?.nombre}</h2>
           <p className="text-sm text-slate-500 mb-4">
@@ -96,7 +106,7 @@ export default function LlavesAdmin({ torneoId, categorias, conteoPorCat, elimPo
               <button
                 key={t}
                 onClick={() => setTamanoSel(t)}
-                disabled={clasificados < t}
+                disabled={clasificados < MINIMO_POR_TAMANO[t]}
                 className={[
                   "px-4 py-2 rounded-lg text-sm font-semibold border transition-colors",
                   tamanoSel === t
@@ -104,7 +114,7 @@ export default function LlavesAdmin({ torneoId, categorias, conteoPorCat, elimPo
                     : "border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed",
                 ].join(" ")}
               >
-                Top {t}
+                {t === 4 ? "Semis (4)" : t === 8 ? "Cuartos (8)" : `Top ${t}`}
               </button>
             ))}
           </div>
@@ -114,15 +124,17 @@ export default function LlavesAdmin({ torneoId, categorias, conteoPorCat, elimPo
               : tamanoSel === 16
                 ? "1 vs 16, 2 vs 15, 3 vs 14, 4 vs 13, 5 vs 12, 6 vs 11, 7 vs 10, 8 vs 9."
                 : tamanoSel === 8
-                  ? "1 vs 8, 2 vs 7, 3 vs 6, 4 vs 5."
+                  ? clasificados < 8
+                    ? `1 vs 8, 2 vs 7, 3 vs 6, 4 vs 5. Con ${clasificados} clasificados, los seeds sin rival (bye) pasan directo de ronda.`
+                    : "1 vs 8, 2 vs 7, 3 vs 6, 4 vs 5."
                   : "1 vs 4 y 2 vs 3. Ganadores: Final. Perdedores: Bronce."}
           </p>
           <button
             onClick={handleGenerar}
-            disabled={isPending || clasificados < tamanoSel}
+            disabled={isPending || clasificados < MINIMO_POR_TAMANO[tamanoSel]}
             className="bg-slate-800 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-slate-900 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
-            {isPending ? "Generando..." : `Generar llave Top ${tamanoSel}`}
+            {isPending ? "Generando..." : `Generar llave ${tamanoSel === 4 ? "Semis" : tamanoSel === 8 ? "Cuartos" : `Top ${tamanoSel}`}`}
           </button>
         </div>
       ) : (
@@ -244,7 +256,9 @@ function PartidoRow({
       {/* Botones de resultado */}
       <div className="flex gap-2 shrink-0">
         {!listo ? (
-          <span className="text-xs text-slate-300">—</span>
+          jugado
+            ? <span className="text-xs text-slate-400 italic font-medium">Bye — pasa directo</span>
+            : <span className="text-xs text-slate-300">—</span>
         ) : jugado ? (
           <button
             onClick={() => onGanador(partido.id, ganadorId === a1!.arqueroId ? a2!.arqueroId : a1!.arqueroId)}

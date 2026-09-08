@@ -43,7 +43,17 @@ export function generarBracket(
     s1: number | null, s2: number | null,
     ga: SiguienteRef | null, pa: SiguienteRef | null
   ): PartidoLlave {
-    return { id, ronda, num, tipo, a1: s1 ? slot(s1) : null, a2: s2 ? slot(s2) : null, ganadorId: null, ganadorA: ga, perdedorA: pa };
+    const a1 = s1 !== null ? slot(s1) : null;
+    const a2 = s2 !== null ? slot(s2) : null;
+    const match: PartidoLlave = { id, ronda, num, tipo, a1, a2, ganadorId: null, ganadorA: ga, perdedorA: pa };
+
+    // Bye: se reservó un puesto de seed que no existe (no llegaron tantos clasificados)
+    // y el rival sí está presente → pasa directo de ronda.
+    const byeS1 = s1 !== null && a1 === null && a2 !== null;
+    const byeS2 = s2 !== null && a2 === null && a1 !== null;
+    if (byeS1 || byeS2) match.ganadorId = (byeS1 ? a2! : a1!).arqueroId;
+
+    return match;
   }
 
   if (tamano === 4) {
@@ -112,6 +122,19 @@ export function generarBracket(
     // Final + Bronce
     p.push(mk("r5m1", 5, 1, "final",  null, null, null, null));
     p.push(mk("r5m2", 5, 2, "bronce", null, null, null, null));
+  }
+
+  // Propagar los byes detectados en mk() a la ronda siguiente. Una sola pasada
+  // alcanza porque `p` se construye en orden de dependencia (ronda 1 antes que
+  // ronda 2, etc.) y solo los partidos con seed directo pueden ser bye real
+  // (nunca un partido "normal" a la espera de que se resuelva otro cruce).
+  for (const m of p) {
+    if (m.ganadorId === null) continue;
+    const ganador = m.a1?.arqueroId === m.ganadorId ? m.a1 : m.a2;
+    if (m.ganadorA) {
+      const next = p.find((x) => x.id === m.ganadorA!.id);
+      if (next) { if (m.ganadorA.pos === 1) next.a1 = ganador; else next.a2 = ganador; }
+    }
   }
 
   return p;

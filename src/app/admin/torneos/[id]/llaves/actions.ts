@@ -5,6 +5,10 @@ import { revalidatePath } from "next/cache";
 import { generarBracket, registrarGanador, isBracketComplete, posicionesFinales } from "@/lib/bracket";
 import type { BracketData, Contendiente } from "@/lib/bracket";
 
+// Mínimo de clasificados requerido por tamaño de llave.
+// Tamano 8 admite bye: con 5, 6 o 7 clasificados los seeds faltantes pasan directo.
+const MINIMO_POR_TAMANO: Record<number, number> = { 4: 4, 8: 5, 16: 16, 24: 24 };
+
 export async function generarEliminatoria(
   torneoId: number,
   categoriaId: number,
@@ -18,8 +22,9 @@ export async function generarEliminatoria(
     take: tamano,
   });
 
-  if (resultados.length < tamano) {
-    return { error: `Se necesitan al menos ${tamano} resultados en esta categoría (hay ${resultados.length})` };
+  const minimo = MINIMO_POR_TAMANO[tamano] ?? tamano;
+  if (resultados.length < minimo) {
+    return { error: `Se necesitan al menos ${minimo} resultados en esta categoría (hay ${resultados.length})` };
   }
 
   const seedings: Contendiente[] = resultados.map((r, idx) => ({
@@ -60,13 +65,28 @@ export async function registrarResultadoPartido(
   });
 
   // Si el bracket está completo, actualizar posiciones 1-4 en Resultado
+  // y recalcular el resto (5° en adelante) por puntaje, para que no queden
+  // posiciones duplicadas con quienes ya definió la llave.
   if (isBracketComplete(updated)) {
     const posiciones = posicionesFinales(updated);
+    const medallistaIds = Array.from(posiciones.keys());
+
     for (const entry of Array.from(posiciones.entries())) {
       const [arqueroId, posicion] = entry;
       await prisma.resultado.updateMany({
         where: { arqueroId, torneoId },
         data:  { posicion, esMedallista: posicion <= 4 },
+      });
+    }
+
+    const resto = await prisma.resultado.findMany({
+      where: { torneoId, categoriaId: elim.categoriaId, arqueroId: { notIn: medallistaIds } },
+      orderBy: { puntajeTotal: "desc" },
+    });
+    for (let i = 0; i < resto.length; i++) {
+      await prisma.resultado.update({
+        where: { id: resto[i].id },
+        data:  { posicion: 5 + i, esMedallista: false },
       });
     }
   }
