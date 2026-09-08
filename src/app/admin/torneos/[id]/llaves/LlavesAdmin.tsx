@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { generarEliminatoria, registrarResultadoPartido, eliminarEliminatoria } from "./actions";
-import { rondaNombre } from "@/lib/bracket";
+import { generarEliminatoria, registrarResultadoPartido, eliminarEliminatoria, recalcularPosiciones } from "./actions";
+import { rondaNombre, isBracketComplete } from "@/lib/bracket";
 import type { BracketData, PartidoLlave } from "@/lib/bracket";
 
 type Categoria = { id: number; nombre: string };
@@ -58,6 +58,15 @@ export default function LlavesAdmin({ torneoId, categorias, conteoPorCat, elimPo
     if (!cat) return;
     if (!confirm(`¿Resetear la llave de ${cat.nombre}? Se perderán todos los resultados del bracket.`)) return;
     start(async () => { await eliminarEliminatoria(torneoId, cat.id); });
+  }
+
+  function handleRecalcular() {
+    if (!cat) return;
+    setMsgError(null);
+    start(async () => {
+      const res = await recalcularPosiciones(torneoId, cat.id);
+      if (res.error) setMsgError(res.error);
+    });
   }
 
   return (
@@ -144,6 +153,7 @@ export default function LlavesAdmin({ torneoId, categorias, conteoPorCat, elimPo
           tamano={elim.tamano}
           onGanador={handleGanador}
           onReset={handleEliminar}
+          onRecalcular={handleRecalcular}
           isPending={isPending}
         />
       )}
@@ -154,28 +164,42 @@ export default function LlavesAdmin({ torneoId, categorias, conteoPorCat, elimPo
 // ── Componente de visualización del bracket ───────────────
 
 function BracketDisplay({
-  bracket, tamano, onGanador, onReset, isPending,
+  bracket, tamano, onGanador, onReset, onRecalcular, isPending,
 }: {
   bracket: BracketData;
   tamano: number;
   onGanador: (matchId: string, ganadorId: number) => void;
   onReset: () => void;
+  onRecalcular: () => void;
   isPending: boolean;
 }) {
   const rondas = Array.from(new Set(bracket.map((p) => p.ronda))).sort((a, b) => a - b);
   const maxRonda = Math.max(...rondas);
+  const completa = isBracketComplete(bracket);
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-sm text-slate-500">Top {tamano} · {rondas.length} ronda(s)</p>
-        <button
-          onClick={onReset}
-          disabled={isPending}
-          className="text-xs text-red-600 hover:text-red-800 border border-red-200 rounded-lg px-2.5 py-1 hover:bg-red-50 transition-colors disabled:opacity-40"
-        >
-          Resetear llave
-        </button>
+        <div className="flex gap-2">
+          {completa && (
+            <button
+              onClick={onRecalcular}
+              disabled={isPending}
+              title="Vuelve a fijar 1°-4° según la llave y recalcula el 5° en adelante por puntaje"
+              className="text-xs text-blue-700 hover:text-blue-900 border border-blue-200 rounded-lg px-2.5 py-1 hover:bg-blue-50 transition-colors disabled:opacity-40"
+            >
+              Recalcular posiciones
+            </button>
+          )}
+          <button
+            onClick={onReset}
+            disabled={isPending}
+            className="text-xs text-red-600 hover:text-red-800 border border-red-200 rounded-lg px-2.5 py-1 hover:bg-red-50 transition-colors disabled:opacity-40"
+          >
+            Resetear llave
+          </button>
+        </div>
       </div>
 
       {rondas.map((ronda) => {
