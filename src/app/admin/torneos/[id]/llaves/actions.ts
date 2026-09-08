@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { generarBracket, registrarGanador, isBracketComplete, posicionesFinales } from "@/lib/bracket";
 import type { BracketData, Contendiente } from "@/lib/bracket";
+import { calcularPuntosTemporada } from "@/lib/scoring";
+import type { TipoTorneo } from "@/types/enums";
 
 // Mínimo de clasificados requerido por tamaño de llave.
 // Tamano 8 admite bye: con 5, 6 o 7 clasificados los seeds faltantes pasan directo.
@@ -66,16 +68,21 @@ export async function registrarResultadoPartido(
 
   // Si el bracket está completo, actualizar posiciones 1-4 en Resultado
   // y recalcular el resto (5° en adelante) por puntaje, para que no queden
-  // posiciones duplicadas con quienes ya definió la llave.
+  // posiciones duplicadas con quienes ya definió la llave. Los puntos de
+  // temporada se recalculan siempre a partir de la posición final.
   if (isBracketComplete(updated)) {
+    const torneo = await prisma.torneo.findUnique({ where: { id: torneoId }, select: { tipo: true } });
+    const tipoTorneo = (torneo?.tipo ?? "REGULAR") as TipoTorneo;
+
     const posiciones = posicionesFinales(updated);
     const medallistaIds = Array.from(posiciones.keys());
 
     for (const entry of Array.from(posiciones.entries())) {
       const [arqueroId, posicion] = entry;
+      const puntosTemporada = calcularPuntosTemporada(posicion, tipoTorneo);
       await prisma.resultado.updateMany({
         where: { arqueroId, torneoId },
-        data:  { posicion, esMedallista: posicion <= 4 },
+        data:  { posicion, esMedallista: posicion <= 4, puntosTemporada },
       });
     }
 
@@ -84,9 +91,10 @@ export async function registrarResultadoPartido(
       orderBy: { puntajeTotal: "desc" },
     });
     for (let i = 0; i < resto.length; i++) {
+      const posicion = 5 + i;
       await prisma.resultado.update({
         where: { id: resto[i].id },
-        data:  { posicion: 5 + i, esMedallista: false },
+        data:  { posicion, esMedallista: false, puntosTemporada: calcularPuntosTemporada(posicion, tipoTorneo) },
       });
     }
   }
