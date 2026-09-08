@@ -220,26 +220,24 @@ export default function CargarManualCliente({
 
                   {/* Arquero */}
                   <td className="px-3 py-2">
-                    {/* Etiqueta de origen */}
-                    {(fila.inscriptoLabel || fila.arqueroLabel) && (
-                      <p className="text-xs text-slate-400 mb-0.5 truncate max-w-[240px]">
-                        {fila.resultadoId
-                          ? `✓ ${fila.arqueroLabel}`
-                          : fila.arqueroId
-                            ? `✓ ${fila.inscriptoLabel ?? fila.arqueroLabel}`
-                            : `⚠ ${fila.inscriptoLabel}`}
-                      </p>
+                    {fila.arqueroId ? (
+                      // Arquero ya asignado — mostrar como texto, no editable
+                      <span className="text-sm font-medium text-slate-800">
+                        {fila.arqueroLabel ?? fila.inscriptoLabel ?? `ID ${fila.arqueroId}`}
+                      </span>
+                    ) : (
+                      // Fila nueva — permitir seleccionar
+                      <select
+                        value=""
+                        onChange={(e) => actualizarFila(fila.key, "arqueroId", e.target.value ? Number(e.target.value) : null)}
+                        className="w-full border border-slate-200 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-slate-300 bg-white"
+                      >
+                        <option value="">— seleccionar arquero —</option>
+                        {arqueroOptions.map((opt) => (
+                          <option key={opt.value} value={opt.value}>{opt.label}</option>
+                        ))}
+                      </select>
                     )}
-                    <select
-                      value={fila.arqueroId ?? ""}
-                      onChange={(e) => actualizarFila(fila.key, "arqueroId", e.target.value ? Number(e.target.value) : null)}
-                      className="w-full border border-slate-200 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-slate-300 bg-white"
-                    >
-                      <option value="">— seleccionar arquero —</option>
-                      {arqueroOptions.map((opt) => (
-                        <option key={opt.value} value={opt.value}>{opt.label}</option>
-                      ))}
-                    </select>
                   </td>
 
                   {/* Ronda 1 */}
