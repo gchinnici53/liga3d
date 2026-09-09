@@ -222,7 +222,25 @@ export default function CargarManualCliente({
           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        {/* Vista celular: tarjeta por arquero, inputs grandes */}
+        <div className="sm:hidden divide-y divide-slate-100">
+          {filas.map((fila) => (
+            <FilaMobileCard
+              key={fila.key}
+              fila={fila}
+              arqueroOptions={arqueroOptions}
+              estadoAuto={estadoAuto[fila.key]}
+              onCambiar={actualizarFila}
+              onBlurPuntaje={() => guardarFilaAuto(fila)}
+              onEliminar={() => eliminarFila(fila.key)}
+              previsualizarPts={previsualizarPts}
+              totalFila={totalFila}
+            />
+          ))}
+        </div>
+
+        {/* Vista escritorio: tabla completa */}
+        <div className="hidden sm:block overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-slate-50 border-b border-slate-200">
               <tr>
@@ -381,4 +399,99 @@ function IndicadorAuto({ estado }: { estado: "guardando" | "guardado" | "error" 
   if (estado === "guardado")  return <span className="text-xs text-green-600" title="Puntaje guardado">✓</span>;
   if (estado === "error")     return <span className="text-xs text-red-500" title="No se pudo guardar, reintentá">⚠</span>;
   return null;
+}
+
+// Tarjeta de carga para celular: inputs grandes, numpad, guardado automático
+// igual que en la tabla de escritorio (misma lógica, otro layout).
+function FilaMobileCard({
+  fila, arqueroOptions, estadoAuto, onCambiar, onBlurPuntaje, onEliminar, previsualizarPts, totalFila,
+}: {
+  fila: Fila;
+  arqueroOptions: { value: number; label: string }[];
+  estadoAuto: "guardando" | "guardado" | "error" | undefined;
+  onCambiar: (key: string, campo: keyof Fila, valor: string | number | null) => void;
+  onBlurPuntaje: () => void;
+  onEliminar: () => void;
+  previsualizarPts: (posicion: string) => string;
+  totalFila: (f: Fila) => string | number;
+}) {
+  return (
+    <div className="p-4">
+      <div className="flex items-center justify-between gap-2 mb-3">
+        {fila.arqueroId ? (
+          <span className="text-sm font-semibold text-slate-800">
+            {fila.arqueroLabel ?? fila.inscriptoLabel ?? `ID ${fila.arqueroId}`}
+          </span>
+        ) : (
+          <select
+            value=""
+            onChange={(e) => onCambiar(fila.key, "arqueroId", e.target.value ? Number(e.target.value) : null)}
+            className="flex-1 border border-slate-200 rounded-lg px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-300"
+          >
+            <option value="">— seleccionar arquero —</option>
+            {arqueroOptions.map((opt) => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
+        )}
+        <button
+          type="button"
+          onClick={onEliminar}
+          className="text-slate-300 hover:text-red-500 transition-colors text-lg leading-none shrink-0 px-1"
+          title="Quitar fila"
+        >
+          ✕
+        </button>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 mb-3">
+        <div>
+          <label className="block text-xs font-medium text-slate-500 mb-1">Ronda 1</label>
+          <input
+            type="number"
+            inputMode="numeric"
+            min={0}
+            value={fila.puntajeRonda1}
+            onChange={(e) => onCambiar(fila.key, "puntajeRonda1", e.target.value)}
+            onBlur={onBlurPuntaje}
+            placeholder="0"
+            className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-base text-center focus:outline-none focus:ring-2 focus:ring-slate-300"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-slate-500 mb-1">Ronda 2</label>
+          <input
+            type="number"
+            inputMode="numeric"
+            min={0}
+            value={fila.puntajeRonda2}
+            onChange={(e) => onCambiar(fila.key, "puntajeRonda2", e.target.value)}
+            onBlur={onBlurPuntaje}
+            placeholder="—"
+            className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-base text-center focus:outline-none focus:ring-2 focus:ring-slate-300"
+          />
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between text-xs text-slate-500">
+        <span>Total: <strong className="text-slate-700">{totalFila(fila)}</strong></span>
+        <div className="flex items-center gap-3">
+          <label className="flex items-center gap-1.5">
+            Pos
+            <input
+              type="number"
+              inputMode="numeric"
+              min={1}
+              value={fila.posicion}
+              onChange={(e) => onCambiar(fila.key, "posicion", e.target.value)}
+              placeholder="—"
+              className="w-12 border border-slate-200 rounded px-1.5 py-1 text-sm text-center focus:outline-none focus:ring-2 focus:ring-slate-300"
+            />
+          </label>
+          <span className="font-semibold text-green-700">{previsualizarPts(fila.posicion)}</span>
+          <IndicadorAuto estado={estadoAuto} />
+        </div>
+      </div>
+    </div>
+  );
 }
