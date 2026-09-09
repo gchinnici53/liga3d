@@ -337,7 +337,7 @@ export default function CargarManualCliente({
       {hayIncompletas && (
         <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-sm text-amber-700 mb-4">
           El puntaje de cada arquero ya se guarda solo al salir del campo, aunque todavía no tenga posición.
-          El botón "Guardar" de abajo solo hace falta para fijar la <strong>posición</strong> de las filas
+          El botón &ldquo;Guardar&rdquo; de abajo solo hace falta para fijar la <strong>posición</strong> de las filas
           que la tengan completa.
         </div>
       )}
