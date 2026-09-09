@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { guardarResultadosManual } from "./actions";
+import { useState, useTransition, useRef } from "react";
+import { guardarResultadosManual, guardarPuntajeParcial } from "./actions";
 import type { FilaManual, GuardarResult } from "./actions";
 import type { FilaInicial } from "./page";
 import { calcularPuntosTemporada } from "@/lib/scoring";
@@ -82,6 +82,12 @@ export default function CargarManualCliente({
   const [guardadoCat, setGuardadoCat] = useState<string | null>(null);
   const [isPending, start]            = useTransition();
 
+  // Guardado automático por fila (independiente del botón "Guardar categoría"):
+  // apenas se completa el puntaje de un arquero se persiste solo, sin esperar
+  // a que el resto de la categoría esté cargada ni a que se sepa la posición.
+  const [estadoAuto, setEstadoAuto] = useState<Record<string, "guardando" | "guardado" | "error">>({});
+  const ultimoGuardado = useRef<Record<string, string>>({}); // key -> "r1|r2" ya enviado, evita reenvíos idénticos
+
   const filas = filasPorCat[categoriaNombre] ?? [];
 
   function setFilas(fn: (prev: Fila[]) => Fila[]) {
@@ -129,6 +135,27 @@ export default function CargarManualCliente({
       setResultado(res);
       setGuardadoCat(categoriaNombre);
     });
+  }
+
+  async function guardarFilaAuto(fila: Fila) {
+    if (!categoriaActual || !fila.arqueroId) return;
+
+    const r1str = fila.puntajeRonda1.trim();
+    if (r1str === "") return; // todavía no hay nada que guardar
+    const r1 = Number(r1str);
+    if (isNaN(r1) || r1 < 0) return;
+
+    const r2str = fila.puntajeRonda2.trim();
+    const r2 = r2str === "" ? null : Number(r2str);
+    if (r2 !== null && (isNaN(r2) || r2 < 0)) return;
+
+    const firma = `${r1}|${r2}`;
+    if (ultimoGuardado.current[fila.key] === firma) return; // sin cambios desde el último guardado
+    ultimoGuardado.current[fila.key] = firma;
+
+    setEstadoAuto((prev) => ({ ...prev, [fila.key]: "guardando" }));
+    const res = await guardarPuntajeParcial(torneoId, categoriaActual.id, fila.arqueroId, r1, r2);
+    setEstadoAuto((prev) => ({ ...prev, [fila.key]: res.error ? "error" : "guardado" }));
   }
 
   // ── Helpers de visualización ──────────────────────────────
@@ -181,13 +208,18 @@ export default function CargarManualCliente({
               <span className="ml-2 text-xs font-normal text-slate-400">— editando resultados existentes</span>
             )}
           </h2>
-          <button
-            type="button"
-            onClick={asignarPosiciones}
-            className="text-xs text-blue-700 hover:text-blue-900 border border-blue-200 rounded-lg px-2.5 py-1 hover:bg-blue-50 transition-colors"
-          >
-            ↕ Ordenar por puntaje
-          </button>
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-slate-400 hidden sm:inline">
+              El puntaje se guarda solo al salir del campo
+            </span>
+            <button
+              type="button"
+              onClick={asignarPosiciones}
+              className="text-xs text-blue-700 hover:text-blue-900 border border-blue-200 rounded-lg px-2.5 py-1 hover:bg-blue-50 transition-colors"
+            >
+              ↕ Ordenar por puntaje
+            </button>
+          </div>
         </div>
 
         <div className="overflow-x-auto">
@@ -247,6 +279,7 @@ export default function CargarManualCliente({
                       min={0}
                       value={fila.puntajeRonda1}
                       onChange={(e) => actualizarFila(fila.key, "puntajeRonda1", e.target.value)}
+                      onBlur={() => guardarFilaAuto(fila)}
                       placeholder="0"
                       className="w-20 border border-slate-200 rounded px-2 py-1 text-sm text-right focus:outline-none focus:ring-2 focus:ring-slate-300 ml-auto block"
                     />
@@ -254,14 +287,18 @@ export default function CargarManualCliente({
 
                   {/* Ronda 2 */}
                   <td className="px-3 py-2">
-                    <input
-                      type="number"
-                      min={0}
-                      value={fila.puntajeRonda2}
-                      onChange={(e) => actualizarFila(fila.key, "puntajeRonda2", e.target.value)}
-                      placeholder="—"
-                      className="w-20 border border-slate-200 rounded px-2 py-1 text-sm text-right focus:outline-none focus:ring-2 focus:ring-slate-300 ml-auto block"
-                    />
+                    <div className="flex items-center justify-end gap-1.5">
+                      <input
+                        type="number"
+                        min={0}
+                        value={fila.puntajeRonda2}
+                        onChange={(e) => actualizarFila(fila.key, "puntajeRonda2", e.target.value)}
+                        onBlur={() => guardarFilaAuto(fila)}
+                        placeholder="—"
+                        className="w-20 border border-slate-200 rounded px-2 py-1 text-sm text-right focus:outline-none focus:ring-2 focus:ring-slate-300"
+                      />
+                      <IndicadorAuto estado={estadoAuto[fila.key]} />
+                    </div>
                   </td>
 
                   {/* Total */}
@@ -299,7 +336,9 @@ export default function CargarManualCliente({
       {/* Advertencias */}
       {hayIncompletas && (
         <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-sm text-amber-700 mb-4">
-          Hay filas con datos incompletos (sin arquero, puntaje o posición) que no se guardarán.
+          El puntaje de cada arquero ya se guarda solo al salir del campo, aunque todavía no tenga posición.
+          El botón "Guardar" de abajo solo hace falta para fijar la <strong>posición</strong> de las filas
+          que la tengan completa.
         </div>
       )}
 
@@ -327,7 +366,7 @@ export default function CargarManualCliente({
         >
           {isPending
             ? "Guardando..."
-            : `Guardar ${categoriaNombre} (${filasCompletas} ${filasCompletas === 1 ? "resultado" : "resultados"})`}
+            : `Fijar posiciones de ${categoriaNombre} (${filasCompletas} ${filasCompletas === 1 ? "resultado" : "resultados"})`}
         </button>
         <a href={`/admin/torneos/${torneoId}`} className="text-sm text-slate-500 hover:text-slate-800 transition-colors">
           Ver torneo →
@@ -335,4 +374,11 @@ export default function CargarManualCliente({
       </div>
     </div>
   );
+}
+
+function IndicadorAuto({ estado }: { estado: "guardando" | "guardado" | "error" | undefined }) {
+  if (estado === "guardando") return <span className="text-xs text-slate-400" title="Guardando...">…</span>;
+  if (estado === "guardado")  return <span className="text-xs text-green-600" title="Puntaje guardado">✓</span>;
+  if (estado === "error")     return <span className="text-xs text-red-500" title="No se pudo guardar, reintentá">⚠</span>;
+  return null;
 }
