@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 
@@ -16,6 +16,18 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   title: "Liga 3D — Tiro con Arco",
   description: "Liga de tiro con arco 3D. Torneos, ranking, resultados y más.",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Liga 3D",
+  },
+  icons: {
+    apple: "/img/Liga3dLOGOALTA.png",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#E8722A",
 };
 
 export default function RootLayout({
