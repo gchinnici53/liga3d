@@ -30,6 +30,11 @@ export default async function ArquerosPage({ searchParams }: Props) {
     orderBy: [{ apellido: "asc" }, { nombre: "asc" }],
   });
 
+  const exportParams = new URLSearchParams();
+  if (buscar) exportParams.set("buscar", buscar);
+  if (estado) exportParams.set("estado", estado);
+  const exportHref = `/api/exportar-arqueros${exportParams.toString() ? `?${exportParams.toString()}` : ""}`;
+
   return (
     <div className="p-6">
       {/* Encabezado */}
@@ -39,6 +44,12 @@ export default async function ArquerosPage({ searchParams }: Props) {
           <p className="text-slate-500 text-sm mt-0.5">{arqueros.length} resultados</p>
         </div>
         <div className="flex gap-2">
+          <a
+            href={exportHref}
+            className="inline-flex items-center gap-1.5 border border-slate-300 bg-white text-slate-700 px-3 py-2 rounded-lg text-sm hover:bg-slate-50 transition-colors"
+          >
+            ↓ Exportar Excel
+          </a>
           <Link
             href="/admin/arqueros/importar"
             className="inline-flex items-center gap-1.5 border border-slate-300 bg-white text-slate-700 px-3 py-2 rounded-lg text-sm hover:bg-slate-50 transition-colors"
