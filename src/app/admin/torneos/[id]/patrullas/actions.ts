@@ -145,6 +145,34 @@ export async function eliminarPatrullaVacia(
   return {};
 }
 
+// Anota a un inscripto sin patrulla (ej. anotación de último momento) en un
+// casillero vacío puntual, sin tener que rehacer el resto de las patrullas.
+export async function asignarInscripcionAPatrulla(
+  inscripcionId: number,
+  targetPatrullaId: number,
+  targetPosicion: string,
+  torneoId: number,
+): Promise<{ error?: string }> {
+  const inscripcion = await prisma.inscripcion.findUnique({
+    where: { id: inscripcionId },
+    include: { patrulla: { select: { id: true } } },
+  });
+  if (!inscripcion) return { error: "Inscripción no encontrada." };
+  if (inscripcion.patrulla) return { error: "Este arquero ya tiene una patrulla asignada." };
+
+  const ocupado = await prisma.miembroPatrulla.findFirst({
+    where: { patrullaId: targetPatrullaId, posicion: targetPosicion },
+  });
+  if (ocupado) return { error: "Ese casillero ya está ocupado." };
+
+  await prisma.miembroPatrulla.create({
+    data: { inscripcionId, patrullaId: targetPatrullaId, posicion: targetPosicion },
+  });
+
+  revalidatePath(`/admin/torneos/${torneoId}/patrullas`);
+  return {};
+}
+
 export async function moverMiembro(
   miembroId: number,
   targetPatrullaId: number,

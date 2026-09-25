@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { moverMiembro, agregarPatrullaVacia, eliminarPatrullaVacia } from "./actions";
+import { moverMiembro, agregarPatrullaVacia, eliminarPatrullaVacia, asignarInscripcionAPatrulla } from "./actions";
 
 const ESTACA_COLOR: Record<string, string> = {
   ROJA:     "bg-red-100 text-red-700 border-red-200",
@@ -32,17 +32,24 @@ type Patrulla = {
   D: Miembro;
 };
 
+type SinPatrulla = { id: number; nombre: string; apellido: string; categoria: string };
+
 type Props = {
   patrullas: Patrulla[];
+  sinPatrulla: SinPatrulla[];
   torneoId: number;
 };
+
+type Seleccion =
+  | { tipo: "miembro"; miembroId: number; label: string }
+  | { tipo: "inscripcion"; inscripcionId: number; label: string };
 
 function etiqueta(p: Patrulla) {
   return `Patrulla ${p.numero}${p.bis ? " bis" : ""}`;
 }
 
-export default function PatrullasGrid({ patrullas, torneoId }: Props) {
-  const [seleccionado, setSeleccionado] = useState<{ miembroId: number; label: string } | null>(null);
+export default function PatrullasGrid({ patrullas, sinPatrulla, torneoId }: Props) {
+  const [seleccionado, setSeleccionado] = useState<Seleccion | null>(null);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
@@ -60,11 +67,20 @@ export default function PatrullasGrid({ patrullas, torneoId }: Props) {
     });
   }
 
-  function seleccionar(miembroId: number, label: string) {
-    if (seleccionado?.miembroId === miembroId) {
+  function seleccionarMiembro(miembroId: number, label: string) {
+    if (seleccionado?.tipo === "miembro" && seleccionado.miembroId === miembroId) {
       setSeleccionado(null);
     } else {
-      setSeleccionado({ miembroId, label });
+      setSeleccionado({ tipo: "miembro", miembroId, label });
+      setError(null);
+    }
+  }
+
+  function seleccionarSinPatrulla(inscripcionId: number, label: string) {
+    if (seleccionado?.tipo === "inscripcion" && seleccionado.inscripcionId === inscripcionId) {
+      setSeleccionado(null);
+    } else {
+      setSeleccionado({ tipo: "inscripcion", inscripcionId, label });
       setError(null);
     }
   }
@@ -72,7 +88,9 @@ export default function PatrullasGrid({ patrullas, torneoId }: Props) {
   function moverA(targetPatrullaId: number, targetPosicion: string) {
     if (!seleccionado) return;
     startTransition(async () => {
-      const res = await moverMiembro(seleccionado.miembroId, targetPatrullaId, targetPosicion, torneoId);
+      const res = seleccionado.tipo === "miembro"
+        ? await moverMiembro(seleccionado.miembroId, targetPatrullaId, targetPosicion, torneoId)
+        : await asignarInscripcionAPatrulla(seleccionado.inscripcionId, targetPatrullaId, targetPosicion, torneoId);
       if (res?.error) setError(res.error);
       else setSeleccionado(null);
     });
@@ -86,7 +104,10 @@ export default function PatrullasGrid({ patrullas, torneoId }: Props) {
       {seleccionado ? (
         <div className="mb-4 flex items-center gap-3 bg-blue-50 border border-blue-200 rounded-xl px-4 py-3">
           <span className="text-sm text-blue-700">
-            <strong>{seleccionado.label}</strong> seleccionado — hacé click en la posición destino para mover o intercambiar.
+            <strong>{seleccionado.label}</strong> seleccionado —{" "}
+            {seleccionado.tipo === "inscripcion"
+              ? "hacé click en un casillero vacío para agregarlo."
+              : "hacé click en la posición destino para mover o intercambiar."}
           </span>
           <button
             onClick={() => setSeleccionado(null)}
@@ -113,6 +134,35 @@ export default function PatrullasGrid({ patrullas, torneoId }: Props) {
       {error && (
         <div className="mb-4 bg-red-50 border border-red-200 rounded-lg px-4 py-2 text-sm text-red-700">
           {error}
+        </div>
+      )}
+
+      {/* Anotaciones de último momento sin patrulla todavía */}
+      {sinPatrulla.length > 0 && (
+        <div className="mb-4 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+          <p className="text-xs font-semibold text-amber-700 mb-2">
+            Sin patrulla ({sinPatrulla.length}) — hacé click en un arquero y después en un casillero vacío:
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {sinPatrulla.map((i) => {
+              const activo = seleccionado?.tipo === "inscripcion" && seleccionado.inscripcionId === i.id;
+              return (
+                <button
+                  key={i.id}
+                  onClick={() => seleccionarSinPatrulla(i.id, `${i.apellido} ${i.nombre} (sin patrulla)`)}
+                  disabled={isPending}
+                  className={[
+                    "text-xs font-medium px-2.5 py-1.5 rounded-lg border transition-colors disabled:opacity-40",
+                    activo
+                      ? "bg-amber-600 text-white border-amber-600"
+                      : "bg-white text-amber-800 border-amber-300 hover:bg-amber-100",
+                  ].join(" ")}
+                >
+                  {i.apellido}, {i.nombre} <span className="opacity-60">· {i.categoria}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
       )}
 
@@ -147,8 +197,10 @@ export default function PatrullasGrid({ patrullas, torneoId }: Props) {
             <div className="divide-y divide-slate-50">
               {posiciones.map((pos) => {
                 const miembro = p[pos];
-                const esSeleccionado = seleccionado && miembro && seleccionado.miembroId === miembro.id;
-                const esDestino = !!seleccionado && !isPending;
+                const esSeleccionado = seleccionado?.tipo === "miembro" && miembro && seleccionado.miembroId === miembro.id;
+                // Una inscripción nueva (sin patrulla) solo puede ir a un casillero vacío —
+                // no hay de dónde "sacarla" para hacer un intercambio.
+                const esDestino = !!seleccionado && !isPending && (miembro ? seleccionado.tipo === "miembro" : true);
 
                 return (
                   <div
@@ -156,10 +208,10 @@ export default function PatrullasGrid({ patrullas, torneoId }: Props) {
                     onClick={() => {
                       if (!miembro && esDestino) {
                         moverA(p.id, pos);
-                      } else if (miembro && esDestino && seleccionado?.miembroId !== miembro.id) {
+                      } else if (miembro && esDestino && !(seleccionado?.tipo === "miembro" && seleccionado.miembroId === miembro.id)) {
                         moverA(p.id, pos);
                       } else if (miembro && !seleccionado) {
-                        seleccionar(miembro.id, `${miembro.inscripcion.apellido} ${miembro.inscripcion.nombre} (${etiqueta(p)} - ${pos})`);
+                        seleccionarMiembro(miembro.id, `${miembro.inscripcion.apellido} ${miembro.inscripcion.nombre} (${etiqueta(p)} - ${pos})`);
                       }
                     }}
                     className={[

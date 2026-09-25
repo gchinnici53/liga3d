@@ -32,7 +32,15 @@ export default async function PatrullasPage({ params }: Props) {
 
   const hayPatrullas  = torneo.patrullas.length > 0;
   const totalInsc     = torneo._count.inscripciones;
-  const sinPatrulla   = totalInsc - torneo.patrullas.reduce((sum, p) => sum + p.miembros.length, 0);
+
+  // Inscriptos sin patrulla (anotaciones de último momento incluidas):
+  // cualquier inscripción del torneo que no tenga un MiembroPatrulla asociado.
+  const sinPatrullaLista = await prisma.inscripcion.findMany({
+    where: { torneoId, patrulla: null },
+    select: { id: true, nombre: true, apellido: true, categoria: true },
+    orderBy: [{ apellido: "asc" }, { nombre: "asc" }],
+  });
+  const sinPatrulla = sinPatrullaLista.length;
 
   // Datos para exportar PDF
   const patrullasExport = torneo.patrullas.map((p) => {
@@ -139,7 +147,7 @@ export default async function PatrullasPage({ params }: Props) {
           </p>
         </div>
       ) : (
-        <PatrullasGrid patrullas={patrullasGrid} torneoId={torneoId} />
+        <PatrullasGrid patrullas={patrullasGrid} sinPatrulla={sinPatrullaLista} torneoId={torneoId} />
       )}
     </div>
   );
