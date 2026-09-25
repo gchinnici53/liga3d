@@ -211,6 +211,14 @@ export default function ExportarScorecardsButton({ patrullas, torneo }: Props) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const rightFinalY = (doc as any).lastAutoTable.finalY as number;
 
+        // Línea más gruesa separando FLECHA 1 de FLECHA 2, en ambas tablas
+        const divOffset = colWidths.diana + colWidths.val * 5;
+        doc.setDrawColor(60, 60, 60);
+        doc.setLineWidth(0.5);
+        doc.line(leftX + divOffset, tableTop, leftX + divOffset, leftFinalY);
+        doc.line(rightX + divOffset, tableTop, rightX + divOffset, rightFinalY);
+        doc.setLineWidth(0.2);
+
         // Sponsors bajo la tabla izquierda
         const sponsorImgs = sponsorData.filter((s): s is string => !!s);
         if (sponsorImgs.length > 0) {
@@ -226,11 +234,12 @@ export default function ExportarScorecardsButton({ patrullas, torneo }: Props) {
         }
 
         // Totales: 3 casilleros alineados debajo de sus columnas —
-        // puntos (bajo SUB.T., 3 cifras), cantidad de 11's y de 10's.
-        const offParc = colWidths.diana + colWidths.val * 10;
-        const offSubt = offParc + colWidths.parc;
-        const offS11  = offSubt + colWidths.subt;
-        const offS10  = offS11  + colWidths.s11;
+        // puntos (bajo PARC.+SUB.T. juntas, 3 cifras), cantidad de 11's y de 10's.
+        const offParc  = colWidths.diana + colWidths.val * 10;
+        const offSubt  = offParc + colWidths.parc;
+        const offS11   = offSubt + colWidths.subt;
+        const offS10   = offS11  + colWidths.s11;
+        const anchoPts = colWidths.parc + colWidths.subt;
 
         doc.setFont("helvetica", "bold");
         doc.setFontSize(8);
@@ -239,15 +248,15 @@ export default function ExportarScorecardsButton({ patrullas, torneo }: Props) {
         const boxY = rightFinalY + 3;
         const boxH = 7;
         doc.setDrawColor(130, 130, 130);
-        doc.rect(rightX + offSubt, boxY, colWidths.subt, boxH);
-        doc.rect(rightX + offS11,  boxY, colWidths.s11,  boxH);
-        doc.rect(rightX + offS10,  boxY, colWidths.s10,  boxH);
+        doc.rect(rightX + offParc, boxY, anchoPts, boxH);
+        doc.rect(rightX + offS11,  boxY, colWidths.s11, boxH);
+        doc.rect(rightX + offS10,  boxY, colWidths.s10, boxH);
 
         doc.setFont("helvetica", "normal");
         doc.setFontSize(5.5);
-        doc.text("PTS",  rightX + offSubt + colWidths.subt / 2, boxY - 1, { align: "center" });
-        doc.text("11'S", rightX + offS11  + colWidths.s11  / 2, boxY - 1, { align: "center" });
-        doc.text("10'S", rightX + offS10  + colWidths.s10  / 2, boxY - 1, { align: "center" });
+        doc.text("PTS",  rightX + offParc + anchoPts / 2, boxY - 1, { align: "center" });
+        doc.text("11'S", rightX + offS11  + colWidths.s11 / 2, boxY - 1, { align: "center" });
+        doc.text("10'S", rightX + offS10  + colWidths.s10 / 2, boxY - 1, { align: "center" });
 
         // Firmas
         const firmaY = boxY + boxH + 10;
