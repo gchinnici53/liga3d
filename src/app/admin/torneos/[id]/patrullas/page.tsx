@@ -4,6 +4,7 @@ import Link from "next/link";
 import PatrullasGrid from "./PatrullasGrid";
 import GenerarButton from "./GenerarButton";
 import ExportarPDFButton from "./ExportarPDFButton";
+import ExportarScorecardsButton from "./ExportarScorecardsButton";
 
 type Props = { params: { id: string } };
 
@@ -99,7 +100,10 @@ export default async function PatrullasPage({ params }: Props) {
         </div>
         <div className="flex items-center gap-3">
           {hayPatrullas && (
-            <ExportarPDFButton patrullas={patrullasExport} torneo={torneoInfo} />
+            <>
+              <ExportarScorecardsButton patrullas={patrullasExport} torneo={torneoInfo} />
+              <ExportarPDFButton patrullas={patrullasExport} torneo={torneoInfo} />
+            </>
           )}
           <GenerarButton torneoId={torneoId} hayPatrullas={hayPatrullas} />
         </div>
