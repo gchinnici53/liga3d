@@ -140,9 +140,16 @@ export default function ExportarScorecardsButton({ patrullas, torneo }: Props) {
         const logoSize = 16;
         if (logoData) doc.addImage(logoData, "PNG", marginX, y, logoSize, logoSize);
 
+        const nombreIzq = `arquero: ${card.apellido}, ${card.nombre}`;
         doc.setFont("helvetica", "bold");
-        doc.setFontSize(13);
-        doc.text(`arquero: ${card.apellido}, ${card.nombre}`, marginX + logoSize + 4, y + 6.5);
+        let nombreIzqSize = 13;
+        doc.setFontSize(nombreIzqSize);
+        const anchoDisponibleIzq = tableWidth - logoSize - 2;
+        while (nombreIzqSize > 7 && doc.getTextWidth(nombreIzq) > anchoDisponibleIzq) {
+          nombreIzqSize -= 0.5;
+          doc.setFontSize(nombreIzqSize);
+        }
+        doc.text(nombreIzq, marginX + logoSize + 4, y + 6.5);
 
         doc.setFont("helvetica", "normal");
         doc.setFontSize(10);
@@ -153,11 +160,27 @@ export default function ExportarScorecardsButton({ patrullas, torneo }: Props) {
         doc.setFont("helvetica", "bold");
         doc.setFontSize(22);
         doc.text(`${card.numero}${card.posicion}`, W - marginX, y + 11, { align: "right" });
+        let bisOffset = 0;
         if (card.bis) {
           doc.setFontSize(8);
           doc.setFont("helvetica", "normal");
           doc.text("BIS", W - marginX, y + 15, { align: "right" });
+          bisOffset = 3;
         }
+
+        // El nombre se repite del lado derecho: la tarjeta se dobla al medio
+        // (entre las dos tablas) y así se ve el nombre en ambas mitades.
+        // Si el nombre es muy largo, se achica hasta que entre en el ancho
+        // de la mitad derecha (para no invadir la tabla izquierda).
+        const nombreDer = `${card.apellido}, ${card.nombre}`;
+        doc.setFont("helvetica", "bold");
+        let nombreDerSize = 10;
+        doc.setFontSize(nombreDerSize);
+        while (nombreDerSize > 6.5 && doc.getTextWidth(nombreDer) > tableWidth - 2) {
+          nombreDerSize -= 0.5;
+          doc.setFontSize(nombreDerSize);
+        }
+        doc.text(nombreDer, W - marginX, y + 15 + bisOffset, { align: "right" });
 
         const dianas   = secuenciaDianas(card.numero);
         const tableTop = y + logoSize + 4;
@@ -202,20 +225,38 @@ export default function ExportarScorecardsButton({ patrullas, torneo }: Props) {
           }
         }
 
-        // Totales + firmas bajo la tabla derecha
+        // Totales: 3 casilleros alineados debajo de sus columnas —
+        // puntos (bajo SUB.T., 3 cifras), cantidad de 11's y de 10's.
+        const offParc = colWidths.diana + colWidths.val * 10;
+        const offSubt = offParc + colWidths.parc;
+        const offS11  = offSubt + colWidths.subt;
+        const offS10  = offS11  + colWidths.s11;
+
         doc.setFont("helvetica", "bold");
-        doc.setFontSize(9);
-        doc.text("TOTALES:", rightX, rightFinalY + 6);
-        doc.setDrawColor(150, 150, 150);
-        doc.rect(rightX + 20, rightFinalY + 2, 14, 6);
-        doc.rect(rightX + 36, rightFinalY + 2, 14, 6);
+        doc.setFontSize(8);
+        doc.text("TOTALES", rightX, rightFinalY + 6.5);
+
+        const boxY = rightFinalY + 3;
+        const boxH = 7;
+        doc.setDrawColor(130, 130, 130);
+        doc.rect(rightX + offSubt, boxY, colWidths.subt, boxH);
+        doc.rect(rightX + offS11,  boxY, colWidths.s11,  boxH);
+        doc.rect(rightX + offS10,  boxY, colWidths.s10,  boxH);
 
         doc.setFont("helvetica", "normal");
+        doc.setFontSize(5.5);
+        doc.text("PTS",  rightX + offSubt + colWidths.subt / 2, boxY - 1, { align: "center" });
+        doc.text("11'S", rightX + offS11  + colWidths.s11  / 2, boxY - 1, { align: "center" });
+        doc.text("10'S", rightX + offS10  + colWidths.s10  / 2, boxY - 1, { align: "center" });
+
+        // Firmas
+        const firmaY = boxY + boxH + 10;
+        doc.setFont("helvetica", "normal");
         doc.setFontSize(8);
-        doc.text("Arquero", rightX, rightFinalY + 18);
-        doc.line(rightX + 14, rightFinalY + 18, rightX + tableWidth * 0.45, rightFinalY + 18);
-        doc.text("Scorer", rightX + tableWidth * 0.5, rightFinalY + 18);
-        doc.line(rightX + tableWidth * 0.5 + 12, rightFinalY + 18, rightX + tableWidth, rightFinalY + 18);
+        doc.text("Arquero", rightX, firmaY);
+        doc.line(rightX + 14, firmaY, rightX + tableWidth * 0.45, firmaY);
+        doc.text("Scorer", rightX + tableWidth * 0.5, firmaY);
+        doc.line(rightX + tableWidth * 0.5 + 12, firmaY, rightX + tableWidth, firmaY);
       };
 
       for (let i = 0; i < cards.length; i += 2) {
