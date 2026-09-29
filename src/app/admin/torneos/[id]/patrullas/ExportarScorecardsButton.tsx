@@ -34,7 +34,7 @@ type Props = {
 };
 
 const POSICIONES = ["A", "B", "C", "D"] as const;
-const SPONSORS = ["sponsor_1.png", "sponsor_2.png", "sponsor_3.png", "sponsor_4.PNG", "sponsor_5.png"];
+const ZOCALO_RATIO = 6216 / 1563; // ancho / alto reales de public/img/zocalo.png
 
 type Card = {
   apellido: string;
@@ -90,9 +90,9 @@ export default function ExportarScorecardsButton({ patrullas, torneo }: Props) {
         return;
       }
 
-      const [logoData, ...sponsorData] = await Promise.all([
+      const [logoData, zocaloData] = await Promise.all([
         cargarImagenBase64("/img/Liga3dLOGOALTA.png"),
-        ...SPONSORS.map((f) => cargarImagenBase64(`/img/${f}`)),
+        cargarImagenBase64("/img/zocalo.png"),
       ]);
 
       const fecha = new Date(torneo.fecha).toLocaleDateString("es-AR", {
@@ -219,18 +219,11 @@ export default function ExportarScorecardsButton({ patrullas, torneo }: Props) {
         doc.line(rightX + divOffset, tableTop, rightX + divOffset, rightFinalY);
         doc.setLineWidth(0.2);
 
-        // Sponsors bajo la tabla izquierda
-        const sponsorImgs = sponsorData.filter((s): s is string => !!s);
-        if (sponsorImgs.length > 0) {
-          const sH = 9;
-          const gap = 4;
-          const totalW = sponsorImgs.length * sH * 1.6 + (sponsorImgs.length - 1) * gap;
-          let sx = leftX + Math.max(0, (tableWidth - totalW) / 2);
-          const sy = leftFinalY + 4;
-          for (const img of sponsorImgs) {
-            doc.addImage(img, "PNG", sx, sy, sH * 1.6, sH);
-            sx += sH * 1.6 + gap;
-          }
+        // Zócalo de sponsors bajo la tabla izquierda
+        if (zocaloData) {
+          const zw = tableWidth;
+          const zh = zw / ZOCALO_RATIO;
+          doc.addImage(zocaloData, "PNG", leftX, leftFinalY + 4, zw, zh);
         }
 
         // Totales: 3 casilleros alineados debajo de sus columnas —
