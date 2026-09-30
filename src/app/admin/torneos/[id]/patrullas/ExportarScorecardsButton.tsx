@@ -15,6 +15,7 @@ type PatrullaExport = {
   numero: number;
   bis: boolean;
   estaca: string;
+  token: string;
   A: MiembroExport;
   B: MiembroExport;
   C: MiembroExport;
@@ -31,6 +32,7 @@ type TorneoInfo = {
 type Props = {
   patrullas: PatrullaExport[];
   torneo: TorneoInfo;
+  baseUrl: string;
 };
 
 const POSICIONES = ["A", "B", "C", "D"] as const;
@@ -43,6 +45,7 @@ type Card = {
   numero: number;
   bis: boolean;
   posicion: string;
+  token: string;
 };
 
 // Secuencia de 24 dianas empezando en el número de patrulla y dando la
@@ -66,7 +69,7 @@ async function cargarImagenBase64(url: string): Promise<string | null> {
   }
 }
 
-export default function ExportarScorecardsButton({ patrullas, torneo }: Props) {
+export default function ExportarScorecardsButton({ patrullas, torneo, baseUrl }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState<string | null>(null);
 
@@ -81,7 +84,7 @@ export default function ExportarScorecardsButton({ patrullas, torneo }: Props) {
       for (const p of patrullas) {
         for (const pos of POSICIONES) {
           const m = p[pos];
-          if (m) cards.push({ apellido: m.apellido, nombre: m.nombre, categoria: m.categoria, numero: p.numero, bis: p.bis, posicion: pos });
+          if (m) cards.push({ apellido: m.apellido, nombre: m.nombre, categoria: m.categoria, numero: p.numero, bis: p.bis, posicion: pos, token: p.token });
         }
       }
       if (cards.length === 0) {
@@ -90,10 +93,26 @@ export default function ExportarScorecardsButton({ patrullas, torneo }: Props) {
         return;
       }
 
+      const { default: QRCode } = await import("qrcode");
+
       const [logoData, zocaloData] = await Promise.all([
         cargarImagenBase64("/img/Liga3dLOGOALTA.png"),
         cargarImagenBase64("/img/zocalo.png"),
       ]);
+
+      // QR solo para las tarjetas del puesto B (el scorer de la patrulla) —
+      // uno por patrulla, no por tarjeta.
+      const qrPorToken = new Map<string, string>();
+      await Promise.all(
+        cards
+          .filter((c) => c.posicion === "B")
+          .map(async (c) => {
+            if (qrPorToken.has(c.token)) return;
+            const url = `${baseUrl}/cargar-patrulla/${c.token}`;
+            const dataUrl = await QRCode.toDataURL(url, { margin: 0, width: 200 });
+            qrPorToken.set(c.token, dataUrl);
+          })
+      );
 
       const fecha = new Date(torneo.fecha).toLocaleDateString("es-AR", {
         day: "2-digit", month: "2-digit", year: "numeric", timeZone: "UTC",
@@ -219,11 +238,26 @@ export default function ExportarScorecardsButton({ patrullas, torneo }: Props) {
         doc.line(rightX + divOffset, tableTop, rightX + divOffset, rightFinalY);
         doc.setLineWidth(0.2);
 
-        // Zócalo de sponsors bajo la tabla izquierda
-        if (zocaloData) {
-          const zw = tableWidth;
-          const zh = zw / ZOCALO_RATIO;
-          doc.addImage(zocaloData, "PNG", leftX, leftFinalY + 4, zw, zh);
+        // Zócalo de sponsors bajo la tabla izquierda. En la tarjeta del
+        // puesto B se achica un poco para dejarle lugar al QR de carga.
+        const esScorer = card.posicion === "B";
+        const qrSize   = 20;
+        const zw = esScorer ? tableWidth - qrSize - 4 : tableWidth;
+        const zh = zw / ZOCALO_RATIO;
+        const zy = leftFinalY + 4;
+        if (zocaloData) doc.addImage(zocaloData, "PNG", leftX, zy, zw, zh);
+
+        if (esScorer) {
+          const qrData = qrPorToken.get(card.token);
+          if (qrData) {
+            const qx = leftX + zw + 4;
+            doc.addImage(qrData, "PNG", qx, zy, qrSize, qrSize);
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(5);
+            doc.setTextColor(80, 80, 80);
+            doc.text("Cargar puntajes", qx + qrSize / 2, zy + qrSize + 3, { align: "center", maxWidth: qrSize + 2 });
+            doc.setTextColor(0, 0, 0);
+          }
         }
 
         // Totales: 3 casilleros alineados debajo de sus columnas —

@@ -5,6 +5,7 @@ import PatrullasGrid from "./PatrullasGrid";
 import GenerarButton from "./GenerarButton";
 import ExportarPDFButton from "./ExportarPDFButton";
 import ExportarScorecardsButton from "./ExportarScorecardsButton";
+import { crearTokenPatrulla } from "@/lib/patrullaToken";
 
 type Props = { params: { id: string } };
 
@@ -57,7 +58,11 @@ export default async function PatrullasPage({ params }: Props) {
         categoria: m.inscripcion.categoria,
       };
     };
-    return { id: p.id, numero: p.numero, bis: p.bis, estaca: p.estaca, A: miembro("A"), B: miembro("B"), C: miembro("C"), D: miembro("D") };
+    return {
+      id: p.id, numero: p.numero, bis: p.bis, estaca: p.estaca,
+      token: crearTokenPatrulla(p.id),
+      A: miembro("A"), B: miembro("B"), C: miembro("C"), D: miembro("D"),
+    };
   });
 
   const torneoInfo = {
@@ -66,6 +71,8 @@ export default async function PatrullasPage({ params }: Props) {
     lugar:     torneo.lugar ?? null,
     temporada: torneo.temporada.nombre,
   };
+
+  const baseUrl = process.env.NEXTAUTH_URL ?? "https://liga3d.appchinni.com";
 
   // Transformar a estructura por posición para el grid
   const patrullasGrid = torneo.patrullas.map((p) => {
@@ -101,7 +108,7 @@ export default async function PatrullasPage({ params }: Props) {
         <div className="flex items-center gap-3">
           {hayPatrullas && (
             <>
-              <ExportarScorecardsButton patrullas={patrullasExport} torneo={torneoInfo} />
+              <ExportarScorecardsButton patrullas={patrullasExport} torneo={torneoInfo} baseUrl={baseUrl} />
               <ExportarPDFButton patrullas={patrullasExport} torneo={torneoInfo} />
             </>
           )}
