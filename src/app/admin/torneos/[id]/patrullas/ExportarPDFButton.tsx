@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { estacaDeCategoria } from "@/lib/estaca";
 
 type MiembroExport = {
   nombre: string;
@@ -112,7 +113,6 @@ export default function ExportarPDFButton({ patrullas, torneo }: Props) {
       for (let pi = 0; pi < patrullas.length; pi++) {
         const p        = patrullas[pi];
         const etiqueta = `${p.numero}${p.bis ? " bis" : ""}`;
-        const estacaRgb = ESTACA_RGB[p.estaca] ?? [100, 100, 100];
 
         // Separador fino entre patrullas (excepto antes de la primera)
         if (pi > 0) {
@@ -150,15 +150,12 @@ export default function ExportarPDFButton({ patrullas, torneo }: Props) {
             row.push(`${m.apellido}, ${m.nombre}`);
             row.push(m.club ?? "");
             row.push(m.categoria);
-          } else {
-            row.push("", "", "", "");
-          }
 
-          if (i === 0) {
-            // Celda de ESTACA con color (rowSpan 4)
+            // Estaca por arquero (según su categoría), no por patrulla —
+            // una misma patrulla puede tener más de un color.
+            const estacaRgb = ESTACA_RGB[estacaDeCategoria(m.categoria)] ?? [100, 100, 100];
             row.push({
-              content: p.estaca,
-              rowSpan: 4,
+              content: estacaDeCategoria(m.categoria),
               styles: {
                 valign:    "middle",
                 halign:    "center",
@@ -168,6 +165,8 @@ export default function ExportarPDFButton({ patrullas, torneo }: Props) {
                 textColor: [255, 255, 255],
               },
             });
+          } else {
+            row.push("", "", "", "", "");
           }
 
           body.push(row);

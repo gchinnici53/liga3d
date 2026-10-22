@@ -77,7 +77,6 @@ export default async function CargarPatrullaPage({ params }: Props) {
       fecha={fecha}
       patrullaNumero={patrulla.numero}
       patrullaBis={patrulla.bis}
-      estaca={patrulla.estaca}
       miembros={miembros}
     />
   );

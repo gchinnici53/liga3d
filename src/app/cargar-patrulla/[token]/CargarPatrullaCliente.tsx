@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { guardarPuntajeQR } from "./actions";
+import { estacaDeCategoria } from "@/lib/estaca";
 import type { MiembroCarga } from "./page";
 
 type Props = {
@@ -10,7 +11,6 @@ type Props = {
   fecha: string;
   patrullaNumero: number;
   patrullaBis: boolean;
-  estaca: string;
   miembros: MiembroCarga[];
 };
 
@@ -21,21 +21,16 @@ const ESTACA_COLOR: Record<string, string> = {
 };
 
 export default function CargarPatrullaCliente({
-  token, torneoNombre, fecha, patrullaNumero, patrullaBis, estaca, miembros,
+  token, torneoNombre, fecha, patrullaNumero, patrullaBis, miembros,
 }: Props) {
   return (
     <div className="min-h-screen bg-slate-50 p-4 pb-10">
       <div className="max-w-md mx-auto">
         <div className="bg-white rounded-xl border border-slate-200 p-4 mb-4">
           <p className="text-xs text-slate-400">{torneoNombre} · {fecha}</p>
-          <div className="flex items-center gap-2 mt-1">
-            <h1 className="text-xl font-bold text-slate-800">
-              Patrulla {patrullaNumero}{patrullaBis ? " bis" : ""}
-            </h1>
-            <span className={`text-xs px-2 py-0.5 rounded border font-medium ${ESTACA_COLOR[estaca] ?? ""}`}>
-              {estaca}
-            </span>
-          </div>
+          <h1 className="text-xl font-bold text-slate-800 mt-1">
+            Patrulla {patrullaNumero}{patrullaBis ? " bis" : ""}
+          </h1>
           <p className="text-xs text-slate-400 mt-1">
             Cargá el puntaje de cada arquero. Se guarda solo al salir del campo.
           </p>
@@ -98,7 +93,9 @@ function TarjetaMiembro({ token, miembro }: { token: string; miembro: MiembroCar
           <p className="text-xs text-slate-400">Posición {miembro.posicion}</p>
           <p className="font-semibold text-slate-800">{miembro.apellido}, {miembro.nombre}</p>
         </div>
-        <span className="text-xs px-2 py-0.5 bg-liga/10 text-liga rounded font-semibold">{miembro.categoria}</span>
+        <span className={`flex items-center gap-1.5 text-xs px-2 py-0.5 rounded border font-medium ${ESTACA_COLOR[estacaDeCategoria(miembro.categoria)]}`}>
+          {miembro.categoria}
+        </span>
       </div>
 
       {miembro.sinArquero ? (

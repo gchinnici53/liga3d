@@ -2,17 +2,15 @@
 
 import { useState, useTransition } from "react";
 import { moverMiembro, agregarPatrullaVacia, eliminarPatrullaVacia, asignarInscripcionAPatrulla } from "./actions";
+import { estacaDeCategoria } from "@/lib/estaca";
 
-const ESTACA_COLOR: Record<string, string> = {
-  ROJA:     "bg-red-100 text-red-700 border-red-200",
-  AMARILLA: "bg-amber-100 text-amber-700 border-amber-200",
-  AZUL:     "bg-blue-100 text-blue-700 border-blue-200",
-};
-
-const ESTACA_HEADER: Record<string, string> = {
-  ROJA:     "border-t-4 border-t-red-400",
-  AMARILLA: "border-t-4 border-t-amber-400",
-  AZUL:     "border-t-4 border-t-blue-400",
+// La estaca se calcula por arquero (según su categoría), no por patrulla —
+// una misma patrulla puede tener arqueros de más de un color, y el color
+// tiene que viajar con el arquero cuando se lo mueve.
+const ESTACA_DOT: Record<string, string> = {
+  ROJA:     "bg-red-400",
+  AMARILLA: "bg-amber-400",
+  AZUL:     "bg-blue-400",
 };
 
 type Miembro = {
@@ -170,15 +168,12 @@ export default function PatrullasGrid({ patrullas, sinPatrulla, torneoId }: Prop
         {patrullas.map((p) => (
           <div
             key={p.id}
-            className={`bg-white rounded-xl border border-slate-200 overflow-hidden ${ESTACA_HEADER[p.estaca]}`}
+            className="bg-white rounded-xl border border-slate-200 overflow-hidden"
           >
             {/* Header */}
             <div className="px-3 py-2 flex items-center justify-between border-b border-slate-100">
               <span className="text-sm font-bold text-slate-800">{etiqueta(p)}</span>
               <div className="flex items-center gap-2">
-                <span className={`text-xs px-2 py-0.5 rounded border font-medium ${ESTACA_COLOR[p.estaca]}`}>
-                  {p.estaca}
-                </span>
                 {/* Botón borrar solo si la patrulla está vacía */}
                 {!p.A && !p.B && !p.C && !p.D && !seleccionado && (
                   <button
@@ -231,11 +226,17 @@ export default function PatrullasGrid({ patrullas, sinPatrulla, torneoId }: Prop
                       {pos}
                     </span>
                     {miembro ? (
-                      <div className="min-w-0">
-                        <p className={`truncate leading-tight ${esSeleccionado ? "text-blue-700" : "text-slate-800"} ${miembro.inscripcion.presente ? "font-bold" : "font-medium"}`}>
-                          {miembro.inscripcion.apellido}, {miembro.inscripcion.nombre}
-                        </p>
-                        <p className="text-xs text-slate-400">{miembro.inscripcion.categoria}</p>
+                      <div className="min-w-0 flex items-center gap-1.5">
+                        <span
+                          className={`w-2 h-2 rounded-full shrink-0 ${ESTACA_DOT[estacaDeCategoria(miembro.inscripcion.categoria)]}`}
+                          title={estacaDeCategoria(miembro.inscripcion.categoria)}
+                        />
+                        <div className="min-w-0">
+                          <p className={`truncate leading-tight ${esSeleccionado ? "text-blue-700" : "text-slate-800"} ${miembro.inscripcion.presente ? "font-bold" : "font-medium"}`}>
+                            {miembro.inscripcion.apellido}, {miembro.inscripcion.nombre}
+                          </p>
+                          <p className="text-xs text-slate-400">{miembro.inscripcion.categoria}</p>
+                        </div>
                       </div>
                     ) : (
                       <span className={`text-xs ${esDestino ? "text-green-500 font-medium" : "text-slate-300"}`}>

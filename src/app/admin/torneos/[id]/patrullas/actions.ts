@@ -2,16 +2,9 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { ESTACA_POR_CATEGORIA as ESTACA } from "@/lib/estaca";
 
 const CATEGORIA_ORDER = ["CW", "CM", "ESC", "JUN", "BW", "BM", "TW", "TM", "LW", "LM"];
-
-const ESTACA: Record<string, string> = {
-  CW: "ROJA",     CM: "ROJA",
-  ESC: "AMARILLA", JUN: "AMARILLA",
-  BW: "AZUL",     BM: "AZUL",
-  TW: "AZUL",     TM: "AZUL",
-  LW: "AZUL",     LM: "AZUL",
-};
 
 const POSICIONES = ["A", "B", "C", "D"] as const;
 
