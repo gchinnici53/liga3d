@@ -123,8 +123,8 @@ export default function ExportarScorecardsButton({ patrullas, torneo, baseUrl }:
       const H = doc.internal.pageSize.getHeight();
 
       const marginX  = 10;
-      const marginTop = 8;
-      const cardGap  = 6; // espacio entre las 2 tarjetas + línea de corte
+      const marginTop = 6;
+      const cardGap  = 5; // espacio entre las 2 tarjetas + línea de corte
       const cardH    = (H - marginTop * 2 - cardGap) / 2;
 
       const tableWidth = (W - marginX * 2 - 4) / 2; // 4mm de separación entre las 2 mitades
@@ -145,10 +145,12 @@ export default function ExportarScorecardsButton({ patrullas, torneo, baseUrl }:
         ["11", "10", "8", "5", "M", "11", "10", "8", "5", "M"],
       ];
 
+      // Valores de flecha (11/10/8/5/M) +2pt respecto del resto de la tabla.
+      const valStyle = { cellWidth: colWidths.val, fontSize: 9 };
       const columnStyles = {
         0: { cellWidth: colWidths.diana, fontStyle: "bold" as const, fillColor: [245, 246, 248] as [number, number, number] },
-        1: { cellWidth: colWidths.val }, 2: { cellWidth: colWidths.val }, 3: { cellWidth: colWidths.val }, 4: { cellWidth: colWidths.val }, 5: { cellWidth: colWidths.val },
-        6: { cellWidth: colWidths.val }, 7: { cellWidth: colWidths.val }, 8: { cellWidth: colWidths.val }, 9: { cellWidth: colWidths.val }, 10: { cellWidth: colWidths.val },
+        1: valStyle, 2: valStyle, 3: valStyle, 4: valStyle, 5: valStyle,
+        6: valStyle, 7: valStyle, 8: valStyle, 9: valStyle, 10: valStyle,
         11: { cellWidth: colWidths.parc }, 12: { cellWidth: colWidths.subt }, 13: { cellWidth: colWidths.s11 }, 14: { cellWidth: colWidths.s10 },
       };
 
@@ -211,9 +213,9 @@ export default function ExportarScorecardsButton({ patrullas, torneo, baseUrl }:
         const tableBase = {
           head: headRows,
           startY: tableTop,
-          // Padding top/bottom subido de 1.5 a 1.87: la fila (donde se circula
-          // el puntaje a mano) queda ~15% más alta que antes.
-          styles: { fontSize: 7, cellPadding: { top: 1.87, bottom: 1.87, left: 0.5, right: 0.5 }, halign: "center" as const, valign: "middle" as const, lineColor: [180, 185, 195] as [number, number, number], lineWidth: 0.15 },
+          // Padding top/bottom + fontSize más grande en los valores de flecha:
+          // la fila (donde se circula el puntaje a mano) queda ~17% más alta.
+          styles: { fontSize: 7, cellPadding: { top: 1.6, bottom: 1.6, left: 0.5, right: 0.5 }, halign: "center" as const, valign: "middle" as const, lineColor: [180, 185, 195] as [number, number, number], lineWidth: 0.15 },
           headStyles: { fillColor: [31, 78, 160] as [number, number, number], textColor: 255, fontStyle: "bold" as const, fontSize: 7 },
           columnStyles,
         };
@@ -247,10 +249,10 @@ export default function ExportarScorecardsButton({ patrullas, torneo, baseUrl }:
         // Achicado un poco respecto de antes (ancho y espaciados) para
         // compensar el alto extra de las filas y no pasarse del margen.
         const esScorer = card.posicion === "B";
-        const qrSize   = 17;
+        const qrSize   = 16;
         const zw = esScorer ? tableWidth - qrSize - 3 : tableWidth - 4;
         const zh = zw / ZOCALO_RATIO;
-        const zy = leftFinalY + 1.5;
+        const zy = leftFinalY + 1.3;
         if (zocaloData) doc.addImage(zocaloData, "PNG", leftX, zy, zw, zh);
 
         if (esScorer) {
@@ -261,7 +263,7 @@ export default function ExportarScorecardsButton({ patrullas, torneo, baseUrl }:
             doc.setFont("helvetica", "normal");
             doc.setFontSize(5);
             doc.setTextColor(80, 80, 80);
-            doc.text("Cargar puntajes", qx + qrSize / 2, zy + qrSize + 1.5, { align: "center", maxWidth: qrSize + 2 });
+            doc.text("Cargar puntajes", qx + qrSize / 2, zy + qrSize + 1.3, { align: "center", maxWidth: qrSize + 2 });
             doc.setTextColor(0, 0, 0);
           }
         }
