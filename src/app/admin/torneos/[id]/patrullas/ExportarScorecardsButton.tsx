@@ -124,11 +124,13 @@ export default function ExportarScorecardsButton({ patrullas, torneo, baseUrl }:
 
       const marginX  = 10;
       const marginTop = 8;
-      const cardGap  = 8; // espacio entre las 2 tarjetas + línea de corte
+      const cardGap  = 6; // espacio entre las 2 tarjetas + línea de corte
       const cardH    = (H - marginTop * 2 - cardGap) / 2;
 
       const tableWidth = (W - marginX * 2 - 4) / 2; // 4mm de separación entre las 2 mitades
-      const colWidths  = { diana: 9, val: 5.4, parc: 8, subt: 8, s11: 7, s10: 7 };
+      // SUB.T. más ancha (acumula un total de 3 cifras) a costa de 11'S/10'S
+      // (solo cuentan un tiro puntual, 2 cifras les alcanza de sobra).
+      const colWidths  = { diana: 9, val: 5.4, parc: 8, subt: 10, s11: 6, s10: 6 };
 
       const headRows: Parameters<typeof autoTable>[1]["head"] = [
         [
@@ -209,7 +211,9 @@ export default function ExportarScorecardsButton({ patrullas, torneo, baseUrl }:
         const tableBase = {
           head: headRows,
           startY: tableTop,
-          styles: { fontSize: 7, cellPadding: { top: 1.5, bottom: 1.5, left: 0.5, right: 0.5 }, halign: "center" as const, valign: "middle" as const, lineColor: [180, 185, 195] as [number, number, number], lineWidth: 0.15 },
+          // Padding top/bottom subido de 1.5 a 1.87: la fila (donde se circula
+          // el puntaje a mano) queda ~15% más alta que antes.
+          styles: { fontSize: 7, cellPadding: { top: 1.87, bottom: 1.87, left: 0.5, right: 0.5 }, halign: "center" as const, valign: "middle" as const, lineColor: [180, 185, 195] as [number, number, number], lineWidth: 0.15 },
           headStyles: { fillColor: [31, 78, 160] as [number, number, number], textColor: 255, fontStyle: "bold" as const, fontSize: 7 },
           columnStyles,
         };
@@ -240,22 +244,24 @@ export default function ExportarScorecardsButton({ patrullas, torneo, baseUrl }:
 
         // Zócalo de sponsors bajo la tabla izquierda. En la tarjeta del
         // puesto B se achica un poco para dejarle lugar al QR de carga.
+        // Achicado un poco respecto de antes (ancho y espaciados) para
+        // compensar el alto extra de las filas y no pasarse del margen.
         const esScorer = card.posicion === "B";
-        const qrSize   = 20;
-        const zw = esScorer ? tableWidth - qrSize - 4 : tableWidth;
+        const qrSize   = 17;
+        const zw = esScorer ? tableWidth - qrSize - 3 : tableWidth - 4;
         const zh = zw / ZOCALO_RATIO;
-        const zy = leftFinalY + 4;
+        const zy = leftFinalY + 1.5;
         if (zocaloData) doc.addImage(zocaloData, "PNG", leftX, zy, zw, zh);
 
         if (esScorer) {
           const qrData = qrPorToken.get(card.token);
           if (qrData) {
-            const qx = leftX + zw + 4;
+            const qx = leftX + zw + 3;
             doc.addImage(qrData, "PNG", qx, zy, qrSize, qrSize);
             doc.setFont("helvetica", "normal");
             doc.setFontSize(5);
             doc.setTextColor(80, 80, 80);
-            doc.text("Cargar puntajes", qx + qrSize / 2, zy + qrSize + 3, { align: "center", maxWidth: qrSize + 2 });
+            doc.text("Cargar puntajes", qx + qrSize / 2, zy + qrSize + 1.5, { align: "center", maxWidth: qrSize + 2 });
             doc.setTextColor(0, 0, 0);
           }
         }
