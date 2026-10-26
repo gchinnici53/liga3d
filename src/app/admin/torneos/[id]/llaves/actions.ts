@@ -77,7 +77,8 @@ async function aplicarPosicionesDeLlave(
 
   const resto = await tx.resultado.findMany({
     where: { torneoId, categoriaId, arqueroId: { notIn: medallistaIds } },
-    orderBy: { puntajeTotal: "desc" },
+    // Desempate: puntaje, después cantidad de 11's, después de 10's.
+    orderBy: [{ puntajeTotal: "desc" }, { cantidad11s: "desc" }, { cantidad10s: "desc" }],
   });
   for (let i = 0; i < resto.length; i++) {
     const posicion = 5 + i;

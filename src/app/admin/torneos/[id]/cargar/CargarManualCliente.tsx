@@ -17,6 +17,8 @@ type Fila = {
   posicion:       string;
   puntajeRonda1:  string;
   puntajeRonda2:  string;
+  cantidad11s:    string;
+  cantidad10s:    string;
   // etiqueta informativa de origen
   inscriptoLabel: string | null;
   arqueroLabel:   string | null;
@@ -34,7 +36,7 @@ type Props = {
 const ORDEN_CATEGORIAS = ["CM","CW","BM","BW","LM","LW","TM","TW","ESC","JUN"];
 
 function filaVacia(key: string): Fila {
-  return { key, resultadoId: null, arqueroId: null, posicion: "", puntajeRonda1: "", puntajeRonda2: "", inscriptoLabel: null, arqueroLabel: null };
+  return { key, resultadoId: null, arqueroId: null, posicion: "", puntajeRonda1: "", puntajeRonda2: "", cantidad11s: "", cantidad10s: "", inscriptoLabel: null, arqueroLabel: null };
 }
 
 function inicializarFilas(iniciales: FilaInicial[]): Fila[] {
@@ -47,6 +49,8 @@ function inicializarFilas(iniciales: FilaInicial[]): Fila[] {
     posicion:       fi.posicion != null    ? String(fi.posicion)       : "",
     puntajeRonda1:  fi.puntajeRonda1 != null ? String(fi.puntajeRonda1) : "",
     puntajeRonda2:  fi.puntajeRonda2 != null ? String(fi.puntajeRonda2) : "",
+    cantidad11s:    fi.cantidad11s != null   ? String(fi.cantidad11s)   : "",
+    cantidad10s:    fi.cantidad10s != null   ? String(fi.cantidad10s)   : "",
   }));
 }
 
@@ -111,8 +115,14 @@ export default function CargarManualCliente({
   function asignarPosiciones() {
     setFilas((prev) => {
       const con = prev
-        .map((f) => ({ ...f, _total: (Number(f.puntajeRonda1) || 0) + (Number(f.puntajeRonda2) || 0) }))
-        .sort((a, b) => b._total - a._total);
+        .map((f) => ({
+          ...f,
+          _total: (Number(f.puntajeRonda1) || 0) + (Number(f.puntajeRonda2) || 0),
+          _c11:   Number(f.cantidad11s) || 0,
+          _c10:   Number(f.cantidad10s) || 0,
+        }))
+        // Desempate: puntaje, después cantidad de 11's, después de 10's.
+        .sort((a, b) => b._total - a._total || b._c11 - a._c11 || b._c10 - a._c10);
       return con.map((f, idx) => ({ ...f, posicion: f._total > 0 ? String(idx + 1) : f.posicion }));
     });
   }
@@ -127,6 +137,8 @@ export default function CargarManualCliente({
         posicion:      Number(f.posicion),
         puntajeRonda1: Number(f.puntajeRonda1),
         puntajeRonda2: f.puntajeRonda2 ? Number(f.puntajeRonda2) : null,
+        cantidad11s:   f.cantidad11s ? Number(f.cantidad11s) : null,
+        cantidad10s:   f.cantidad10s ? Number(f.cantidad10s) : null,
       });
     }
     if (validas.length === 0) return;
@@ -149,12 +161,20 @@ export default function CargarManualCliente({
     const r2 = r2str === "" ? null : Number(r2str);
     if (r2 !== null && (isNaN(r2) || r2 < 0)) return;
 
-    const firma = `${r1}|${r2}`;
+    const c11str = fila.cantidad11s.trim();
+    const c11 = c11str === "" ? null : Number(c11str);
+    if (c11 !== null && (isNaN(c11) || c11 < 0)) return;
+
+    const c10str = fila.cantidad10s.trim();
+    const c10 = c10str === "" ? null : Number(c10str);
+    if (c10 !== null && (isNaN(c10) || c10 < 0)) return;
+
+    const firma = `${r1}|${r2}|${c11}|${c10}`;
     if (ultimoGuardado.current[fila.key] === firma) return; // sin cambios desde el último guardado
     ultimoGuardado.current[fila.key] = firma;
 
     setEstadoAuto((prev) => ({ ...prev, [fila.key]: "guardando" }));
-    const res = await guardarPuntajeParcial(torneoId, categoriaActual.id, fila.arqueroId, r1, r2);
+    const res = await guardarPuntajeParcial(torneoId, categoriaActual.id, fila.arqueroId, r1, r2, c11, c10);
     setEstadoAuto((prev) => ({ ...prev, [fila.key]: res.error ? "error" : "guardado" }));
   }
 
@@ -249,6 +269,8 @@ export default function CargarManualCliente({
                 <th className="text-right px-3 py-2 text-xs font-semibold text-slate-500 uppercase w-24">Ronda 1</th>
                 <th className="text-right px-3 py-2 text-xs font-semibold text-slate-500 uppercase w-24">Ronda 2</th>
                 <th className="text-right px-3 py-2 text-xs font-semibold text-slate-500 uppercase w-16">Total</th>
+                <th className="text-right px-3 py-2 text-xs font-semibold text-slate-500 uppercase w-14" title="Desempate">11&apos;s</th>
+                <th className="text-right px-3 py-2 text-xs font-semibold text-slate-500 uppercase w-14" title="Desempate">10&apos;s</th>
                 <th className="text-right px-3 py-2 text-xs font-semibold text-slate-500 uppercase w-16">Pts</th>
                 <th className="w-8" />
               </tr>
@@ -321,6 +343,32 @@ export default function CargarManualCliente({
 
                   {/* Total */}
                   <td className="px-3 py-2 text-right text-slate-600 font-medium">{totalFila(fila)}</td>
+
+                  {/* Cantidad de 11's (desempate) */}
+                  <td className="px-3 py-2">
+                    <input
+                      type="number"
+                      min={0}
+                      value={fila.cantidad11s}
+                      onChange={(e) => actualizarFila(fila.key, "cantidad11s", e.target.value)}
+                      onBlur={() => guardarFilaAuto(fila)}
+                      placeholder="—"
+                      className="w-14 border border-slate-200 rounded px-1.5 py-1 text-sm text-right focus:outline-none focus:ring-2 focus:ring-slate-300 ml-auto block"
+                    />
+                  </td>
+
+                  {/* Cantidad de 10's (desempate) */}
+                  <td className="px-3 py-2">
+                    <input
+                      type="number"
+                      min={0}
+                      value={fila.cantidad10s}
+                      onChange={(e) => actualizarFila(fila.key, "cantidad10s", e.target.value)}
+                      onBlur={() => guardarFilaAuto(fila)}
+                      placeholder="—"
+                      className="w-14 border border-slate-200 rounded px-1.5 py-1 text-sm text-right focus:outline-none focus:ring-2 focus:ring-slate-300 ml-auto block"
+                    />
+                  </td>
 
                   {/* Pts temporada */}
                   <td className="px-3 py-2 text-right font-semibold text-green-700 text-xs">
@@ -466,6 +514,35 @@ function FilaMobileCard({
             min={0}
             value={fila.puntajeRonda2}
             onChange={(e) => onCambiar(fila.key, "puntajeRonda2", e.target.value)}
+            onBlur={onBlurPuntaje}
+            placeholder="—"
+            className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-base text-center focus:outline-none focus:ring-2 focus:ring-slate-300"
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 mb-3">
+        <div>
+          <label className="block text-xs font-medium text-slate-500 mb-1">Cant. 11&apos;s</label>
+          <input
+            type="number"
+            inputMode="numeric"
+            min={0}
+            value={fila.cantidad11s}
+            onChange={(e) => onCambiar(fila.key, "cantidad11s", e.target.value)}
+            onBlur={onBlurPuntaje}
+            placeholder="—"
+            className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-base text-center focus:outline-none focus:ring-2 focus:ring-slate-300"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-slate-500 mb-1">Cant. 10&apos;s</label>
+          <input
+            type="number"
+            inputMode="numeric"
+            min={0}
+            value={fila.cantidad10s}
+            onChange={(e) => onCambiar(fila.key, "cantidad10s", e.target.value)}
             onBlur={onBlurPuntaje}
             placeholder="—"
             className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-base text-center focus:outline-none focus:ring-2 focus:ring-slate-300"

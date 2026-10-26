@@ -12,7 +12,8 @@ export async function guardarPuntajeQR(
   token: string,
   inscripcionId: number,
   puntajeRonda1: number,
-  puntajeRonda2: number | null,
+  cantidad11s: number | null,
+  cantidad10s: number | null,
 ): Promise<{ error?: string }> {
   const payload = verificarTokenPatrulla(token);
   if (!payload) return { error: "Link inválido o vencido." };
@@ -34,5 +35,5 @@ export async function guardarPuntajeQR(
   const categoria = await prisma.categoria.findUnique({ where: { nombre: insc.categoria } });
   if (!categoria) return { error: "Categoría no encontrada." };
 
-  return guardarPuntajeParcial(miembro.patrulla.torneoId, categoria.id, arquero.id, puntajeRonda1, puntajeRonda2);
+  return guardarPuntajeParcial(miembro.patrulla.torneoId, categoria.id, arquero.id, puntajeRonda1, null, cantidad11s, cantidad10s);
 }

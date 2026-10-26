@@ -172,6 +172,11 @@ model Resultado {
   puntajeRonda2 Int?
   puntajeTotal  Int
 
+  // Cantidad de 11's y 10's tirados — criterio de desempate cuando dos
+  // arqueros igualan en puntajeTotal (primero 11's, después 10's).
+  cantidad11s Int?
+  cantidad10s Int?
+
   // Resultado final en el torneo (dentro de su categoría)
   posicion      Int
   // true si participó en la ronda de medallas (posición 1-4)

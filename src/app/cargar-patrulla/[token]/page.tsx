@@ -19,7 +19,8 @@ export type MiembroCarga =
       categoria: string;
       sinArquero: boolean; // true si no se pudo matchear con la ficha del arquero
       puntajeRonda1: number | null;
-      puntajeRonda2: number | null;
+      cantidad11s: number | null;
+      cantidad10s: number | null;
     };
 
 export default async function CargarPatrullaPage({ params }: Props) {
@@ -48,7 +49,7 @@ export default async function CargarPatrullaPage({ params }: Props) {
       const resultado = arquero
         ? await prisma.resultado.findUnique({
             where: { arqueroId_torneoId: { arqueroId: arquero.id, torneoId: patrulla.torneoId } },
-            select: { puntajeRonda1: true, puntajeRonda2: true },
+            select: { puntajeRonda1: true, cantidad11s: true, cantidad10s: true },
           })
         : null;
 
@@ -61,7 +62,8 @@ export default async function CargarPatrullaPage({ params }: Props) {
         categoria: insc.categoria,
         sinArquero: !arquero,
         puntajeRonda1: resultado?.puntajeRonda1 ?? null,
-        puntajeRonda2: resultado?.puntajeRonda2 ?? null,
+        cantidad11s: resultado?.cantidad11s ?? null,
+        cantidad10s: resultado?.cantidad10s ?? null,
       };
     })
   );

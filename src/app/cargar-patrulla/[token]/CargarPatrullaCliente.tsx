@@ -47,8 +47,9 @@ export default function CargarPatrullaCliente({
 }
 
 function TarjetaMiembro({ token, miembro }: { token: string; miembro: MiembroCarga }) {
-  const [r1, setR1] = useState(miembro.ocupado && miembro.puntajeRonda1 != null ? String(miembro.puntajeRonda1) : "");
-  const [r2, setR2] = useState(miembro.ocupado && miembro.puntajeRonda2 != null ? String(miembro.puntajeRonda2) : "");
+  const [puntaje, setPuntaje]   = useState(miembro.ocupado && miembro.puntajeRonda1 != null ? String(miembro.puntajeRonda1) : "");
+  const [c11, setC11]           = useState(miembro.ocupado && miembro.cantidad11s != null ? String(miembro.cantidad11s) : "");
+  const [c10, setC10]           = useState(miembro.ocupado && miembro.cantidad10s != null ? String(miembro.cantidad10s) : "");
   const [estado, setEstado] = useState<"guardando" | "guardado" | "error" | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const ultimoGuardado = useRef<string | null>(null);
@@ -62,22 +63,26 @@ function TarjetaMiembro({ token, miembro }: { token: string; miembro: MiembroCar
   }
 
   async function guardar() {
-    const r1str = r1.trim();
-    if (r1str === "") return;
-    const n1 = Number(r1str);
-    if (isNaN(n1) || n1 < 0) return;
+    const pStr = puntaje.trim();
+    if (pStr === "") return;
+    const nPuntaje = Number(pStr);
+    if (isNaN(nPuntaje) || nPuntaje < 0) return;
 
-    const r2str = r2.trim();
-    const n2 = r2str === "" ? null : Number(r2str);
-    if (n2 !== null && (isNaN(n2) || n2 < 0)) return;
+    const c11Str = c11.trim();
+    const nC11 = c11Str === "" ? null : Number(c11Str);
+    if (nC11 !== null && (isNaN(nC11) || nC11 < 0)) return;
 
-    const firma = `${n1}|${n2}`;
+    const c10Str = c10.trim();
+    const nC10 = c10Str === "" ? null : Number(c10Str);
+    if (nC10 !== null && (isNaN(nC10) || nC10 < 0)) return;
+
+    const firma = `${nPuntaje}|${nC11}|${nC10}`;
     if (ultimoGuardado.current === firma) return;
     ultimoGuardado.current = firma;
 
     setEstado("guardando");
     setErrorMsg(null);
-    const res = await guardarPuntajeQR(token, (miembro as { inscripcionId: number }).inscripcionId, n1, n2);
+    const res = await guardarPuntajeQR(token, (miembro as { inscripcionId: number }).inscripcionId, nPuntaje, nC11, nC10);
     if (res.error) {
       setEstado("error");
       setErrorMsg(res.error);
@@ -104,28 +109,41 @@ function TarjetaMiembro({ token, miembro }: { token: string; miembro: MiembroCar
         </p>
       ) : (
         <>
-          <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-xs font-medium text-slate-500 mb-1">Puntaje</label>
+            <input
+              type="number"
+              inputMode="numeric"
+              min={0}
+              value={puntaje}
+              onChange={(e) => setPuntaje(e.target.value)}
+              onBlur={guardar}
+              placeholder="0"
+              className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-base text-center focus:outline-none focus:ring-2 focus:ring-liga/40"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-3 mt-3">
             <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1">Ronda 1</label>
+              <label className="block text-xs font-medium text-slate-500 mb-1">Cantidad de 11&apos;s</label>
               <input
                 type="number"
                 inputMode="numeric"
                 min={0}
-                value={r1}
-                onChange={(e) => setR1(e.target.value)}
+                value={c11}
+                onChange={(e) => setC11(e.target.value)}
                 onBlur={guardar}
-                placeholder="0"
+                placeholder="—"
                 className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-base text-center focus:outline-none focus:ring-2 focus:ring-liga/40"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1">Ronda 2</label>
+              <label className="block text-xs font-medium text-slate-500 mb-1">Cantidad de 10&apos;s</label>
               <input
                 type="number"
                 inputMode="numeric"
                 min={0}
-                value={r2}
-                onChange={(e) => setR2(e.target.value)}
+                value={c10}
+                onChange={(e) => setC10(e.target.value)}
                 onBlur={guardar}
                 placeholder="—"
                 className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-base text-center focus:outline-none focus:ring-2 focus:ring-liga/40"

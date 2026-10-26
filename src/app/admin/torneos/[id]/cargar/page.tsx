@@ -15,6 +15,8 @@ export type FilaInicial = {
   posicion:       number | null;
   puntajeRonda1:  number | null;
   puntajeRonda2:  number | null;
+  cantidad11s:    number | null;
+  cantidad10s:    number | null;
 };
 
 export default async function CargarResultadosPage({ params }: Props) {
@@ -70,6 +72,8 @@ export default async function CargarResultadosPage({ params }: Props) {
       posicion:       r.posicion,
       puntajeRonda1:  r.puntajeRonda1,
       puntajeRonda2:  r.puntajeRonda2,
+      cantidad11s:    r.cantidad11s,
+      cantidad10s:    r.cantidad10s,
     });
     arqueroConResultadoEnCat[cat].add(r.arqueroId);
   }
@@ -96,6 +100,8 @@ export default async function CargarResultadosPage({ params }: Props) {
       posicion:       null,
       puntajeRonda1:  null,
       puntajeRonda2:  null,
+      cantidad11s:    null,
+      cantidad10s:    null,
     });
   }
 
