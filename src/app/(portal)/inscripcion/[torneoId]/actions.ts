@@ -34,10 +34,14 @@ export async function inscribirse(
   const categoria        = (formData.get("categoria") as string).trim();
   const club             = (formData.get("club") as string | null)?.trim() || null;
   const dni              = (formData.get("dni") as string | null)?.trim() || null;
+  const sexo             = (formData.get("sexo") as string | null)?.trim() || null;
   const fechaNacStr      = (formData.get("fechaNacimiento") as string | null)?.trim() || null;
 
   if (!nombre || !apellido || !email || !categoria) {
     return { error: "Completá todos los campos obligatorios." };
+  }
+  if (!dni) {
+    return { error: "El DNI es obligatorio." };
   }
   if (!fechaNacStr) {
     return { error: "La fecha de nacimiento es obligatoria." };
@@ -48,25 +52,25 @@ export async function inscribirse(
     return { error: "Fecha de nacimiento inválida." };
   }
 
-  // Si hay DNI, verificar que la fecha coincida con el arquero registrado
-  let arqueroVerificadoId: number | null = null;
-  if (dni) {
-    const arquero = await prisma.arquero.findFirst({
-      where: { dni, activo: true },
-      select: { id: true, fechaNacimiento: true },
-    });
-    if (arquero) {
-      const fa = new Date(arquero.fechaNacimiento);
-      const fi = new Date(fechaNacStr);
-      const coincide =
-        fa.getUTCFullYear() === fi.getUTCFullYear() &&
-        fa.getUTCMonth()    === fi.getUTCMonth()    &&
-        fa.getUTCDate()     === fi.getUTCDate();
-      if (!coincide) {
-        return { error: "La fecha de nacimiento no coincide con nuestros registros. Verificá los datos." };
-      }
-      arqueroVerificadoId = arquero.id;
+  // Verificar si ya existe un arquero con ese DNI (activo o no) y que la
+  // fecha coincida, para no permitir que alguien se inscriba con el DNI de
+  // otra persona.
+  const arqueroExistente = await prisma.arquero.findUnique({
+    where: { dni },
+    select: { id: true, fechaNacimiento: true },
+  });
+  if (arqueroExistente) {
+    const fa = new Date(arqueroExistente.fechaNacimiento);
+    const fi = new Date(fechaNacStr);
+    const coincide =
+      fa.getUTCFullYear() === fi.getUTCFullYear() &&
+      fa.getUTCMonth()    === fi.getUTCMonth()    &&
+      fa.getUTCDate()     === fi.getUTCDate();
+    if (!coincide) {
+      return { error: "La fecha de nacimiento no coincide con nuestros registros. Verificá los datos." };
     }
+  } else if (sexo !== "MASCULINO" && sexo !== "FEMENINO") {
+    return { error: "Seleccioná tu sexo para darte de alta como arquero nuevo." };
   }
 
   const torneo = await prisma.torneo.findUnique({
@@ -114,20 +118,35 @@ export async function inscribirse(
     }
   }
 
-  // Si el arquero fue verificado por DNI, actualizar su ficha con los datos del formulario
-  if (arqueroVerificadoId) {
+  if (arqueroExistente) {
+    // Ya estaba en la base: actualizar su ficha con los datos del formulario
+    // (y reactivarlo si estaba dado de baja).
     try {
       await prisma.arquero.update({
-        where: { id: arqueroVerificadoId },
+        where: { id: arqueroExistente.id },
         data: {
           nombre,
           apellido,
           ...(email ? { email } : {}),
           ...(telefono !== null ? { telefono } : {}),
+          activo: true,
         },
       });
     } catch {
       // No bloquear si falla (ej: email duplicado con otro arquero)
+    }
+  } else {
+    // No había ningún arquero con ese DNI: se inscribió alguien nuevo en la
+    // liga, así que lo damos de alta para que no quede "suelto" solo en
+    // este torneo.
+    try {
+      await prisma.arquero.create({
+        data: { nombre, apellido, dni, email, telefono, fechaNacimiento, sexo: sexo! },
+      });
+    } catch (e) {
+      console.error("[inscripcion] Error creando ficha de arquero nuevo:", e);
+      // No bloquear la inscripción ya creada; el organizador puede darlo de
+      // alta a mano desde el admin si esto llegara a fallar.
     }
   }
 

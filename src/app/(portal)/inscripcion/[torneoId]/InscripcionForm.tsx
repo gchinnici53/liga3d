@@ -89,11 +89,12 @@ export default function InscripcionForm({ torneoId }: { torneoId: number }) {
 
       {/* DNI */}
       <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1">DNI</label>
+        <label className="block text-sm font-medium text-slate-700 mb-1">DNI *</label>
         <div className="flex gap-2">
           <input
             name="dni"
             type="text"
+            required
             value={dni}
             onChange={(e) => { setDni(e.target.value); setPrefillado(false); setNoEncontrado(false); }}
             onBlur={buscar}
@@ -119,7 +120,7 @@ export default function InscripcionForm({ torneoId }: { torneoId: number }) {
           </div>
         )}
         {noEncontrado && (
-          <p className="mt-1.5 text-xs text-slate-400">DNI no encontrado en el registro — completá los datos manualmente.</p>
+          <p className="mt-1.5 text-xs text-slate-400">DNI no encontrado en el registro — completá los datos manualmente, te vamos a dar de alta como arquero nuevo.</p>
         )}
       </div>
 
@@ -193,6 +194,19 @@ export default function InscripcionForm({ torneoId }: { torneoId: number }) {
           <input name="club" type="text" placeholder="Opcional"
             className={INPUT} />
         </div>
+
+        {/* Sexo — solo para dar de alta a un arquero nuevo en la liga */}
+        {noEncontrado && (
+          <div className="sm:col-span-2">
+            <label className="block text-sm font-medium text-slate-700 mb-1">Sexo *</label>
+            <select name="sexo" required defaultValue="" className={`${INPUT} bg-white max-w-xs`}>
+              <option value="" disabled>Seleccioná...</option>
+              <option value="MASCULINO">Masculino</option>
+              <option value="FEMENINO">Femenino</option>
+            </select>
+            <p className="mt-1 text-xs text-slate-400">Para dar de alta tu ficha de arquero en la liga.</p>
+          </div>
+        )}
       </div>
 
       <Boton />
