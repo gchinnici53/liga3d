@@ -13,6 +13,7 @@ const navItems: NavItem[] = [
   { href: "/admin/categorias", etiqueta: "Categorías",  icono: "◈" },
   { href: "/admin/temporadas", etiqueta: "Temporadas",  icono: "📅" },
   { href: "/admin/torneos",    etiqueta: "Torneos",     icono: "🏆" },
+  { href: "/admin/dianas",     etiqueta: "Dianas",      icono: "📍" },
   { href: "/admin/usuarios",   etiqueta: "Usuarios",    icono: "👤", soloAdmin: true },
 ];
 

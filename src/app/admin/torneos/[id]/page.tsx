@@ -84,6 +84,18 @@ export default async function DetalleTorneoPage({ params }: Props) {
             🎯 Patrullas
           </Link>
           <Link
+            href={`/admin/torneos/${torneo.id}/recorrido`}
+            className="bg-teal-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-teal-800 transition-colors"
+          >
+            📍 Recorrido
+          </Link>
+          <Link
+            href={`/admin/torneos/${torneo.id}/sorteo`}
+            className="bg-pink-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-pink-800 transition-colors"
+          >
+            🎲 Sorteo
+          </Link>
+          <Link
             href={`/admin/torneos/${torneo.id}/cargar`}
             className="bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-orange-700 transition-colors"
           >

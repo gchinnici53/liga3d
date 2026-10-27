@@ -95,6 +95,7 @@ model Torneo {
   inscripciones Inscripcion[]
   patrullas     Patrulla[]
   eliminatorias Eliminatoria[]
+  recorrido     Recorrido?
 }
 
 model Inscripcion {
@@ -156,6 +157,50 @@ model Eliminatoria {
   updatedAt   DateTime  @updatedAt
 
   @@unique([torneoId, categoriaId])
+}
+
+// ─── Dianas y recorrido ───────────────────────────────────
+// El desgaste de una diana se cuenta por zona vital, en cantidad de
+// TORNEOS donde esa zona se usó (no por tiro ni por arquero: en algunas
+// estaciones tiran de a 2 y en otras de a 4, así que esa cantidad no es
+// representativa del desgaste real). Se calcula dinámicamente en
+// lib/dianas.ts a partir de RecorridoEstacion — no se guarda un contador.
+model Diana {
+  id               Int      @id @default(autoincrement())
+  nombre           String
+  // cantidad de zonas vitales que tiene la diana (1 a 5)
+  cantidadZonas    Int
+  costoCompra      Float?
+  // cantidad estimada de torneos que soporta cada zona antes de reponerla
+  vidaUtilUsosZona Int?
+  activa           Boolean  @default(true)
+  createdAt        DateTime @default(now())
+
+  estaciones RecorridoEstacion[]
+}
+
+// Un recorrido de 24 estaciones, uno por torneo.
+model Recorrido {
+  id        Int      @id @default(autoincrement())
+  torneoId  Int      @unique
+  torneo    Torneo   @relation(fields: [torneoId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  estaciones RecorridoEstacion[]
+}
+
+model RecorridoEstacion {
+  id          Int       @id @default(autoincrement())
+  recorridoId Int
+  recorrido   Recorrido @relation(fields: [recorridoId], references: [id], onDelete: Cascade)
+  numero      Int       // 1 a 24
+  dianaId     Int
+  diana       Diana     @relation(fields: [dianaId], references: [id])
+  zonaVital   Int       // 1 a diana.cantidadZonas
+  metros      Float
+
+  @@unique([recorridoId, numero])
 }
 
 model Resultado {
