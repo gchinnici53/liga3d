@@ -85,6 +85,40 @@ export default async function DashboardPage() {
     }
   }
 
+  // Récords de la liga: mejor puntaje de UNA ronda por categoría (no el
+  // total del torneo). En los torneos con 2 rondas, cada ronda compite por
+  // separado como si fuera una marca independiente.
+  type RecordCategoria = {
+    puntaje: number;
+    arquero: { id: number; nombre: string; apellido: string };
+    torneo: { id: number; nombre: string; fecha: Date };
+  };
+  const recordsPorCategoria = new Map<string, RecordCategoria>();
+  {
+    const resultadosRecord = await prisma.resultado.findMany({
+      where: { categoria: { nombre: { in: [...CATEGORIAS_RANKING] } } },
+      select: {
+        puntajeRonda1: true,
+        puntajeRonda2: true,
+        arquero:   { select: { id: true, nombre: true, apellido: true } },
+        torneo:    { select: { id: true, nombre: true, fecha: true } },
+        categoria: { select: { nombre: true } },
+      },
+      orderBy: { torneo: { fecha: "asc" } },
+    });
+
+    for (const r of resultadosRecord) {
+      const cat = r.categoria.nombre;
+      const candidatos = [r.puntajeRonda1, r.puntajeRonda2].filter((p): p is number => p != null);
+      for (const puntaje of candidatos) {
+        const actual = recordsPorCategoria.get(cat);
+        if (!actual || puntaje > actual.puntaje) {
+          recordsPorCategoria.set(cat, { puntaje, arquero: r.arquero, torneo: r.torneo });
+        }
+      }
+    }
+  }
+
   return (
     <div className="p-6 max-w-5xl">
       <h1 className="text-2xl font-bold text-slate-800 mb-1">Dashboard</h1>
@@ -191,6 +225,41 @@ export default async function DashboardPage() {
           </div>
         </div>
 
+      </div>
+
+      {/* Récords de la liga */}
+      <div className="mt-8">
+        <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3">
+          Récords de la liga — mejor puntaje de una ronda
+        </h2>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {CATEGORIAS_RANKING.map((cat) => {
+            const record = recordsPorCategoria.get(cat);
+            return (
+              <div key={cat} className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+                <div className="px-3 py-2 bg-slate-50 border-b border-slate-100">
+                  <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">{cat}</span>
+                </div>
+                {!record ? (
+                  <p className="text-xs text-slate-400 italic p-3">Sin datos</p>
+                ) : (
+                  <div className="p-3">
+                    <p className="text-2xl font-bold text-liga leading-none">{record.puntaje}</p>
+                    <Link
+                      href={`/admin/arqueros/${record.arquero.id}`}
+                      className="block text-xs text-slate-700 hover:text-green-700 font-medium truncate mt-1.5"
+                    >
+                      {record.arquero.apellido}, {record.arquero.nombre}
+                    </Link>
+                    <p className="text-xs text-slate-400 truncate mt-0.5">
+                      {record.torneo.nombre} · {new Date(record.torneo.fecha).toLocaleDateString("es-AR", { year: "numeric", timeZone: "UTC" })}
+                    </p>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
