@@ -31,7 +31,7 @@ export default async function RecorridoPage({ params }: Props) {
       nombre: d.nombre,
       cantidadZonas: d.cantidadZonas,
       cantidad: d.cantidad,
-      zonas: d.zonas.map((z) => ({ zonaVital: z.zonaVital, torneosUsada: z.torneosUsada, vidaRestante: z.vidaRestante })),
+      zonas: d.zonas.map((z) => ({ zonaVital: z.zonaVital, nombre: z.nombre, torneosUsada: z.torneosUsada, vidaRestante: z.vidaRestante })),
     }));
 
   const estacionesIniciales = recorrido?.estaciones.map((e) => ({

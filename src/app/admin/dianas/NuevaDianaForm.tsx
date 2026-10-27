@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import { crearDiana } from "./actions";
 import Button from "@/components/ui/Button";
@@ -17,6 +18,7 @@ function SubmitButton() {
 export default function NuevaDianaForm() {
   const [rawState, formAction] = useFormState(crearDiana, {});
   const state = rawState ?? {};
+  const [cantidadZonas, setCantidadZonas] = useState(1);
 
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-5">
@@ -44,7 +46,8 @@ export default function NuevaDianaForm() {
           <label className="text-sm font-medium text-slate-700">Zonas vitales</label>
           <select
             name="cantidadZonas"
-            defaultValue={1}
+            value={cantidadZonas}
+            onChange={(e) => setCantidadZonas(Number(e.target.value))}
             required
             className="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
           >
@@ -52,6 +55,22 @@ export default function NuevaDianaForm() {
               <option key={n} value={n}>{n}</option>
             ))}
           </select>
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium text-slate-700">Nombre de cada zona</label>
+          <div className="space-y-1.5">
+            {Array.from({ length: cantidadZonas }, (_, i) => i + 1).map((n) => (
+              <input
+                key={n}
+                name={`nombreZona${n}`}
+                type="text"
+                placeholder={`Zona ${n} (ej: Lateral derecho)`}
+                className="border border-slate-300 rounded-lg px-3 py-2 text-sm w-full focus:outline-none focus:ring-2 focus:ring-green-500"
+              />
+            ))}
+          </div>
+          <p className="text-xs text-slate-400">Opcional — si lo dejás vacío se muestra &quot;Zona N&quot;</p>
         </div>
 
         <div className="flex flex-col gap-1">

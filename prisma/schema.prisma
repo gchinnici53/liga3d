@@ -170,6 +170,10 @@ model Diana {
   nombre           String
   // cantidad de zonas vitales que tiene la diana (1 a 5)
   cantidadZonas    Int
+  // nombre de cada zona vital (JSON array de strings, largo = cantidadZonas).
+  // Ej: ["Lateral derecho","Lateral izquierdo"]. Si falta o está vacío para
+  // una posición, se muestra "Zona N".
+  nombresZonas     String?
   // cantidad de dianas físicas de este tipo que tiene el club (inventario)
   cantidad         Int      @default(1)
   costoCompra      Float?

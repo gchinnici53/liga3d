@@ -2,13 +2,14 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { ZONAS_VITALES_MAX } from "@/lib/dianas";
+import { ZONAS_VITALES_MAX, serializarNombresZonas } from "@/lib/dianas";
 
 export type DianaFormState = { error?: string };
 
 function parseDatosDiana(formData: FormData): { error?: string; datos?: {
   nombre: string;
   cantidadZonas: number;
+  nombresZonas: string | null;
   cantidad: number;
   costoCompra: number | null;
   vidaUtilUsosZona: number | null;
@@ -37,7 +38,12 @@ function parseDatosDiana(formData: FormData): { error?: string; datos?: {
     return { error: "La vida útil por zona no es válida." };
   }
 
-  return { datos: { nombre, cantidadZonas, cantidad, costoCompra, vidaUtilUsosZona } };
+  const nombresZonasArr = Array.from({ length: cantidadZonas }, (_, i) =>
+    ((formData.get(`nombreZona${i + 1}`) as string) ?? "").trim()
+  );
+  const nombresZonas = serializarNombresZonas(nombresZonasArr);
+
+  return { datos: { nombre, cantidadZonas, nombresZonas, cantidad, costoCompra, vidaUtilUsosZona } };
 }
 
 export async function crearDiana(

@@ -4,7 +4,7 @@ import { useEffect, useState, useTransition } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import { actualizarDiana, eliminarDiana, toggleActivaDiana, type DianaFormState } from "./actions";
 import type { DianaConUso } from "@/lib/dianas";
-import { ZONAS_VITALES_MAX } from "@/lib/dianas";
+import { ZONAS_VITALES_MAX, parseNombresZonasRaw } from "@/lib/dianas";
 
 function SaveButton() {
   const { pending } = useFormStatus();
@@ -27,6 +27,8 @@ export default function DianaRow({ diana }: { diana: DianaConUso }) {
   const actionConId = (_prev: DianaFormState, formData: FormData) => actualizarDiana(diana.id, formData);
   const [state, formAction] = useFormState(actionConId, {});
   const [submitted, setSubmitted] = useState(false);
+  const [cantidadZonas, setCantidadZonas] = useState(diana.cantidadZonas);
+  const nombresRaw = parseNombresZonasRaw(diana.nombresZonas);
 
   useEffect(() => {
     if (submitted && !state?.error) {
@@ -67,13 +69,28 @@ export default function DianaRow({ diana }: { diana: DianaConUso }) {
               <label className="text-xs text-slate-500">Zonas</label>
               <select
                 name="cantidadZonas"
-                defaultValue={diana.cantidadZonas}
+                value={cantidadZonas}
+                onChange={(ev) => setCantidadZonas(Number(ev.target.value))}
                 className="border border-slate-300 rounded px-2 py-1 text-sm"
               >
                 {Array.from({ length: ZONAS_VITALES_MAX }, (_, i) => i + 1).map((n) => (
                   <option key={n} value={n}>{n}</option>
                 ))}
               </select>
+            </div>
+            <div className="flex flex-col gap-0.5">
+              <label className="text-xs text-slate-500">Nombre de zonas</label>
+              <div className="flex flex-col gap-1">
+                {Array.from({ length: cantidadZonas }, (_, i) => i + 1).map((n) => (
+                  <input
+                    key={n}
+                    name={`nombreZona${n}`}
+                    defaultValue={nombresRaw[n - 1] ?? ""}
+                    placeholder={`Zona ${n}`}
+                    className="border border-slate-300 rounded px-2 py-1 text-sm w-40"
+                  />
+                ))}
+              </div>
             </div>
             <div className="flex flex-col gap-0.5">
               <label className="text-xs text-slate-500">Inventario</label>
@@ -145,7 +162,7 @@ export default function DianaRow({ diana }: { diana: DianaConUso }) {
                   : "bg-slate-100 text-slate-600",
               ].join(" ")}
             >
-              Z{z.zonaVital}: {z.torneosUsada}
+              {z.nombre}: {z.torneosUsada}
             </span>
           ))}
         </div>

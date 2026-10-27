@@ -8,7 +8,7 @@ type DianaOpcion = {
   nombre: string;
   cantidadZonas: number;
   cantidad: number;
-  zonas: { zonaVital: number; torneosUsada: number; vidaRestante: number | null }[];
+  zonas: { zonaVital: number; nombre: string; torneosUsada: number; vidaRestante: number | null }[];
 };
 
 type EstacionForm = {
@@ -216,8 +216,8 @@ export default function RecorridoBuilder({ torneoId, dianas, estacionesIniciales
                         >
                           <option value="">—</option>
                           {diana &&
-                            Array.from({ length: diana.cantidadZonas }, (_, i) => i + 1).map((z) => (
-                              <option key={z} value={z}>Zona {z}</option>
+                            diana.zonas.map((z) => (
+                              <option key={z.zonaVital} value={z.zonaVital}>{z.nombre}</option>
                             ))}
                         </select>
                         {zonaInfo && (
