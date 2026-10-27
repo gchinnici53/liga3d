@@ -6,6 +6,8 @@ import { editarResultado } from "./actions";
 import EliminarResultadoButton from "./EliminarResultadoButton";
 import { nombreCompleto } from "@/lib/scoring";
 
+type Badge = { tipo: "record" | "pase" } | null;
+
 type Props = {
   resultado: {
     id: number;
@@ -15,9 +17,10 @@ type Props = {
     puntosTemporada: number;
     arquero: { id: number; nombre: string; apellido: string };
   };
+  badge?: Badge;
 };
 
-export default function EditarResultadoInline({ resultado }: Props) {
+export default function EditarResultadoInline({ resultado, badge }: Props) {
   const [editando, setEditando] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -110,7 +113,12 @@ export default function EditarResultadoInline({ resultado }: Props) {
           {nombreCompleto(resultado.arquero.nombre, resultado.arquero.apellido)}
         </Link>
       </td>
-      <td className="px-4 py-2.5 text-right text-slate-800">{resultado.puntajeTotal}</td>
+      <td className="px-4 py-2.5 text-right text-slate-800">
+        <span className="inline-flex items-center gap-1.5">
+          {resultado.puntajeTotal}
+          <BadgeDestacado badge={badge} />
+        </span>
+      </td>
       <td className="px-4 py-2.5 text-right font-semibold text-green-700">{resultado.puntosTemporada}</td>
       <td className="px-2 py-2.5 text-center">
         <div className="flex gap-1 justify-center">
@@ -145,4 +153,12 @@ function MedallaPosicion({ posicion }: { posicion: number }) {
     </span>
   );
   return <span className="text-sm font-semibold text-slate-500 px-1">{posicion}°</span>;
+}
+
+function BadgeDestacado({ badge }: { badge?: { tipo: "record" | "pase" } | null }) {
+  if (!badge) return null;
+  if (badge.tipo === "record") {
+    return <span title="Récord de liga" className="text-xs">🏆</span>;
+  }
+  return <span title="Pase de categoría (Escuela)" className="text-xs">🎓</span>;
 }

@@ -6,6 +6,7 @@ import EliminarTorneoButton from "./EliminarTorneoButton";
 import SubirAfficheForm from "./SubirAfficheForm";
 import EditarTorneoForm from "./EditarTorneoForm";
 import EditarResultadoInline from "./EditarResultadoInline";
+import { calcularRecordsPorCategoria, PASE_CATEGORIA_ESC } from "@/lib/records";
 
 type Props = { params: { id: string } };
 
@@ -36,6 +37,19 @@ export default async function DetalleTorneoPage({ params }: Props) {
     acc[key].push(r);
     return acc;
   }, {});
+
+  // Destacar resultados que son récord de liga, o que en Escuela significan
+  // pase de categoría. Se compara por ronda (nunca el total de 2 rondas).
+  const records = await calcularRecordsPorCategoria();
+  const badgeDeResultado = (r: (typeof torneo.resultados)[number]): { tipo: "record" | "pase" } | null => {
+    const candidatos = [r.puntajeRonda1, r.puntajeRonda2].filter((p): p is number => p != null);
+    if (r.categoria.nombre === "ESC") {
+      return candidatos.some((p) => p >= PASE_CATEGORIA_ESC) ? { tipo: "pase" } : null;
+    }
+    const record = records.get(r.categoria.nombre);
+    if (record && candidatos.some((p) => p === record.puntaje)) return { tipo: "record" };
+    return null;
+  };
 
   return (
     <div className="p-6 max-w-4xl">
@@ -133,6 +147,7 @@ export default async function DetalleTorneoPage({ params }: Props) {
                         puntosTemporada: r.puntosTemporada,
                         arquero: { id: r.arqueroId, nombre: r.arquero.nombre, apellido: r.arquero.apellido },
                       }}
+                      badge={badgeDeResultado(r)}
                     />
                   ))}
                 </tbody>

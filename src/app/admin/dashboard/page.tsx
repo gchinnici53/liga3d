@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { calcularTotalTemporada, nombreCompleto } from "@/lib/scoring";
+import { calcularRecordsPorCategoria, listarPasesDeCategoriaEscuela, PASE_CATEGORIA_ESC } from "@/lib/records";
 import type { TipoTorneo } from "@/types/enums";
 
 const CATEGORIAS_RANKING = ["CM", "CW", "BM", "BW", "LM", "LW", "TM", "TW"] as const;
@@ -85,39 +86,12 @@ export default async function DashboardPage() {
     }
   }
 
-  // Récords de la liga: mejor puntaje de UNA ronda por categoría (no el
-  // total del torneo). En los torneos con 2 rondas, cada ronda compite por
-  // separado como si fuera una marca independiente.
-  type RecordCategoria = {
-    puntaje: number;
-    arquero: { id: number; nombre: string; apellido: string };
-    torneo: { id: number; nombre: string; fecha: Date };
-  };
-  const recordsPorCategoria = new Map<string, RecordCategoria>();
-  {
-    const resultadosRecord = await prisma.resultado.findMany({
-      where: { categoria: { nombre: { in: [...CATEGORIAS_RANKING] } } },
-      select: {
-        puntajeRonda1: true,
-        puntajeRonda2: true,
-        arquero:   { select: { id: true, nombre: true, apellido: true } },
-        torneo:    { select: { id: true, nombre: true, fecha: true } },
-        categoria: { select: { nombre: true } },
-      },
-      orderBy: { torneo: { fecha: "asc" } },
-    });
-
-    for (const r of resultadosRecord) {
-      const cat = r.categoria.nombre;
-      const candidatos = [r.puntajeRonda1, r.puntajeRonda2].filter((p): p is number => p != null);
-      for (const puntaje of candidatos) {
-        const actual = recordsPorCategoria.get(cat);
-        if (!actual || puntaje > actual.puntaje) {
-          recordsPorCategoria.set(cat, { puntaje, arquero: r.arquero, torneo: r.torneo });
-        }
-      }
-    }
-  }
+  // Récords de la liga (mejor puntaje de UNA ronda por categoría) y lista
+  // de arqueros de Escuela que ya pasaron de categoría.
+  const [recordsPorCategoria, pasesEscuela] = await Promise.all([
+    calcularRecordsPorCategoria(),
+    listarPasesDeCategoriaEscuela(),
+  ]);
 
   return (
     <div className="p-6 max-w-5xl">
@@ -259,6 +233,34 @@ export default async function DashboardPage() {
               </div>
             );
           })}
+        </div>
+      </div>
+
+      {/* Pases de categoría — Escuela */}
+      <div className="mt-8">
+        <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3">
+          Pases de categoría — Escuela (≥ {PASE_CATEGORIA_ESC} pts en una ronda)
+        </h2>
+        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+          {pasesEscuela.length === 0 ? (
+            <p className="text-sm text-slate-400 text-center p-6">Todavía nadie llegó a {PASE_CATEGORIA_ESC} puntos.</p>
+          ) : (
+            <ul className="divide-y divide-slate-100">
+              {pasesEscuela.map((p) => (
+                <li key={p.arquero.id} className="px-4 py-2.5 flex items-center gap-3">
+                  <span className="text-base shrink-0">🎓</span>
+                  <Link
+                    href={`/admin/arqueros/${p.arquero.id}`}
+                    className="flex-1 text-sm text-slate-800 hover:text-green-700 font-medium truncate"
+                  >
+                    {p.arquero.apellido}, {p.arquero.nombre}
+                  </Link>
+                  <span className="text-xs text-slate-400 shrink-0">{p.torneo.nombre}</span>
+                  <span className="text-sm font-semibold text-green-700 shrink-0 w-10 text-right">{p.puntaje}</span>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
     </div>
