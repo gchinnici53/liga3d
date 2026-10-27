@@ -30,6 +30,7 @@ export default async function DianasPage() {
                     <tr>
                       <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Nombre</th>
                       <th className="text-center px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Zonas</th>
+                      <th className="text-center px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Inventario</th>
                       <th className="text-right px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Costo</th>
                       <th className="text-right px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">$/uso</th>
                       <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Uso por zona (torneos)</th>

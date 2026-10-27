@@ -55,6 +55,19 @@ export default function NuevaDianaForm() {
         </div>
 
         <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium text-slate-700">Cantidad en inventario</label>
+          <input
+            name="cantidad"
+            type="number"
+            min={1}
+            defaultValue={1}
+            required
+            className="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+          />
+          <p className="text-xs text-slate-400">Cuántas dianas físicas de este tipo tiene el club</p>
+        </div>
+
+        <div className="flex flex-col gap-1">
           <label className="text-sm font-medium text-slate-700">Costo de compra ($)</label>
           <input
             name="costoCompra"

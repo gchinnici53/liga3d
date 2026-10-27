@@ -12,6 +12,7 @@ export type DianaConUso = {
   id: number;
   nombre: string;
   cantidadZonas: number;
+  cantidad: number;
   costoCompra: number | null;
   vidaUtilUsosZona: number | null;
   activa: boolean;

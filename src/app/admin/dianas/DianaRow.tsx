@@ -47,7 +47,7 @@ export default function DianaRow({ diana }: { diana: DianaConUso }) {
   if (editando) {
     return (
       <tr className="bg-blue-50 border-b border-blue-100">
-        <td className="px-4 py-2.5" colSpan={7}>
+        <td className="px-4 py-2.5" colSpan={8}>
           <form action={formAction} onSubmit={() => setSubmitted(true)} className="flex flex-wrap items-end gap-3">
             {state?.error && (
               <p className="w-full text-xs text-red-600 bg-red-50 border border-red-200 rounded px-2 py-1">
@@ -74,6 +74,17 @@ export default function DianaRow({ diana }: { diana: DianaConUso }) {
                   <option key={n} value={n}>{n}</option>
                 ))}
               </select>
+            </div>
+            <div className="flex flex-col gap-0.5">
+              <label className="text-xs text-slate-500">Inventario</label>
+              <input
+                name="cantidad"
+                type="number"
+                min={1}
+                defaultValue={diana.cantidad}
+                required
+                className="border border-slate-300 rounded px-2 py-1 text-sm w-20"
+              />
             </div>
             <div className="flex flex-col gap-0.5">
               <label className="text-xs text-slate-500">Costo ($)</label>
@@ -116,6 +127,7 @@ export default function DianaRow({ diana }: { diana: DianaConUso }) {
     <tr className={diana.activa ? "hover:bg-slate-50" : "bg-slate-50 text-slate-400"}>
       <td className="px-4 py-2.5 font-medium text-slate-800">{diana.nombre}</td>
       <td className="px-4 py-2.5 text-center">{diana.cantidadZonas}</td>
+      <td className="px-4 py-2.5 text-center">{diana.cantidad}</td>
       <td className="px-4 py-2.5 text-right">{diana.costoCompra != null ? `$${diana.costoCompra.toFixed(2)}` : "—"}</td>
       <td className="px-4 py-2.5 text-right">
         {diana.costoPorUso != null ? `$${diana.costoPorUso.toFixed(2)}` : "—"}

@@ -9,17 +9,22 @@ export type DianaFormState = { error?: string };
 function parseDatosDiana(formData: FormData): { error?: string; datos?: {
   nombre: string;
   cantidadZonas: number;
+  cantidad: number;
   costoCompra: number | null;
   vidaUtilUsosZona: number | null;
 } } {
   const nombre = (formData.get("nombre") as string)?.trim();
   const cantidadZonas = Number(formData.get("cantidadZonas"));
+  const cantidad = Number(formData.get("cantidad"));
   const costoCompraRaw = (formData.get("costoCompra") as string)?.trim();
   const vidaUtilRaw = (formData.get("vidaUtilUsosZona") as string)?.trim();
 
   if (!nombre) return { error: "El nombre es obligatorio." };
   if (!Number.isInteger(cantidadZonas) || cantidadZonas < 1 || cantidadZonas > ZONAS_VITALES_MAX) {
     return { error: `La cantidad de zonas vitales debe ser entre 1 y ${ZONAS_VITALES_MAX}.` };
+  }
+  if (!Number.isInteger(cantidad) || cantidad < 1) {
+    return { error: "La cantidad en inventario debe ser 1 o más." };
   }
 
   const costoCompra = costoCompraRaw ? Number(costoCompraRaw) : null;
@@ -32,7 +37,7 @@ function parseDatosDiana(formData: FormData): { error?: string; datos?: {
     return { error: "La vida útil por zona no es válida." };
   }
 
-  return { datos: { nombre, cantidadZonas, costoCompra, vidaUtilUsosZona } };
+  return { datos: { nombre, cantidadZonas, cantidad, costoCompra, vidaUtilUsosZona } };
 }
 
 export async function crearDiana(

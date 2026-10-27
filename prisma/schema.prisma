@@ -170,6 +170,8 @@ model Diana {
   nombre           String
   // cantidad de zonas vitales que tiene la diana (1 a 5)
   cantidadZonas    Int
+  // cantidad de dianas físicas de este tipo que tiene el club (inventario)
+  cantidad         Int      @default(1)
   costoCompra      Float?
   // cantidad estimada de torneos que soporta cada zona antes de reponerla
   vidaUtilUsosZona Int?
@@ -198,6 +200,8 @@ model RecorridoEstacion {
   dianaId     Int
   diana       Diana     @relation(fields: [dianaId], references: [id])
   zonaVital   Int       // 1 a diana.cantidadZonas
+  // cuántas dianas físicas de ese tipo se pusieron juntas en esta estación (1, 2, 4...)
+  cantidadUsada Int     @default(1)
   metros      Float
 
   @@unique([recorridoId, numero])

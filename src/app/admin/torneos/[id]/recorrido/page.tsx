@@ -30,6 +30,7 @@ export default async function RecorridoPage({ params }: Props) {
       id: d.id,
       nombre: d.nombre,
       cantidadZonas: d.cantidadZonas,
+      cantidad: d.cantidad,
       zonas: d.zonas.map((z) => ({ zonaVital: z.zonaVital, torneosUsada: z.torneosUsada, vidaRestante: z.vidaRestante })),
     }));
 
@@ -37,6 +38,7 @@ export default async function RecorridoPage({ params }: Props) {
     numero: e.numero,
     dianaId: e.dianaId,
     zonaVital: e.zonaVital,
+    cantidadUsada: e.cantidadUsada,
     metros: e.metros,
   })) ?? [];
 
