@@ -239,16 +239,16 @@ export default async function DashboardPage() {
       {/* Pases de categoría — Escuela */}
       <div className="mt-8">
         <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3">
-          Pases de categoría — Escuela (≥ {PASE_CATEGORIA_ESC} pts en una ronda)
+          Pases de categoría — Escuela ({pasesEscuela.length}) — ≥ {PASE_CATEGORIA_ESC} pts en una ronda
         </h2>
         <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
           {pasesEscuela.length === 0 ? (
             <p className="text-sm text-slate-400 text-center p-6">Todavía nadie llegó a {PASE_CATEGORIA_ESC} puntos.</p>
           ) : (
             <ul className="divide-y divide-slate-100">
-              {pasesEscuela.map((p) => (
+              {pasesEscuela.map((p, i) => (
                 <li key={p.arquero.id} className="px-4 py-2.5 flex items-center gap-3">
-                  <span className="text-base shrink-0">🎓</span>
+                  <span className="text-xs font-bold text-slate-300 w-4 shrink-0">{i + 1}</span>
                   <Link
                     href={`/admin/arqueros/${p.arquero.id}`}
                     className="flex-1 text-sm text-slate-800 hover:text-green-700 font-medium truncate"
