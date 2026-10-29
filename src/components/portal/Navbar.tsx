@@ -13,6 +13,7 @@ const links = [
   { href: "/campeones",   label: "Campeones" },
   { href: "/records",     label: "Récords" },
   { href: "/reglamento",  label: "Reglamento" },
+  { href: "/galeria",     label: "Galería" },
   { href: "/nosotros",    label: "Nosotros" },
 ];
 
