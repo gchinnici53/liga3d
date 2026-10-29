@@ -9,13 +9,11 @@ const EQUIPO = [
   { nombre: "Gustavo Chinnici", foto: "/img/equipo/gustavo.jpg"  },
   { nombre: "Andrés Grippo",    foto: "/img/equipo/andres.jpg"   },
   { nombre: "Agustín Pazos",    foto: "/img/equipo/agustin.jpg"  },
-  { nombre: "Pablo Jonte",      foto: "/img/equipo/pablo_j.jpg"  },
 ];
 
 const COLABORADORES = [
   { nombre: "Pablo San Millán", foto: "/img/equipo/pablo_sm.jpg" },
   { nombre: "Marcos Kraft",     foto: "/img/equipo/marcos.jpg"   },
-  { nombre: "Soledad Musante",  foto: "/img/equipo/soledad.jpg"  },
   { nombre: "Andrea Manzoni",   foto: "/img/equipo/andrea.jpg"   },
 ];
 
