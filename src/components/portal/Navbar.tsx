@@ -9,7 +9,7 @@ const links = [
   { href: "/",            label: "Inicio" },
   { href: "/ranking",     label: "Ranking" },
   { href: "/arqueros",    label: "Arqueros" },
-  { href: "/calendario",  label: "Calendario" },
+  { href: "/calendario",  label: "Torneos" },
   { href: "/campeones",   label: "Campeones" },
   { href: "/records",     label: "Récords" },
   { href: "/reglamento",  label: "Reglamento" },
