@@ -72,7 +72,7 @@ export default async function PatrullasPage({ params }: Props) {
     temporada: torneo.temporada.nombre,
   };
 
-  const baseUrl = process.env.NEXTAUTH_URL ?? "https://liga3d.appchinni.com";
+  const baseUrl = process.env.NEXTAUTH_URL ?? "https://liga3d.com";
 
   // Transformar a estructura por posición para el grid
   const patrullasGrid = torneo.patrullas.map((p) => {

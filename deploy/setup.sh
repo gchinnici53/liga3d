@@ -21,7 +21,7 @@ npm install
 echo "==> Configurando variables de entorno..."
 cat > .env.local << 'EOF'
 # COMPLETAR antes de correr
-NEXTAUTH_URL=https://liga3d.appchinni.com
+NEXTAUTH_URL=https://liga3d.com
 NEXTAUTH_SECRET=REEMPLAZAR_CON_SECRET_SEGURO
 DATABASE_URL=file:./liga3d.db
 EOF
@@ -53,7 +53,7 @@ sudo nginx -t && sudo systemctl reload nginx
 
 echo ""
 echo "✅ Setup completo!"
-echo "   App corriendo en http://liga3d.appchinni.com"
+echo "   App corriendo en http://liga3d.com"
 echo ""
 echo "Para habilitar HTTPS:"
-echo "   sudo certbot --nginx -d liga3d.appchinni.com"
+echo "   sudo certbot --nginx -d liga3d.com -d www.liga3d.com"

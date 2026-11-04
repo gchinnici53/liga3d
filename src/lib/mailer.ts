@@ -37,7 +37,7 @@ export interface DatosConfirmacionInscripcion {
 
 export async function enviarConfirmacionInscripcion(datos: DatosConfirmacionInscripcion): Promise<void> {
   const { torneo, arquero } = datos;
-  const baseUrl  = process.env.NEXTAUTH_URL ?? "https://liga3d.appchinni.com";
+  const baseUrl  = process.env.NEXTAUTH_URL ?? "https://liga3d.com";
   const categoria = CATEGORIA_LABELS[arquero.categoria] ?? arquero.categoria;
 
   // UTC evita que la fecha se corra un día por el offset Argentina (UTC-3)
