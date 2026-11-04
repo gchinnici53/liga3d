@@ -22,6 +22,7 @@ export const metadata: Metadata = {
     title: "Liga 3D",
   },
   icons: {
+    icon: "/img/Liga3dLOGOALTA.png",
     apple: "/img/Liga3dLOGOALTA.png",
   },
 };
