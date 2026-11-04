@@ -59,6 +59,19 @@ export default function Sidebar({ rol, nombre, open, onClose }: Props) {
         </button>
       </div>
 
+      {/* Link al sitio público */}
+      <div className="px-3 py-2.5 border-b border-slate-700 shrink-0">
+        <a
+          href="/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"
+        >
+          <span className="text-sm leading-none">↗</span>
+          Ver sitio público
+        </a>
+      </div>
+
       {/* Navegación */}
       <nav className="flex-1 py-4 px-2 overflow-y-auto">
         {itemsVisibles.map((item) => (
