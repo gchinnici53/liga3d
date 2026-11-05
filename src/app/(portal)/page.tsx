@@ -195,6 +195,9 @@ export default async function HomePage() {
               "sponsor_3.png",
               "sponsor_4.PNG",
               "sponsor_5.png",
+              "sponsor_6.png",
+              "sponsor_7.png",
+              "sponsor_8.png",
             ].map((archivo) => (
               <div key={archivo} className="h-16 w-auto flex items-center grayscale hover:grayscale-0 opacity-70 hover:opacity-100 transition-all">
                 <Image
