@@ -58,6 +58,7 @@ model Arquero {
 
   resultados      Resultado[]
   usuario         User?
+  equipos         MiembroEquipo[]
 }
 
 model Temporada {
@@ -69,6 +70,7 @@ model Temporada {
   createdAt DateTime @default(now())
 
   torneos   Torneo[]
+  equipos   Equipo[]
 }
 
 // Una Final es un Torneo con tipo="FINAL". No hay modelo Final separado.
@@ -209,6 +211,34 @@ model RecorridoEstacion {
   metros      Float
 
   @@unique([recorridoId, numero])
+}
+
+// ─── Competencia por equipos ──────────────────────────────
+// Equipos de 3 arqueros del mismo tipo de arco (al menos 1 mujer),
+// definidos sobre una temporada. El puntaje de equipo se calcula
+// dinámicamente en lib/equipos.ts a partir de Resultado — no se guarda.
+model Equipo {
+  id          Int      @id @default(autoincrement())
+  nombre      String
+  // "COMPUESTO" | "RASO" | "LONGBOW" | "TRADICIONAL"
+  tipoArco    String
+  temporadaId Int
+  temporada   Temporada @relation(fields: [temporadaId], references: [id])
+  createdAt   DateTime @default(now())
+
+  miembros    MiembroEquipo[]
+
+  @@unique([nombre, temporadaId])
+}
+
+model MiembroEquipo {
+  id        Int     @id @default(autoincrement())
+  equipoId  Int
+  equipo    Equipo  @relation(fields: [equipoId], references: [id], onDelete: Cascade)
+  arqueroId Int
+  arquero   Arquero @relation(fields: [arqueroId], references: [id])
+
+  @@unique([equipoId, arqueroId])
 }
 
 model Resultado {
