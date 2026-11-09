@@ -118,7 +118,9 @@ export default function ExportarScorecardsButton({ patrullas, torneo, baseUrl }:
         day: "2-digit", month: "2-digit", year: "numeric", timeZone: "UTC",
       });
 
-      const doc = new jsPDF({ orientation: "portrait", format: "a4" });
+      // Hoja oficio (216x330mm) en vez de A4 — da más alto para agrandar
+      // tipografía y celdas sin que el contenido se corte.
+      const doc = new jsPDF({ orientation: "portrait", format: [216, 330] });
       const W = doc.internal.pageSize.getWidth();
       const H = doc.internal.pageSize.getHeight();
 
@@ -130,7 +132,7 @@ export default function ExportarScorecardsButton({ patrullas, torneo, baseUrl }:
       const tableWidth = (W - marginX * 2 - 4) / 2; // 4mm de separación entre las 2 mitades
       // SUB.T. más ancha (acumula un total de 3 cifras) a costa de 11'S/10'S
       // (solo cuentan un tiro puntual, 2 cifras les alcanza de sobra).
-      const colWidths  = { diana: 9, val: 5.4, parc: 8, subt: 10, s11: 6, s10: 6 };
+      const colWidths  = { diana: 9, val: 5.7, parc: 8, subt: 10, s11: 6, s10: 6 };
 
       const headRows: Parameters<typeof autoTable>[1]["head"] = [
         [
@@ -145,8 +147,8 @@ export default function ExportarScorecardsButton({ patrullas, torneo, baseUrl }:
         ["11", "10", "8", "5", "M", "11", "10", "8", "5", "M"],
       ];
 
-      // Valores de flecha (11/10/8/5/M) +2pt respecto del resto de la tabla.
-      const valStyle = { cellWidth: colWidths.val, fontSize: 9 };
+      // Valores de flecha (11/10/8/5/M) más grandes que el resto de la tabla.
+      const valStyle = { cellWidth: colWidths.val, fontSize: 10 };
       const columnStyles = {
         0: { cellWidth: colWidths.diana, fontStyle: "bold" as const, fillColor: [245, 246, 248] as [number, number, number] },
         1: valStyle, 2: valStyle, 3: valStyle, 4: valStyle, 5: valStyle,
@@ -214,9 +216,9 @@ export default function ExportarScorecardsButton({ patrullas, torneo, baseUrl }:
           head: headRows,
           startY: tableTop,
           // Padding top/bottom + fontSize más grande en los valores de flecha:
-          // la fila (donde se circula el puntaje a mano) queda ~17% más alta.
-          styles: { fontSize: 7, cellPadding: { top: 1.6, bottom: 1.6, left: 0.5, right: 0.5 }, halign: "center" as const, valign: "middle" as const, lineColor: [180, 185, 195] as [number, number, number], lineWidth: 0.15 },
-          headStyles: { fillColor: [31, 78, 160] as [number, number, number], textColor: 255, fontStyle: "bold" as const, fontSize: 7 },
+          // la fila (donde se circula el puntaje a mano) queda más alta.
+          styles: { fontSize: 7.5, cellPadding: { top: 1.8, bottom: 1.8, left: 0.5, right: 0.5 }, halign: "center" as const, valign: "middle" as const, lineColor: [0, 0, 0] as [number, number, number], lineWidth: 0.15 },
+          headStyles: { fillColor: [31, 78, 160] as [number, number, number], textColor: 255, fontStyle: "bold" as const, fontSize: 7.5 },
           columnStyles,
         };
 
@@ -238,7 +240,7 @@ export default function ExportarScorecardsButton({ patrullas, torneo, baseUrl }:
 
         // Línea más gruesa separando FLECHA 1 de FLECHA 2, en ambas tablas
         const divOffset = colWidths.diana + colWidths.val * 5;
-        doc.setDrawColor(60, 60, 60);
+        doc.setDrawColor(0, 0, 0);
         doc.setLineWidth(0.5);
         doc.line(leftX + divOffset, tableTop, leftX + divOffset, leftFinalY);
         doc.line(rightX + divOffset, tableTop, rightX + divOffset, rightFinalY);
@@ -282,7 +284,7 @@ export default function ExportarScorecardsButton({ patrullas, torneo, baseUrl }:
 
         const boxY = rightFinalY + 3;
         const boxH = 7;
-        doc.setDrawColor(130, 130, 130);
+        doc.setDrawColor(0, 0, 0);
         doc.rect(rightX + offParc, boxY, anchoPts, boxH);
         doc.rect(rightX + offS11,  boxY, colWidths.s11, boxH);
         doc.rect(rightX + offS10,  boxY, colWidths.s10, boxH);
