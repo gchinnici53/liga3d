@@ -11,6 +11,7 @@ const links = [
   { href: "/arqueros",    label: "Arqueros" },
   { href: "/calendario",  label: "Torneos" },
   { href: "/campeones",   label: "Campeones" },
+  { href: "/equipos",     label: "Equipos" },
   { href: "/records",     label: "Récords" },
   { href: "/reglamento",  label: "Reglamento" },
   { href: "/galeria",     label: "Galería" },
