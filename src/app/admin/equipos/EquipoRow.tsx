@@ -143,6 +143,7 @@ export default function EquipoRow({
                 <span className="text-xs text-slate-400">
                   ({m.torneosRegulares} regulares{m.tiroFinal ? " + final" : ""})
                 </span>
+                <span className="text-xs font-semibold text-slate-500 ml-auto">{m.total}</span>
               </li>
             ))}
           </ul>

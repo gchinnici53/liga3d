@@ -16,6 +16,7 @@ export type MiembroEquipoInfo = {
   torneosRegulares: number;
   tiroFinal: boolean;
   califica: boolean;
+  total: number;
 };
 
 export type EquipoRanking = {
@@ -78,18 +79,21 @@ export async function calcularRankingEquipos(temporadaId: number): Promise<Equip
     const prefijo = PREFIJO_TIPO_ARCO[tipoArco];
     const categoriasValidas = new Set([`${prefijo}M`, `${prefijo}W`]);
 
-    // torneoId -> { tipo, suma } — solo cuenta a los miembros que tiraron
-    const porTorneo = new Map<number, { tipo: TipoTorneo; suma: number }>();
-
     const miembrosInfo: MiembroEquipoInfo[] = equipo.miembros.map((m) => {
       const resultadosMiembro = (porArquero.get(m.arqueroId) ?? []).filter((r) =>
         categoriasValidas.has(r.categoriaNombre)
       );
 
-      for (const r of resultadosMiembro) {
-        if (!porTorneo.has(r.torneoId)) porTorneo.set(r.torneoId, { tipo: r.tipo, suma: 0 });
-        porTorneo.get(r.torneoId)!.suma += r.puntajeTotal;
-      }
+      // Mismo criterio que el ranking individual: 2 mejores puntajes de
+      // tirada entre los torneos regulares + el puntaje de tirada de la final.
+      const mejoresRegulares = resultadosMiembro
+        .filter((r) => r.tipo === "REGULAR")
+        .map((r) => r.puntajeTotal)
+        .sort((a, b) => b - a)
+        .slice(0, 2);
+      const puntajeFinal = resultadosMiembro
+        .filter((r) => r.tipo === "FINAL")
+        .reduce((sum, r) => sum + r.puntajeTotal, 0);
 
       const torneosRegulares = resultadosMiembro.filter((r) => r.tipo === "REGULAR").length;
       const tiroFinal = resultadosMiembro.some((r) => r.tipo === "FINAL");
@@ -102,19 +106,11 @@ export async function calcularRankingEquipos(temporadaId: number): Promise<Equip
         torneosRegulares,
         tiroFinal,
         califica: calificaMiembro(torneosRegulares, tiroFinal),
+        total: mejoresRegulares.reduce((sum, p) => sum + p, 0) + puntajeFinal,
       };
     });
 
-    const sumasRegulares = Array.from(porTorneo.values())
-      .filter((t) => t.tipo === "REGULAR")
-      .map((t) => t.suma)
-      .sort((a, b) => b - a)
-      .slice(0, 2);
-    const sumaFinal = Array.from(porTorneo.values())
-      .filter((t) => t.tipo === "FINAL")
-      .reduce((sum, t) => sum + t.suma, 0);
-
-    const total = sumasRegulares.reduce((sum, s) => sum + s, 0) + sumaFinal;
+    const total = miembrosInfo.reduce((sum, m) => sum + m.total, 0);
     const califica = miembrosInfo.every((m) => m.califica);
 
     return {

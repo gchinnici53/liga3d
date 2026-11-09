@@ -29,8 +29,8 @@ export default async function EquiposPage() {
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-slate-800">Equipos</h1>
         <p className="text-slate-500 text-sm mt-0.5">
-          Temporada {temporadaActiva.nombre} · puntaje de equipo = suma del puntaje de tirada de los 3
-          arqueros por torneo, 2 mejores regulares + final
+          Temporada {temporadaActiva.nombre} · puntaje de equipo = suma de los totales individuales de los
+          3 arqueros (2 mejores puntajes de tirada en regulares + la final de cada uno)
         </p>
       </div>
 
