@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import InstallAppButton from "./InstallAppButton";
 
 const links = [
   { href: "/",            label: "Inicio" },
@@ -59,6 +60,7 @@ export default function Navbar() {
                 {link.label}
               </Link>
             ))}
+            <InstallAppButton />
             <Link
               href="/auth/login"
               className="ml-2 px-3 py-1.5 rounded-lg text-sm font-medium border border-white/40 text-white hover:bg-white/10 transition-colors"
@@ -104,6 +106,9 @@ export default function Navbar() {
               {link.label}
             </Link>
           ))}
+          <div className="mt-2 flex justify-center">
+            <InstallAppButton />
+          </div>
           <Link
             href="/auth/login"
             onClick={() => setOpen(false)}
