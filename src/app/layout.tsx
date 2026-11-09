@@ -25,6 +25,8 @@ export const metadata: Metadata = {
     icon: "/img/Liga3dLOGOALTA.png",
     apple: "/img/Liga3dLOGOALTA.png",
   },
+  // El sitio público pisa esto con manifest-front.webmanifest (ver (portal)/layout.tsx).
+  manifest: "/manifest-admin.webmanifest",
 };
 
 export const viewport: Viewport = {
