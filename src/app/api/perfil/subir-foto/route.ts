@@ -3,6 +3,7 @@ import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
+import { procesarFotoPerfil } from "@/lib/imagenPerfil";
 
 export async function POST(req: NextRequest) {
   try {
@@ -27,13 +28,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "DNI incorrecto." }, { status: 403 });
     }
 
-    const ext      = fotoFile.name.split(".").pop()?.toLowerCase() ?? "jpg";
-    const filename = `arquero-${arqueroId}-${Date.now()}.${ext}`;
+    const filename = `arquero-${arqueroId}-${Date.now()}.jpg`;
     const root     = process.env.LIGA3D_ROOT ?? process.cwd();
     const dir      = path.join(root, "public", "uploads", "profiles");
 
+    let buffer: Buffer;
+    try {
+      buffer = await procesarFotoPerfil(Buffer.from(await fotoFile.arrayBuffer()));
+    } catch {
+      return NextResponse.json({ error: "El archivo no es una imagen válida." }, { status: 400 });
+    }
+
     await mkdir(dir, { recursive: true });
-    await writeFile(path.join(dir, filename), Buffer.from(await fotoFile.arrayBuffer()));
+    await writeFile(path.join(dir, filename), buffer);
 
     const foto = `/uploads/profiles/${filename}`;
     await prisma.arquero.update({ where: { id: arqueroId }, data: { foto } });
