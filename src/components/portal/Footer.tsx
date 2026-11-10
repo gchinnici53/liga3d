@@ -33,6 +33,7 @@ export default function Footer() {
               <li><Link href="/calendario" className="hover:text-white transition-colors">Calendario</Link></li>
               <li><Link href="/campeones" className="hover:text-white transition-colors">Campeones</Link></li>
               <li><Link href="/reglamento" className="hover:text-white transition-colors">Reglamento</Link></li>
+              <li><Link href="/auth/login" className="hover:text-white transition-colors">Administrar</Link></li>
             </ul>
           </div>
 
