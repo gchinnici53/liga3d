@@ -26,7 +26,20 @@ export default async function HomePage() {
     lunesAnterior.setUTCHours(23, 59, 59, 999);
     const dias      = Math.ceil((fechaTorneo.getTime() - ahora.getTime()) / (1000 * 60 * 60 * 24));
     const cupoLleno = proximoTorneo._count.inscripciones >= proximoTorneo.maxInscriptos;
-    inscripcionesAbiertas = !cupoLleno && ahora <= lunesAnterior && dias <= 30;
+
+    // --- Apertura anticipada temporal: Final del 19/12/2026 -------------
+    // Misma excepción puntual que en CalendarioTabs.tsx (pedido de
+    // Gustavo, 16/11/2026): abrir hoy 09:00 AR en vez de esperar la regla
+    // estándar de "30 días antes". TODO: quitar después del 19/11/2026.
+    const esFinalDic2026 =
+      proximoTorneo.tipo === "FINAL" &&
+      fechaTorneo.getUTCFullYear() === 2026 &&
+      fechaTorneo.getUTCMonth() === 11 &&
+      fechaTorneo.getUTCDate() === 19;
+    const aperturaAnticipada = new Date("2026-11-16T09:00:00-03:00");
+    const aperturaForzada = esFinalDic2026 && ahora >= aperturaAnticipada;
+
+    inscripcionesAbiertas = !cupoLleno && ahora <= lunesAnterior && (aperturaForzada || dias <= 30);
   }
   const hayInscriptos = (proximoTorneo?._count.inscripciones ?? 0) > 0;
 
