@@ -11,6 +11,7 @@ type TorneoCard = {
   nombre: string;
   lugar: string;
   fecha: Date;
+  tipo: string;
   horario: string | null;
   direccion: string | null;
   afiche: string | null;
@@ -44,6 +45,24 @@ function estadoBoton(torneo: TorneoCard) {
   const fechaCerrada = ahora > lunesAnterior;
 
   if (cupoLleno || fechaCerrada) return { label: "Inscripciones cerradas", variante: "cerrado" as const };
+
+  // --- Apertura anticipada temporal: Final del 19/12/2026 ---------------
+  // Pedido puntual (Gustavo, 16/11/2026): que las inscripciones de esta
+  // Final abran hoy 16/11/2026 9:00 AR, en vez de esperar a la regla
+  // estándar de "30 días antes" (que recién la cubriría a partir del
+  // 19/11/2026). TODO: quitar este bloque después del 19/11/2026, ya que
+  // de ahí en adelante la regla normal de los 30 días llega al mismo
+  // resultado sola.
+  const esFinalDic2026 =
+    torneo.tipo === "FINAL" &&
+    fechaTorneo.getUTCFullYear() === 2026 &&
+    fechaTorneo.getUTCMonth() === 11 &&
+    fechaTorneo.getUTCDate() === 19;
+  const aperturaAnticipada = new Date("2026-11-16T09:00:00-03:00");
+  if (esFinalDic2026 && ahora >= aperturaAnticipada) {
+    return { label: "Inscribirse", href: `/inscripcion/${torneo.id}`, variante: "inscripcion" as const };
+  }
+
   if (dias <= 30) return { label: "Inscribirse", href: `/inscripcion/${torneo.id}`, variante: "inscripcion" as const };
   return { label: "Próximamente", variante: "proximamente" as const };
 }
