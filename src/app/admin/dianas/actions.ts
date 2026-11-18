@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { ZONAS_VITALES_MAX, serializarNombresZonas } from "@/lib/dianas";
+import { ZONAS_VITALES_MAX, serializarNombresZonas, actualizarEstadoEnJson, type EstadoZona } from "@/lib/dianas";
 
 export type DianaFormState = { error?: string };
 
@@ -72,6 +72,29 @@ export async function actualizarDiana(id: number, formData: FormData): Promise<D
 export async function toggleActivaDiana(id: number, activa: boolean) {
   await prisma.diana.update({ where: { id }, data: { activa } });
   revalidatePath("/admin/dianas");
+}
+
+// Cambia el estado (color) de una sola zona vital, sin tocar el resto de
+// la diana. Se llama con cada click sobre el badge de la zona.
+export async function actualizarEstadoZona(
+  dianaId: number,
+  zonaVital: number,
+  nuevoEstado: EstadoZona
+): Promise<{ error?: string }> {
+  const diana = await prisma.diana.findUnique({
+    where: { id: dianaId },
+    select: { cantidadZonas: true, estadoZonas: true },
+  });
+  if (!diana) return { error: "La diana no existe." };
+  if (zonaVital < 1 || zonaVital > diana.cantidadZonas) {
+    return { error: "Zona vital inválida." };
+  }
+
+  const estadoZonas = actualizarEstadoEnJson(diana.estadoZonas, diana.cantidadZonas, zonaVital, nuevoEstado);
+  await prisma.diana.update({ where: { id: dianaId }, data: { estadoZonas } });
+
+  revalidatePath("/admin/dianas");
+  return {};
 }
 
 export async function eliminarDiana(id: number): Promise<{ error?: string }> {

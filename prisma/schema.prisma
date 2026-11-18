@@ -176,6 +176,11 @@ model Diana {
   // Ej: ["Lateral derecho","Lateral izquierdo"]. Si falta o está vacío para
   // una posición, se muestra "Zona N".
   nombresZonas     String?
+  // estado visual de cada zona vital (JSON array de strings, largo =
+  // cantidadZonas, paralelo a nombresZonas). Valores: "VERDE" (muy buena),
+  // "AMARILLO" (buena), "ROJO" (regular/mal). Vacío o falta = sin evaluar.
+  // Se carga a mano haciendo click en la zona (admin/dianas), no se calcula.
+  estadoZonas      String?
   // cantidad de dianas físicas de este tipo que tiene el club (inventario)
   cantidad         Int      @default(1)
   costoCompra      Float?

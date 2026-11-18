@@ -2,11 +2,22 @@ import { prisma } from "@/lib/prisma";
 
 export const ZONAS_VITALES_MAX = 5;
 
+// Estado visual de una zona, cargado a mano (click) en admin/dianas.
+// "" (vacío) = sin evaluar todavía.
+export const ESTADOS_ZONA = ["", "VERDE", "AMARILLO", "ROJO"] as const;
+export type EstadoZona = (typeof ESTADOS_ZONA)[number];
+
+export function siguienteEstadoZona(actual: EstadoZona): EstadoZona {
+  const i = ESTADOS_ZONA.indexOf(actual);
+  return ESTADOS_ZONA[(i + 1) % ESTADOS_ZONA.length];
+}
+
 export type UsoZona = {
   zonaVital: number;
   nombre: string;
   torneosUsada: number;
   vidaRestante: number | null;
+  estado: EstadoZona;
 };
 
 export type DianaConUso = {
@@ -55,6 +66,38 @@ export function serializarNombresZonas(nombres: string[]): string | null {
   return JSON.stringify(limpio);
 }
 
+// estadoZonas se guarda igual que nombresZonas: JSON array paralelo, una
+// entrada por zona. Si falta la entrada (o el campo entero), la zona queda
+// "sin evaluar" ("").
+function parseEstadosZonas(estadoZonas: string | null, cantidadZonas: number): EstadoZona[] {
+  let estados: string[] = [];
+  if (estadoZonas) {
+    try {
+      const parsed = JSON.parse(estadoZonas);
+      if (Array.isArray(parsed)) estados = parsed.map((e) => String(e ?? ""));
+    } catch {
+      estados = [];
+    }
+  }
+  return Array.from({ length: cantidadZonas }, (_, i) =>
+    ESTADOS_ZONA.includes(estados[i] as EstadoZona) ? (estados[i] as EstadoZona) : ""
+  );
+}
+
+// Actualiza el estado de una sola zona dentro del JSON de estadoZonas,
+// preservando el resto. Usado por el server action de la UI.
+export function actualizarEstadoEnJson(
+  estadoZonasActual: string | null,
+  cantidadZonas: number,
+  zonaVital: number,
+  nuevoEstado: EstadoZona
+): string | null {
+  const estados = parseEstadosZonas(estadoZonasActual, cantidadZonas);
+  estados[zonaVital - 1] = nuevoEstado;
+  if (estados.every((e) => e === "")) return null;
+  return JSON.stringify(estados);
+}
+
 // Cantidad de torneos distintos en los que se usó cada combinación
 // diana+zona vital (nunca por tiro ni por arquero presente: el desgaste
 // no es proporcional a eso en este club).
@@ -85,10 +128,11 @@ export async function listarDianasConUso(): Promise<DianaConUso[]> {
 
   return dianas.map((d) => {
     const nombresZonas = parseNombresZonas(d.nombresZonas, d.cantidadZonas);
+    const estadosZonas = parseEstadosZonas(d.estadoZonas, d.cantidadZonas);
     const zonas: UsoZona[] = Array.from({ length: d.cantidadZonas }, (_, i) => i + 1).map((zonaVital) => {
       const torneosUsada = usoPorClave.get(`${d.id}-${zonaVital}`) ?? 0;
       const vidaRestante = d.vidaUtilUsosZona != null ? d.vidaUtilUsosZona - torneosUsada : null;
-      return { zonaVital, nombre: nombresZonas[zonaVital - 1], torneosUsada, vidaRestante };
+      return { zonaVital, nombre: nombresZonas[zonaVital - 1], torneosUsada, vidaRestante, estado: estadosZonas[zonaVital - 1] };
     });
 
     const costoPorUso =

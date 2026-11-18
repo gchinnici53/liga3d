@@ -2,9 +2,23 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { useFormState, useFormStatus } from "react-dom";
-import { actualizarDiana, eliminarDiana, toggleActivaDiana, type DianaFormState } from "./actions";
-import type { DianaConUso } from "@/lib/dianas";
-import { ZONAS_VITALES_MAX, parseNombresZonasRaw } from "@/lib/dianas";
+import { actualizarDiana, eliminarDiana, toggleActivaDiana, actualizarEstadoZona, type DianaFormState } from "./actions";
+import type { DianaConUso, EstadoZona } from "@/lib/dianas";
+import { ZONAS_VITALES_MAX, parseNombresZonasRaw, siguienteEstadoZona } from "@/lib/dianas";
+
+const ESTILOS_ESTADO_ZONA: Record<EstadoZona, string> = {
+  "":        "bg-slate-100 text-slate-600 hover:bg-slate-200",
+  VERDE:     "bg-green-100 text-green-700 hover:bg-green-200",
+  AMARILLO:  "bg-yellow-100 text-yellow-700 hover:bg-yellow-200",
+  ROJO:      "bg-red-100 text-red-700 hover:bg-red-200",
+};
+
+const TITULO_ESTADO_ZONA: Record<EstadoZona, string> = {
+  "":        "Sin evaluar — click para marcar",
+  VERDE:     "Muy bueno",
+  AMARILLO:  "Bueno",
+  ROJO:      "Regular / mal",
+};
 
 function SaveButton() {
   const { pending } = useFormStatus();
@@ -151,20 +165,35 @@ export default function DianaRow({ diana }: { diana: DianaConUso }) {
       </td>
       <td className="px-4 py-2.5">
         <div className="flex flex-wrap gap-1">
-          {diana.zonas.map((z) => (
-            <span
-              key={z.zonaVital}
-              title={z.vidaRestante != null ? `Vida restante: ${z.vidaRestante} torneos` : undefined}
-              className={[
-                "px-1.5 py-0.5 rounded text-xs font-semibold",
-                z.vidaRestante != null && z.vidaRestante <= 0
-                  ? "bg-red-100 text-red-700"
-                  : "bg-slate-100 text-slate-600",
-              ].join(" ")}
-            >
-              {z.nombre}: {z.torneosUsada}
-            </span>
-          ))}
+          {diana.zonas.map((z) => {
+            // Si no se evaluó manualmente y ya agotó la vida útil estimada,
+            // seguimos marcándola en rojo como aviso automático (igual que
+            // antes); un click la pasa a evaluación manual desde ahí.
+            const desgastada = z.estado === "" && z.vidaRestante != null && z.vidaRestante <= 0;
+            const titulo = [
+              desgastada ? "Vida útil agotada (aviso automático)" : TITULO_ESTADO_ZONA[z.estado],
+              z.vidaRestante != null ? `Vida restante: ${z.vidaRestante} torneos` : null,
+            ].filter(Boolean).join(" · ");
+            return (
+              <button
+                key={z.zonaVital}
+                type="button"
+                disabled={isPending}
+                title={titulo}
+                onClick={() =>
+                  startTransition(async () => {
+                    await actualizarEstadoZona(diana.id, z.zonaVital, siguienteEstadoZona(z.estado));
+                  })
+                }
+                className={[
+                  "px-1.5 py-0.5 rounded text-xs font-semibold transition-colors disabled:opacity-50",
+                  desgastada ? ESTILOS_ESTADO_ZONA.ROJO : ESTILOS_ESTADO_ZONA[z.estado],
+                ].join(" ")}
+              >
+                {z.nombre}: {z.torneosUsada}
+              </button>
+            );
+          })}
         </div>
       </td>
       <td className="px-4 py-2.5 text-center">
